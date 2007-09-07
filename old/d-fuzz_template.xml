@@ -1,0 +1,11 @@
+<sourcepassword>xxxxxxxxx</sourcepassword>
+<svrinfoname>Your title here</svrinfoname>
+<svrinfourl>Your URL here</svrinfourl>
+<svrinfogenre>Your genre here</svrinfogenre>
+<svrinfodescription>Your station description here</svrinfodescription>
+<svrinfobitrate>You nominal bitrate here</svrinfobitrate>
+<!-- Quality is only applicable to ogg vorbis streams -->
+<!-- <svrinfoquality>1.0</svrinfoquality> -->
+<svrinfochannels>The number of voices per channel</svrinfochannels>
+<svrinfosamplerate>The samplerate</svrinfosamplerate>
+<svrinfopublic>1</svrinfopublic>
