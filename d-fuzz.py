@@ -14,61 +14,73 @@ import os
 import sys
 import shout
 import string
+import subprocess
 from tools import *
 from xmltodict import xmltodict
 from mutagen.oggvorbis import OggVorbis
 
 
+class ExportProcessError:
+
+    def __init__(self, message, command, subprocess):
+        self.message = message
+        self.command = str(command)
+        self.subprocess = subprocess
+
+    def __str__(self):
+        if self.subprocess.stderr != None:
+            error = self.subprocess.stderr.read()
+        else:
+            error = ''
+        return "%s ; command: %s; error: %s" % (self.message,
+                                                self.command,
+                                                error)
+
 class DFuzz:
-    """A d-fuzz station"""
+    """A D-Fuzz station"""
     
     def __init__(self):
         
         self.work_dir = os.environ['HOME']+'.d-fuzz'
         self.conf = []
-        self.id = 0
+        self.id = 999999
         self.buffer_size = 0xFFFF
-        
         
     def prog_info(self):
         return """
-        d-fuzz : easy and light streaming tool
+ d-fuzz : easy and light streaming tool
 
-        Copyright (c) 2007-2007 Guillaume Pellerin <pellerin@parisson.com>
-        All rights reserved.
+ Copyright (c) 2007-2007 Guillaume Pellerin <pellerin@parisson.com>
+ All rights reserved.
         
-        This software is licensed as described in the file COPYING, which
-        you should have received as part of this distribution. The terms
-        are also available at http://svn.parisson.org/d-fuzz/DFuzzLicense.2
+ This software is licensed as described in the file COPYING, which
+ you should have received as part of this distribution. The terms
+ are also available at http://svn.parisson.org/d-fuzz/DFuzzLicense
         
-        depends : ezstream (patched), icecast2, python,
-        
-        Usage : d-fuzz $1
-            where $1 is the path for a config file
-            ex: d-fuzz /etc/d-fuzz/myfuzz.conf
-
-        see http://parisson.com/d-fuzz/ for more details
+ depends : python, python-xml, shout-python, libshout3, icecast2
+ recommends : python-mutagen
+ provides : shout-python
+       
+ Usage : d-fuzz $1
+  where $1 is the path for a XML config file
+  ex: d-fuzz /etc/d-fuzz/myfuzz.xml
+ 
+ see http://parisson.com/d-fuzz/ for more details
         """
 
     def get_conf_dict(self):
         confile = open(self.conf_file,'r')
-        conf_xml = confile.readlines()
-        self.conf = xmltodict(conf_xml)
+        conf_xml = confile.read()
+        self.conf = xmltodict(conf_xml,'utf-8')
         confile.close()
 
     def get_station_names(self):
         return self.conf['station']['name']
         
-        
-
     def check_work_dir(self):
         if not os.isdir.exists(self.work_dir):
             os.mkdir(self.work_dir)
-    
-    def get_playlist_length(self):
-        pass
         
-
     def get_playlist(self):
         file_list = []
         for root, dirs, files in os.walk(self.media_dir):
@@ -76,16 +88,24 @@ class DFuzz:
                 file_list.append(root + os.sep + file)
         return file_list
 
-    def get_next_media(self):
-        playlist = self.get_playlist()
+    def get_next_media(self, playlist):
+        lp = len(playlist)
+        if self.id >= (lp - 1) :
+            self.id = 0
+        else:
+            self.id = self.id + 1
+        #print self.id
+        return playlist[self.id]
+    
+    def get_random_media(self, playlist):
         lp = len(playlist)
         if self.id > lp:
             self.id = 0
         else:
+            rand = randrange(0,lp)
             self.id = self.id + 1
-        yield playlist[self.id]
-    
-    
+        print self.id
+        return playlist[self.id]
 
     def core_process(self, command, buffer_size):
         """Apply command and stream data through a generator. 
@@ -102,15 +122,15 @@ class DFuzz:
                     stdout = subprocess.PIPE,
                     close_fds = True)
         except:
-            raise ExportProcessError('Command failure:', command, proc)
-            
-
+            raise IOError('Command failure:', command, proc)
+            #pass
+        
         # Core processing
         while True:
             __chunk = proc.stdout.read(buffer_size)
             status = proc.poll()
-            if status != None and status != 0:
-                raise ExportProcessError('Command failure:', command, proc)
+            #if status != None and status != 0:
+                #raise ExportProcessError('Command failure:', command, proc)
             if len(__chunk) == 0:
                 break
             yield __chunk
@@ -121,62 +141,82 @@ class DFuzz:
     def stream(self, conf_file): 
         self.conf_file = conf_file
         self.get_conf_dict()
-#       for station in conf_dict['station']:
-        chi = 0
+
+        #for station in conf_dict['station']:
+        
         station = self.conf['station']
+        print station
         
         s = shout.Shout()
         print "Using libshout version %s" % shout.version()
-        
-        self.media_dir = station['media']['media_dir'][chi]
-        
-        s.host = station['server']['host'][chi]
-        s.port = station['server']['port'][chi]
+
+        # Media
+        self.media_dir = station['media']['dir']
+        format = station['media']['format']
+        s.format = format
+
+        # Server
+        s.protocol = 'http'     # | 'xaudiocast' | 'icy'
+        s.host = station['server']['host']
+        s.port = int(station['server']['port'])
         s.user = 'source'
-        s.password = station['server']['sourcepassword'][chi]
-        s.mount = station['server']['mountpoint'][chi]
-        s.format = station['media']['format'][chi]
-        s.protocol = 'http'
-        # | 'xaudiocast' | 'icy'
+        s.password = station['server']['sourcepassword']
+        s.mount = '/' + station['infos']['short_name'] + '.' + format
+        s.public = int(station['server']['public'])
+
+        # Infos
         s.name = station['infos']['name']
         s.genre = station['infos']['genre']
-        # s.url = ''
-        # s.public = 0 | 1
+        s.description = station['infos']['description']
+        s.url = station['infos']['url']
+        
         # s.audio_info = { 'key': 'val', ... }
         #  (keys are shout.SHOUT_AI_BITRATE, shout.SHOUT_AI_SAMPLERATE,
         #   shout.SHOUT_AI_CHANNELS, shout.SHOUT_AI_QUALITY)
         
-        
-
         s.open()
 
-        total = 0
-        st = time.time()
+        #total = 0
+        #st = time.time()
         command = 'cat '
-        
-        for media in self.get_next_media():
-            print "opening file %s" % media
-            command = 'cat '+media_dir
-            stream = self.core_process(command, self.buffer_size)
-            #s.set_metadata({'song': fa})
+
+        while True:
+            playlist = self.get_playlist()
+            print 'Playlist :'
+            print playlist
             
+            lp = len(playlist)
+            if lp == 0:
+                break
+
+            media = self.get_next_media(playlist)
+            print 'opening file : %s' % media
+            file_name = string.replace(media, self.media_dir + os.sep, '')
+            print 'streaming file : %s' % file_name
+            s.set_metadata({'song': file_name})
+            command = 'cat "%s"' % media
+            stream = self.core_process(command, self.buffer_size)
+       
             for chunk in stream:
-                total = total + len(self.buffer_size)
+                #total = total + len(self.buffer_size)
                 s.send(chunk)
                 s.sync()
                         
-            et = time.time()
-            br = total*0.008/(et-st)
-            print "Sent %d bytes in %d seconds (%f kbps)" % (total, et-st, br)
+            #et = time.time()
+            #br = total*0.008/(et-st)
+            #print "Sent %d bytes in %d seconds (%f kbps)" % (total, et-st, br)
 
         print s.close()
         
-        
 
-if len(sys.argv) == 2:
+def main():    
     station = DFuzz()
-    station.stream(sys.argv[1])
-else:
-    sys.exit('No way :(')
+    if len(sys.argv) == 2:
+        station.stream(sys.argv[1])
+    else:
+        text = station.prog_info()
+        sys.exit(text)
 
+if __name__ == '__main__':
+    main()
 

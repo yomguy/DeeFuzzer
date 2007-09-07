@@ -1,10 +1,56 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (c) 2007-2007 Guillaume Pellerin <pellerin@parisson.com>
-# All rights reserved.
-#
-# This software is licensed as described in the file COPYING, which
-# you should have received as part of this distribution. The terms
-# are also available at http://svn.parisson.org/d-fuzz/DFuzzLicense.
-#
-# Author: Guillaume Pellerin <pellerin@parisson.com>
+# README
+# ======
+
+d-fuzz : a lightweight icecast streaming client written in python
+
+
+# 1. Introduction
+# ===============
+
+D-Fuzz is a light python program that streams media data from disks to icecast2 with some metadata. It supports MP3, OGG, SPEEX and THEORA media.
+
+It is neccessary to provide a config file which sets all needed parameters (see myfuzz.xml for example).
+
+
+# 2. Installation
+# ===============
+
+see INSTALL
+
+
+# 3. License
+# ===============
+
+ This software is licensed as described in the file COPYING, which
+ you should have received as part of this distribution. The terms
+ are also available at http://svn.parisson.org/d-fuzz/DFuzzLicense
+
+
+# 4. Usage
+# =========
+
+Usage : d-fuzz $1
+  
+  where $1 is the path for a XML config file
+  ex: d-fuzz ./myfuzz.xml
+
+Note that you must edit the config file with right parameter before executing...
+
+ 
+# 5. Author
+# =========
+
+see AUTHORS
+
+
+# 6. Aknowledgements
+# ==================
+
+This work is inspired by the great - C - Oddsock's streaming program : Ezstream.
+Since I needed to patch it in order to modify the playlist (randomize for example) and make external batch tools to create multiple channels, I decided to rewrite it from scratch in python. Some parts of this work are also taken from another Parisson's project : Telemeta (see http://svn.parisson.org/telemeta).
+
+
+# 7. Contact / Infos
+# ==================
+
+see http://parisson.com/d-fuzz/ for more details

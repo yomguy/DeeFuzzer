@@ -10,18 +10,18 @@ import locale
 from xml.parsers import expat
 
 # If we're in Dabo, get the default encoding.
-import dabo
-import dabo.lib.DesignerUtils as desUtil
-from dabo.dLocalize import _
-from dabo.lib.utils import resolvePath
-app = dabo.dAppRef
-if app is not None:
-	default_encoding = app.Encoding
-else:
-		enc = locale.getlocale()[1]
-		if enc is None:
-			enc = dabo.defaultEncoding
-		default_encoding = enc
+#import dabo
+#import dabo.lib.DesignerUtils as desUtil
+#from dabo.dLocalize import _
+#from dabo.lib.utils import resolvePath
+#app = dabo.dAppRef
+#if app is not None:
+	#default_encoding = app.Encoding
+#else:
+		#enc = locale.getlocale()[1]
+		#if enc is None:
+			#enc = dabo.defaultEncoding
+		#default_encoding = enc
 		
 # Python seems to need to compile code with \n linesep:
 code_linesep = "\n"
@@ -386,12 +386,12 @@ def addInheritedInfo(src, super, updateCode=False):
 
 
 
-if __name__ == "__main__":
-	test_dict = {"name": "test", "attributes":{"path": "c:\\temp\\name",
-			"problemChars": "Welcome to <Jos\xc3\xa9's \ Stuff!>\xc2\xae".decode("latin-1")}}
-	print "test_dict:", test_dict
-	xml = dicttoxml(test_dict)
-	print "xml:", xml
-	test_dict2 = xmltodict(xml)
-	print "test_dict2:", test_dict2
-	print "same?:", test_dict == test_dict2
+#if __name__ == "__main__":
+	#test_dict = {"name": "test", "attributes":{"path": "c:\\temp\\name",
+			#"problemChars": "Welcome to <Jos\xc3\xa9's \ Stuff!>\xc2\xae".decode("latin-1")}}
+	#print "test_dict:", test_dict
+	#xml = dicttoxml(test_dict)
+	#print "xml:", xml
+	#test_dict2 = xmltodict(xml)
+	#print "test_dict2:", test_dict2
+	#print "same?:", test_dict == test_dict2
