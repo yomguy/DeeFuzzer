@@ -15,7 +15,7 @@
         <public>1</public>
     </server>
     <media>
-        <dir>/home/momo/music/mp3/Birdy Nam Nam/tmp</dir>
+        <dir>/home/momo/music/mp3/</dir>
         <format>mp3</format>
         <bitrate>192</bitrate>
         <ogg_quality>7</ogg_quality>

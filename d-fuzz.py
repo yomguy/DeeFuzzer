@@ -91,11 +91,12 @@ class DFuzz:
     def get_next_media(self, playlist):
         lp = len(playlist)
         if self.id >= (lp - 1) :
+            playlist = self.get_playlist()
             self.id = 0
         else:
             self.id = self.id + 1
         #print self.id
-        return playlist[self.id]
+        return playlist, playlist[self.id]
     
     def get_random_media(self, playlist):
         lp = len(playlist)
@@ -179,17 +180,15 @@ class DFuzz:
         #total = 0
         #st = time.time()
         command = 'cat '
-
+        playlist = self.get_playlist()
+        lp = len(playlist)
+        print 'Playlist :'
+        print playlist
+                    
         while True:
-            playlist = self.get_playlist()
-            print 'Playlist :'
-            print playlist
-            
-            lp = len(playlist)
             if lp == 0:
-                break
-
-            media = self.get_next_media(playlist)
+                break 
+            playlist, media = self.get_next_media(playlist)
             print 'opening file : %s' % media
             file_name = string.replace(media, self.media_dir + os.sep, '')
             print 'streaming file : %s' % file_name
