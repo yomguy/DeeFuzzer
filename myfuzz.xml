@@ -24,7 +24,7 @@
         <public>1</public>
     </server>
     <media>
-        <media_dir>/home/momo/music/music3/mp3/Roger Troutman/</media_dir>
+        <media_dir>/mnt/data/Music/Air/</media_dir>
         <!-- mp3 or ogg -->
         <format>mp3</format>
         <bitrate>192</bitrate>

@@ -22,10 +22,12 @@ from mutagen.oggvorbis import OggVorbis
 class DFuzz:
     """A d-fuzz station"""
     
-    def __init__(self, conf_file):
-        self.conf_file = conf_file
+    def __init__(self):
+        
         self.work_dir = os.environ['HOME']+'.d-fuzz'
         self.conf = []
+        self.id = 0
+        self.buffer_size = 0xFFFF
         
         
     def prog_info(self):
@@ -49,9 +51,10 @@ class DFuzz:
         """
 
     def get_conf_dict(self):
-        conf = open(self.conf_file,'r')
-        conf_xml = conf.readlines()
+        confile = open(self.conf_file,'r')
+        conf_xml = confile.readlines()
         self.conf = xmltodict(conf_xml)
+        confile.close()
 
     def get_station_names(self):
         return self.conf['station']['name']
@@ -61,6 +64,10 @@ class DFuzz:
     def check_work_dir(self):
         if not os.isdir.exists(self.work_dir):
             os.mkdir(self.work_dir)
+    
+    def get_playlist_length(self):
+        pass
+        
 
     def get_playlist(self):
         file_list = []
@@ -68,108 +75,108 @@ class DFuzz:
             for file in files:
                 file_list.append(root + os.sep + file)
         return file_list
-                    
 
+    def get_next_media(self):
+        playlist = self.get_playlist()
+        lp = len(playlist)
+        if self.id > lp:
+            self.id = 0
+        else:
+            self.id = self.id + 1
+        yield playlist[self.id]
+    
+    
 
-    for i in range(1,nb_ch+1):
-        ch_name_i = radio_name+'_'+type+'_'+str(i)
-        ch_ice_name_i = radio_name+'_'+str(i)
-        ch_pre_i = work_dir+os.sep+ch_name_i
-        fi_xml = open(ch_pre_i+'.xml','w')
-        fi_xml.write('<ezstream>\n')
-       
-fi_xml.write('<url>http://'+server+':'+port+'/'+ch_ice_name_i+'.'+type+'</url>\
-n')
-        fi_xml.write('<format>'+string.upper(type)+'</format>\n')
-            fi_xml.write('<filetype>script</filetype>\n')
-            fi_xml.write('<filename>'+ch_pre_i+'.py</filename>\n')
-        for line in l_descr:
-            fi_xml.write(line)
-        fi_xml.write('</ezstream>')
-        fi_xml.close()
-        fi_py = open(ch_pre_i+'.py','w')
-        fi_py.write('#!/usr/bin/python\n\n')
-        fi_py.write('import sys, os, random\n\n')
-        fi_py.write('Playdir="'+audio_dir+os.sep+'"\n')
-        fi_py.write('IndexFile="'+ch_pre_i+'_index.txt"\n')
-       
-fi_py.write('RandomIndexListFile="'+ch_pre_i+'_random_index_list.txt"\n')
-       
-fi_py.write('PlaylistLengthOrigFile="'+ch_pre_i+'_playlist_length.txt"\n\n')
-        for line in l_tools:
-            fi_py.write(line)
-        fi_py.close()
-        os.chmod(work_dir+os.sep+ch_name_i+'.py',0755)
+    def core_process(self, command, buffer_size):
+        """Apply command and stream data through a generator. 
+        From Telemeta..."""
+        
+        __chunk = 0
+        #file_out = open(dest,'w')
 
-    def stream(self, media_dir):
-        """Looped stream of the media_dir"""
+        try:
+            proc = subprocess.Popen(command,
+                    shell = True,
+                    bufsize = buffer_size,
+                    stdin = subprocess.PIPE,
+                    stdout = subprocess.PIPE,
+                    close_fds = True)
+        except:
+            raise ExportProcessError('Command failure:', command, proc)
+            
 
+        # Core processing
+        while True:
+            __chunk = proc.stdout.read(buffer_size)
+            status = proc.poll()
+            if status != None and status != 0:
+                raise ExportProcessError('Command failure:', command, proc)
+            if len(__chunk) == 0:
+                break
+            yield __chunk
+            #file_out.write(__chunk)
 
-    for station in conf_dict['station']:
+        #file_out.close()
 
+    def stream(self, conf_file): 
+        self.conf_file = conf_file
+        self.get_conf_dict()
+#       for station in conf_dict['station']:
+        chi = 0
+        station = self.conf['station']
+        
         s = shout.Shout()
         print "Using libshout version %s" % shout.version()
-
-        s.host = self.server['host']
-        s.port = self.server['port']
+        
+        self.media_dir = station['media']['media_dir'][chi]
+        
+        s.host = station['server']['host'][chi]
+        s.port = station['server']['port'][chi]
         s.user = 'source'
-        s.password = self.conf['sourcepassword']
-        s.mount = self.mountpoint
-        s.format = self.conf['format']
+        s.password = station['server']['sourcepassword'][chi]
+        s.mount = station['server']['mountpoint'][chi]
+        s.format = station['media']['format'][chi]
         s.protocol = 'http'
         # | 'xaudiocast' | 'icy'
-        s.name = self.conf['name']
-        s.genre = self.conf['genre']
+        s.name = station['infos']['name']
+        s.genre = station['infos']['genre']
         # s.url = ''
         # s.public = 0 | 1
         # s.audio_info = { 'key': 'val', ... }
         #  (keys are shout.SHOUT_AI_BITRATE, shout.SHOUT_AI_SAMPLERATE,
         #   shout.SHOUT_AI_CHANNELS, shout.SHOUT_AI_QUALITY)
+        
+        
 
         s.open()
 
         total = 0
         st = time.time()
-        for fa in sys.argv[1:]:
-            print "opening file %s" % fa
-            f = open(fa)
-            s.set_metadata({'song': fa})
-
-            nbuf = f.read(4096)
-            while 1:
-                buf = nbuf
-                nbuf = f.read(4096)
-                total = total + len(buf)
-                if len(buf) == 0:
-                    break
-                s.send(buf)
-                s.sync()
-            f.close()
+        command = 'cat '
+        
+        for media in self.get_next_media():
+            print "opening file %s" % media
+            command = 'cat '+media_dir
+            stream = self.core_process(command, self.buffer_size)
+            #s.set_metadata({'song': fa})
             
+            for chunk in stream:
+                total = total + len(self.buffer_size)
+                s.send(chunk)
+                s.sync()
+                        
             et = time.time()
             br = total*0.008/(et-st)
             print "Sent %d bytes in %d seconds (%f kbps)" % (total, et-st, br)
 
         print s.close()
         
-        #os.system('d-fuzz_loop '+ch_pre_i+' &')
-        print ch_pre_i+' started !'
         
 
-
-class Stream:
-
-    def __init__(self):
-        self.buffer_size = 0xFFFF
-        
-    def process:
-        
-        if len(sys.argv) == 2:
-            station = DFuzz(sys.argv[1])
-        sys.exit('')
+if len(sys.argv) == 2:
+    station = DFuzz()
+    station.stream(sys.argv[1])
+else:
+    sys.exit('No way :(')
 
 
-        # Processing (streaming + cache writing)
-        stream = self.core_process(self.command,self.buffer_size,self.dest)
-        for chunk in stream:
-            yield chunk
