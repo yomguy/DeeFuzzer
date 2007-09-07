@@ -1,36 +1,25 @@
-<!-- This is an xml config file for d-fuzz 
-     see http://parisson.com/d-fuzz/ for more details
--->
-
 <station>
     <infos>
-        <!-- The short name of your station -->
         <short_name>Cellar_Playlist</short_name>
-        <!-- The title of your station -->
         <name>Cellar @ D-Fuzz, Paris (100% Mix Techno, House and Groove !)</name>
-        <!-- The title of your station -->
         <description>The Best Techno, House and Groove Stuff from Paris - 100% Mix !</description>
-        
-        <url_info>http://cellar.parisson.com</url_info>
+        <url>http://cellar.parisson.com</url>
         <genre>Techno/House</genre>
-        <!-- The number of channels for your station -->
         <channels>2</channels>
     </infos>
     <server>
-        <!-- Icecast2 server -->
         <host>localhost</host>
         <port>8000</port>
+        <mountpoint>/d-fuzz_1.mp3</mountpoint>
         <sourcepassword>source2parisson</sourcepassword>
         <public>1</public>
     </server>
     <media>
-        <media_dir>/mnt/data/Music/Air/</media_dir>
-        <!-- mp3 or ogg -->
+        <dir>/home/momo/music/mp3/Birdy Nam Nam/tmp</dir>
         <format>mp3</format>
         <bitrate>192</bitrate>
         <ogg_quality>7</ogg_quality>
         <samplerate>44100</samplerate>
-        <!-- The number of voices per channel (1 for mono, 2 for stereo, etc...) -->
         <voices>2</voices>
     </media>
 </station>
