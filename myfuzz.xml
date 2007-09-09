@@ -15,12 +15,13 @@
         <public>1</public>
     </server>
     <media>
-        <dir>/home/momo/music/music3/mp3/Roger Troutman</dir>
+        <dir>/mnt/data/Music/oasis</dir>
         <format>mp3</format>
         <bitrate>192</bitrate>
         <ogg_quality>7</ogg_quality>
         <samplerate>44100</samplerate>
         <voices>2</voices>
+	<random>1</random>
     </media>
 </station>
 

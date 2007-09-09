@@ -45,6 +45,7 @@ class DFuzz:
         self.conf = []
         self.id = 999999
         self.buffer_size = 0xFFFF
+	self.rand = []
         
     def prog_info(self):
         return """
@@ -97,12 +98,12 @@ class DFuzz:
     def get_random_media(self, playlist):
         lp = len(playlist)
         if self.id > lp:
+            self.rand = randrange(0,lp)
             self.id = 0
         else:
-            rand = randrange(0,lp)
             self.id = self.id + 1
-        print self.id
-        return playlist[self.id]
+        #print self.id
+        return playlist, playlist[self.rand[self.id]]
 
     def core_process(self, command, buffer_size):
         """Apply command and stream data through a generator. 
@@ -150,6 +151,7 @@ class DFuzz:
         # Media
         self.media_dir = station['media']['dir']
         format = station['media']['format']
+	mode_random = station['media']['random']
         s.format = format
 
         # Server
@@ -181,7 +183,10 @@ class DFuzz:
         while True:
             if lp == 0:
                 break 
-            playlist, media = self.get_next_media(playlist)
+            if mode_random == 1:
+	        playlist, media = self.get_random_media(playlist)
+            else:
+                playlist, media = self.get_next_media(playlist)
             print 'opening file : %s' % media
             file_name = string.replace(media, self.media_dir + os.sep, '')
             print 'streaming file : %s' % file_name
