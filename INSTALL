@@ -8,3 +8,8 @@
 # are also available at http://svn.parisson.org/d-fuzz/DFuzzLicense.
 #
 # Author: Guillaume Pellerin <pellerin@parisson.com>
+
+ depends : python, python-xml, shout-python, libshout3, icecast2
+ recommends : python-mutagen
+ provides : shout-python
+ 

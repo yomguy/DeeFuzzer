@@ -15,13 +15,13 @@
         <public>1</public>
     </server>
     <media>
-        <dir>/mnt/data/Music/oasis</dir>
+        <dir>/home/momo/data/data1/samples2/groovemasters/Groovemasters Drums/mp3</dir>
         <format>mp3</format>
         <bitrate>192</bitrate>
         <ogg_quality>7</ogg_quality>
         <samplerate>44100</samplerate>
         <voices>2</voices>
-	<random>1</random>
+        <shuffle>1</shuffle>
     </media>
 </station>
 

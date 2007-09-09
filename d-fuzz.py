@@ -14,8 +14,8 @@ import os
 import sys
 import shout
 import string
+import random
 import subprocess
-from tools import *
 from xmltodict import xmltodict
 from mutagen.oggvorbis import OggVorbis
 
@@ -45,7 +45,7 @@ class DFuzz:
         self.conf = []
         self.id = 999999
         self.buffer_size = 0xFFFF
-	self.rand = []
+        self.rand_list = []
         
     def prog_info(self):
         return """
@@ -85,32 +85,35 @@ class DFuzz:
                 file_list.append(root + os.sep + file)
         return file_list
 
-    def get_next_media(self, playlist):
+    def get_next_media_lin(self, playlist):
         lp = len(playlist)
-        if self.id >= (lp - 1) :
+        if self.id >= (lp - 1):
             playlist = self.get_playlist()
             self.id = 0
         else:
             self.id = self.id + 1
-        #print self.id
         return playlist, playlist[self.id]
     
-    def get_random_media(self, playlist):
+    def get_next_media_rand(self, playlist):
         lp = len(playlist)
-        if self.id > lp:
-            self.rand = randrange(0,lp)
+        if self.id >= (lp - 1):
+            playlist = self.get_playlist()
+            lp = len(playlist)    
+            self.rand_list = range(0,lp)
+            random.shuffle(self.rand_list)
+            print self.rand_list
             self.id = 0
         else:
             self.id = self.id + 1
-        #print self.id
-        return playlist, playlist[self.rand[self.id]]
+        index = self.rand_list[self.id]
+        print str(self.id) +':'+ str(index)
+        return playlist, playlist[index]
 
     def core_process(self, command, buffer_size):
         """Apply command and stream data through a generator. 
         From Telemeta..."""
         
         __chunk = 0
-        #file_out = open(dest,'w')
 
         try:
             proc = subprocess.Popen(command,
@@ -121,8 +124,7 @@ class DFuzz:
                     close_fds = True)
         except:
             raise IOError('Command failure:', command, proc)
-            #pass
-        
+
         # Core processing
         while True:
             __chunk = proc.stdout.read(buffer_size)
@@ -132,11 +134,8 @@ class DFuzz:
             if len(__chunk) == 0:
                 break
             yield __chunk
-            #file_out.write(__chunk)
 
-        #file_out.close()
-
-    def stream(self, conf_file): 
+    def stream(self, conf_file):
         self.conf_file = conf_file
         self.get_conf_dict()
 
@@ -151,7 +150,7 @@ class DFuzz:
         # Media
         self.media_dir = station['media']['dir']
         format = station['media']['format']
-	mode_random = station['media']['random']
+        mode_shuffle = int(station['media']['shuffle'])
         s.format = format
 
         # Server
@@ -180,22 +179,26 @@ class DFuzz:
         print playlist
                     
         s.open()
+        
         while True:
             if lp == 0:
-                break 
-            if mode_random == 1:
-	        playlist, media = self.get_random_media(playlist)
+                break
+            
+            if mode_shuffle == 1:
+                playlist, media = self.get_next_media_rand(playlist)
             else:
-                playlist, media = self.get_next_media(playlist)
-            print 'opening file : %s' % media
+                playlist, media = self.get_next_media_lin(playlist)
+                
             file_name = string.replace(media, self.media_dir + os.sep, '')
-            print 'streaming file : %s' % file_name
+            print 'Streaming file : %s' % file_name
             s.set_metadata({'song': file_name})
             command = 'cat "%s"' % media
             stream = self.core_process(command, self.buffer_size)
+
             for chunk in stream:
                 s.send(chunk)
                 s.sync()
+                
         s.close()
 
 
