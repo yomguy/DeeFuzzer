@@ -77,10 +77,6 @@ class DFuzz:
     def get_station_names(self):
         return self.conf['station']['name']
         
-    def check_work_dir(self):
-        if not os.isdir.exists(self.work_dir):
-            os.mkdir(self.work_dir)
-        
     def get_playlist(self):
         file_list = []
         for root, dirs, files in os.walk(self.media_dir):
@@ -175,16 +171,13 @@ class DFuzz:
         #  (keys are shout.SHOUT_AI_BITRATE, shout.SHOUT_AI_SAMPLERATE,
         #   shout.SHOUT_AI_CHANNELS, shout.SHOUT_AI_QUALITY)
         
-        s.open()
-
-        #total = 0
-        #st = time.time()
         command = 'cat '
         playlist = self.get_playlist()
         lp = len(playlist)
         print 'Playlist :'
         print playlist
                     
+        s.open()
         while True:
             if lp == 0:
                 break 
@@ -195,18 +188,11 @@ class DFuzz:
             s.set_metadata({'song': file_name})
             command = 'cat "%s"' % media
             stream = self.core_process(command, self.buffer_size)
-       
             for chunk in stream:
-                #total = total + len(self.buffer_size)
                 s.send(chunk)
                 s.sync()
-                        
-            #et = time.time()
-            #br = total*0.008/(et-st)
-            #print "Sent %d bytes in %d seconds (%f kbps)" % (total, et-st, br)
+        s.close()
 
-        print s.close()
-        
 
 def main():    
     station = DFuzz()
