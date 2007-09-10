@@ -16,7 +16,7 @@ import shout
 import string
 import random
 import subprocess
-from xmltodict import xmltodict
+from tools import xmltodict
 from mutagen.oggvorbis import OggVorbis
 
 

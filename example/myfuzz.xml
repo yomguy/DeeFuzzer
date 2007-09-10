@@ -15,11 +15,7 @@
         <public>1</public>
     </server>
     <media>
-<<<<<<< .mine
-        <dir>/home/momo/music/mp3</dir>
-=======
-        <dir>/home/momo/data/data1/samples2/groovemasters/Groovemasters Drums/mp3</dir>
->>>>>>> .r12
+        <dir>/home/momo/music/mp3/groovemaster_drums</dir>
         <format>mp3</format>
         <bitrate>192</bitrate>
         <ogg_quality>7</ogg_quality>
