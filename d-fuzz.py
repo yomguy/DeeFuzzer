@@ -1,14 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2007-2007 Guillaume Pellerin <pellerin@parisson.com>
+# Copyright (c) 2007-2007 Guillaume Pellerin <yomguy@parisson.com>
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution. The terms
 # are also available at http://svn.parisson.org/d-fuzz/DFuzzLicense.
 #
-# Author: Guillaume Pellerin <pellerin@parisson.com>
+# Author: Guillaume Pellerin <yomguy@parisson.com>
 
 import os
 import sys
@@ -50,7 +50,7 @@ class DFuzz:
     def prog_info(self):
         desc = '\n d-fuzz : easy and light streaming tool\n'
         version = ' version : ' + self.version +'\n\n'
-        info = """ Copyright (c) 2007-2007 Guillaume Pellerin <pellerin@parisson.com>
+        info = """ Copyright (c) 2007-2007 Guillaume Pellerin <yomguy@parisson.com>
  All rights reserved.
         
  This software is licensed as described in the file COPYING, which
