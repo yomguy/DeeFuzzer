@@ -98,15 +98,16 @@ class DFuzz:
         lp = len(playlist)
         if self.id >= (lp - 1):
             playlist = self.get_playlist()
-            lp = len(playlist)    
-            self.rand_list = range(0,lp)
-            random.shuffle(self.rand_list)
-            #print self.rand_list
+            lp_new = len(playlist)
+            if lp_new != lp:
+                self.rand_list = range(0,lp_new)
+                random.shuffle(self.rand_list)
+            print self.rand_list
             self.id = 0
         else:
             self.id = self.id + 1
         index = self.rand_list[self.id]
-        #print str(self.id) +':'+ str(index)
+        print str(self.id) +':'+ str(index)
         return playlist, playlist[index]
 
     def core_process(self, command, buffer_size):
@@ -174,6 +175,8 @@ class DFuzz:
         
         playlist = self.get_playlist()
         lp = len(playlist)
+        self.rand_list = range(0,lp)
+        random.shuffle(self.rand_list)
         print 'Playlist :'
         print playlist
                     
