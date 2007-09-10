@@ -15,9 +15,8 @@ import sys
 import shout
 import string
 import random
-import d-fuzz
 import subprocess
-from tools import *
+from xmltodict import *
 from mutagen.oggvorbis import OggVorbis
 
 
