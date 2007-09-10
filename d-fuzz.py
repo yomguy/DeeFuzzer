@@ -15,8 +15,9 @@ import sys
 import shout
 import string
 import random
+import d-fuzz
 import subprocess
-from tools import xmltodict
+from tools import *
 from mutagen.oggvorbis import OggVorbis
 
 
@@ -40,7 +41,6 @@ class DFuzz:
     """A D-Fuzz station"""
     
     def __init__(self):
-
         self.version = '0.1'
         self.conf = []
         self.id = 999999
@@ -115,7 +115,6 @@ class DFuzz:
         From Telemeta..."""
         
         __chunk = 0
-
         try:
             proc = subprocess.Popen(command,
                     shell = True,
@@ -137,9 +136,7 @@ class DFuzz:
             yield __chunk
 
     def stream(self, conf_file):
-
-        print "D-fuzz v"+self.version
-        
+        print "D-fuzz v"+self.version 
         self.conf_file = conf_file
         self.get_conf_dict()
 
