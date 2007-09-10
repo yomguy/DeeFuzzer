@@ -6,7 +6,7 @@
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution. The terms
-# are also available at http://svn.parisson.org/d-fuzz/DFuzzLicense.
+# are also available at http://svn.parisson.org/d-fuzz/DfuzzLicense.
 #
 # Author: Guillaume Pellerin <yomguy@parisson.com>
 
