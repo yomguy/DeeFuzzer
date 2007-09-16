@@ -1,3 +1,4 @@
+<d-fuzz>
 <station>
     <infos>
         <short_name>Cellar_Playlist</short_name>
@@ -5,7 +6,7 @@
         <description>The Best Techno, House and Groove Stuff from Paris - 100% Mix !</description>
         <url>http://cellar.parisson.com</url>
         <genre>Techno/House</genre>
-        <channels>2</channels>
+        <channels>1</channels>
     </infos>
     <server>
         <host>localhost</host>
@@ -15,7 +16,7 @@
         <public>1</public>
     </server>
     <media>
-        <dir>/home/momo/music/mp3/groovemaster_drums</dir>
+        <dir>/home/pub/samples/samples2/groovemasters/Groovemasters Drums/mp3</dir>
         <format>mp3</format>
         <bitrate>192</bitrate>
         <ogg_quality>7</ogg_quality>
@@ -24,5 +25,5 @@
         <shuffle>1</shuffle>
     </media>
 </station>
-
+</d-fuzz>
 
