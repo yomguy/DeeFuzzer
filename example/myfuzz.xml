@@ -1,23 +1,23 @@
 <d-fuzz>
     <station>
         <infos>
-            <short_name>Cellar_Playlist</short_name>
+            <short_name>Cellar_Playlist_1</short_name>
             <name>Cellar @ D-Fuzz, Paris (100% Mix Techno, House and Groove !)</name>
             <description>The Best Techno, House and Groove Stuff from Paris - 100% Mix !</description>
             <url>http://cellar.parisson.com</url>
             <genre>Techno/House</genre>
-            <channels>1</channels>
+            <channels>4</channels>
         </infos>
         <server>
             <host>localhost</host>
             <port>8000</port>
-            <mountpoint>/d-fuzz_1.mp3</mountpoint>
             <sourcepassword>source2parisson</sourcepassword>
             <public>1</public>
         </server>
         <media>
-            <dir>/home/pub/samples/samples2/groovemasters/Groovemasters Drums/mp3</dir>
+            <dir>/home/momo/music/music5/mp3/Birdy Nam Nam</dir>
             <format>mp3</format>
+            <shuffle>1</shuffle>
             <bitrate>192</bitrate>
             <ogg_quality>7</ogg_quality>
             <samplerate>44100</samplerate>
@@ -32,23 +32,22 @@
             <description>The Best Techno, House and Groove Stuff from Paris - 100% Mix !</description>
             <url>http://cellar.parisson.com</url>
             <genre>Techno/House</genre>
-            <channels>1</channels>
+            <channels>4</channels>
         </infos>
         <server>
             <host>localhost</host>
             <port>8000</port>
-            <mountpoint>/d-fuzz_2.mp3</mountpoint>
             <sourcepassword>source2parisson</sourcepassword>
             <public>1</public>
         </server>
         <media>
-            <dir>/home/pub/samples/samples2/groovemasters/Groovemasters Drums/mp3</dir>
+            <dir>/home/momo/music/music6/mp3/Manu_Chao_-_2007_La_Radiolina</dir>
             <format>mp3</format>
+            <shuffle>1</shuffle>
             <bitrate>192</bitrate>
             <ogg_quality>7</ogg_quality>
             <samplerate>44100</samplerate>
             <voices>2</voices>
-            <shuffle>1</shuffle>
         </media>
     </station>
 </d-fuzz>

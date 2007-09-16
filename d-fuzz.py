@@ -15,25 +15,16 @@ import sys
 import string
 import random
 import subprocess
-import shout
 from shout import Shout
 from xmltodict import *
 from threading import Thread
 from mutagen.oggvorbis import OggVorbis
 
+version = '0.2'
 
-class DFuzz(Thread):
-    """A D-Fuzz station"""
-    
-    def __init__(self, conf_file):
-        Thread.__init__(self)
-        self.status = -1
-        self.version = '0.1'
-        self.conf_file = conf_file
-
-    def prog_info(self):
+def prog_info():
         desc = '\n d-fuzz : easy and light streaming tool\n'
-        version = ' version : ' + self.version +'\n\n'
+        ver = ' version : ' + version +'\n\n'
         info = """ Copyright (c) 2007-2007 Guillaume Pellerin <yomguy@parisson.com>
  All rights reserved.
         
@@ -51,15 +42,25 @@ class DFuzz(Thread):
  
  see http://parisson.com/d-fuzz/ for more details
         """
-        text = desc + version + info
+        text = desc + ver + info
         return text
+
+
+class DFuzz:
+    """A D-Fuzz station"""
+    
+    def __init__(self, conf_file):
+        #Thread.__init__(self)
+        self.status = -1
+        self.version = '0.1'
+        self.conf_file = conf_file
 
     def get_conf_dict(self):
         confile = open(self.conf_file,'r')
         conf_xml = confile.read()
         confile.close()
-        return xmltodict(conf_xml,'utf-8')
-        
+        dict = xmltodict(conf_xml,'utf-8')
+        return dict
 
     def get_station_names(self):
         return self.conf['station']['name']
@@ -68,30 +69,21 @@ class DFuzz(Thread):
     def run(self):
         print "D-fuzz v"+self.version
         self.conf = self.get_conf_dict()
-        print self.conf
+        #print self.conf
         nb_stations = len(self.conf['d-fuzz']['station'])
-        print str(nb_stations)
+        print 'Number of stations : ' + str(nb_stations)
         
         for i in range(0,nb_stations):
-            #print str(i)
             station = self.conf['d-fuzz']['station'][i]
-            print station
-            station_thread = Station(station)
-            station_thread.start()
+            channels = int(station['infos']['channels'])
+            print 'Station n°%s : %s channels' % (str(i), str(channels))
+            #print station
+            for channel_id in range(0,channels):
+                #print channel_id
+                channel = Channel(station, channel_id + 1)
+                channel.start()
 
 
-class Station(DFuzz):
-    """A web station"""
-    def __init__ (self, station):
-        Thread.__init__(self)
-        self.station = station
-        self.channels = int(self.station['infos']['channels'])
-        
-    def run(self):
-        for channel_id in range(0,self.channels):
-            channel = Channel(self.station, channel_id)
-            channel.start()
-            
 
 
 class Channel(Thread):
@@ -100,15 +92,24 @@ class Channel(Thread):
     def __init__(self, station, channel_id):
         Thread.__init__(self)
         self.channel_id = channel_id
-        self.channel = shout.Shout()
+        #
+        self.channel = Shout()
         #self.station = station
         self.id = 999999
         self.rand_list = []
-         # Media
+         
+        # Media
         self.media_dir = station['media']['dir']
 
         self.channel.format = station['media']['format']
         self.mode_shuffle = int(station['media']['shuffle'])
+
+        # Infos
+        self.short_name = station['infos']['short_name'] + '_' + str(self.channel_id)
+        self.channel.name = station['infos']['name'] + '_' + str(self.channel_id)
+        self.channel.genre = station['infos']['genre']
+        self.channel.description = station['infos']['description']
+        self.channel.url = station['infos']['url']
         
         # Server
         self.channel.protocol = 'http'     # | 'xaudiocast' | 'icy'
@@ -116,16 +117,11 @@ class Channel(Thread):
         self.channel.port = int(station['server']['port'])
         self.channel.user = 'source'
         self.channel.password = station['server']['sourcepassword']
-        self.channel.mount = '/' + station['infos']['short_name'] + '_' +  \
-                                    str(self.channel_id) + '.' + self.channel.format
-        print self.channel.mount
+        self.channel.mount = '/' + self.short_name + '.' + self.channel.format
+        #print self.channel.mount
         self.channel.public = int(station['server']['public'])
 
-        # Infos
-        self.channel.name = station['infos']['name']
-        self.channel.genre = station['infos']['genre']
-        self.channel.description = station['infos']['description']
-        self.channel.url = station['infos']['url']
+
         # s.audio_info = { 'key': 'val', ... }
         #  (keys are shout.SHOUT_AI_BITRATE, shout.SHOUT_AI_SAMPLERATE,
         #   shout.SHOUT_AI_CHANNELS, shout.SHOUT_AI_QUALITY)
@@ -135,7 +131,6 @@ class Channel(Thread):
         self.lp = len(self.playlist)
         self.rand_list = range(0,self.lp)
         random.shuffle(self.rand_list)
-
 
     def get_playlist(self):
         file_list = []
@@ -161,33 +156,36 @@ class Channel(Thread):
             if lp_new != lp:
                 self.rand_list = range(0,lp_new)
                 random.shuffle(self.rand_list)
-            print self.rand_list
+            #print self.rand_list
             self.id = 0
         else:
             self.id = self.id + 1
         index = self.rand_list[self.id]
-        print str(self.id) +':'+ str(index)
+        #print str(self.id) +':'+ str(index)
         return playlist, playlist[index]
 
 
     def run(self):
-        print "Using libshout version %s" % shout.version()
-        print 'Playlist :'
-        print self.playlist
-      
+        #print "Using libshout version %s" % shout.version()
+        
         self.channel.open()
+        print 'Opening ' + self.short_name + '...'
+        
         while 1:
             if self.lp == 0:
                 break
             if self.mode_shuffle == 1:
-                self.playlist, media = self.get_next_media_rand(self.playlist)
+                playlist, media = self.get_next_media_rand(self.playlist)
             else:
-                self.playlist, media = self.get_next_media_lin(self.playlist)
-            print media
+                playlist, media = self.get_next_media_lin(self.playlist)
+
+            self.playlist = playlist
             file_name = string.replace(media, self.media_dir + os.sep, '')
+            #print 'Playlist (%s ch%s) : %s' % (self.short_name, self.channel_id, file_name)
+            #print self.playlist
             self.channel.set_metadata({'song': file_name})
             stream = Stream(self.media_dir, media)
-            print 'D-fuzz file : %s' % file_name
+            #print 'D-fuzz this file on %s ch%s (%s): %s' % (self.short_name, self.channel_id, self.id, file_name)
             for chunk in stream.run():
                 self.channel.send(chunk)
                 self.channel.sync()
@@ -223,8 +221,8 @@ class Stream:
         while True:
             __chunk = proc.stdout.read(buffer_size)
             status = proc.poll()
-            #if status != None and status != 0:
-                #raise ExportProcessError('Command failure:', command, proc)
+            if status != None and status != 0:
+                raise DFuzzError('Command failure:', command, proc)
             if len(__chunk) == 0:
                 break
             yield __chunk
@@ -259,7 +257,8 @@ def main():
         dfuzz_main = DFuzz(sys.argv[1])
         dfuzz_main.run()
     else:
-        sys.exit('NO WAY !')
+        text = prog_info()
+        sys.exit(text)
 
 if __name__ == '__main__':
     main()
