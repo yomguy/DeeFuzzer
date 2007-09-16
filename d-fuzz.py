@@ -12,8 +12,10 @@
 
 import os
 import sys
+import time
 import string
 import random
+import Queue
 import subprocess
 from shout import Shout
 from xmltodict import *
@@ -73,6 +75,9 @@ class DFuzz:
         nb_stations = len(self.conf['d-fuzz']['station'])
         print 'Number of stations : ' + str(nb_stations)
         
+        # Create our Queue:
+        #stream_pool = Queue.Queue ( 0 )
+
         for i in range(0,nb_stations):
             station = self.conf['d-fuzz']['station'][i]
             channels = int(station['infos']['channels'])
@@ -80,10 +85,9 @@ class DFuzz:
             #print station
             for channel_id in range(0,channels):
                 #print channel_id
-                channel = Channel(station, channel_id + 1)
-                channel.start()
-
-
+                Channel(station, channel_id + 1).start()
+                #channel.start()
+                time.sleep(0.5)
 
 
 class Channel(Thread):
@@ -91,7 +95,11 @@ class Channel(Thread):
 
     def __init__(self, station, channel_id):
         Thread.__init__(self)
+        self.station = station
+        self.main_command = 'cat'
+        self.buffer_size = 0xFFFF
         self.channel_id = channel_id
+        #self.stream_pool = stream_pool
         #
         self.channel = Shout()
         #self.station = station
@@ -99,38 +107,31 @@ class Channel(Thread):
         self.rand_list = []
          
         # Media
-        self.media_dir = station['media']['dir']
+        self.media_dir = self.station['media']['dir']
 
-        self.channel.format = station['media']['format']
-        self.mode_shuffle = int(station['media']['shuffle'])
+        self.channel.format = self.station['media']['format']
+        self.mode_shuffle = int(self.station['media']['shuffle'])
 
         # Infos
-        self.short_name = station['infos']['short_name'] + '_' + str(self.channel_id)
-        self.channel.name = station['infos']['name'] + '_' + str(self.channel_id)
-        self.channel.genre = station['infos']['genre']
-        self.channel.description = station['infos']['description']
-        self.channel.url = station['infos']['url']
+        self.short_name = self.station['infos']['short_name'] + '_' + str(self.channel_id)
+        self.channel.name = self.station['infos']['name'] + '_' + str(self.channel_id)
+        self.channel.genre = self.station['infos']['genre']
+        self.channel.description = self.station['infos']['description']
+        self.channel.url = self.station['infos']['url']
         
         # Server
         self.channel.protocol = 'http'     # | 'xaudiocast' | 'icy'
-        self.channel.host = station['server']['host']
-        self.channel.port = int(station['server']['port'])
+        self.channel.host = self.station['server']['host']
+        self.channel.port = int(self.station['server']['port'])
         self.channel.user = 'source'
-        self.channel.password = station['server']['sourcepassword']
+        self.channel.password = self.station['server']['sourcepassword']
         self.channel.mount = '/' + self.short_name + '.' + self.channel.format
         #print self.channel.mount
-        self.channel.public = int(station['server']['public'])
-
+        self.channel.public = int(self.station['server']['public'])
 
         # s.audio_info = { 'key': 'val', ... }
         #  (keys are shout.SHOUT_AI_BITRATE, shout.SHOUT_AI_SAMPLERATE,
         #   shout.SHOUT_AI_CHANNELS, shout.SHOUT_AI_QUALITY)
-
-        # Playlist
-        self.playlist = self.get_playlist()
-        self.lp = len(self.playlist)
-        self.rand_list = range(0,self.lp)
-        random.shuffle(self.rand_list)
 
     def get_playlist(self):
         file_list = []
@@ -164,44 +165,6 @@ class Channel(Thread):
         #print str(self.id) +':'+ str(index)
         return playlist, playlist[index]
 
-
-    def run(self):
-        #print "Using libshout version %s" % shout.version()
-        
-        self.channel.open()
-        print 'Opening ' + self.short_name + '...'
-        
-        while 1:
-            if self.lp == 0:
-                break
-            if self.mode_shuffle == 1:
-                playlist, media = self.get_next_media_rand(self.playlist)
-            else:
-                playlist, media = self.get_next_media_lin(self.playlist)
-
-            self.playlist = playlist
-            file_name = string.replace(media, self.media_dir + os.sep, '')
-            #print 'Playlist (%s ch%s) : %s' % (self.short_name, self.channel_id, file_name)
-            #print self.playlist
-            self.channel.set_metadata({'song': file_name})
-            stream = Stream(self.media_dir, media)
-            #print 'D-fuzz this file on %s ch%s (%s): %s' % (self.short_name, self.channel_id, self.id, file_name)
-            for chunk in stream.run():
-                self.channel.send(chunk)
-                self.channel.sync()
-        self.channel.close()
-
-
-class Stream:
-    """Streaming class"""
-    
-    def __init__(self, media_dir, media):
-        #Thread.__init__(self)
-        self.media = media
-        self.media_dir = media_dir
-        self.command = 'cat'
-        self.buffer_size = 0xFFFF
-        
     def core_process(self, command, buffer_size):
         """Apply command and stream data through a generator. 
         Taken from Telemeta..."""
@@ -215,7 +178,7 @@ class Stream:
                                     stdout = subprocess.PIPE,
                                     close_fds = True)
         except:
-            raise IOError('Command failure:', command, proc)
+            raise DFuzzError('Command failure:', command, proc)
 
         # Core processing
         while True:
@@ -226,12 +189,51 @@ class Stream:
             if len(__chunk) == 0:
                 break
             yield __chunk
-            
+
     def run(self):
-        command = self.command + ' "%s"' % self.media
-        stream = self.core_process(command, self.buffer_size)
-        for chunk in stream:
-            yield chunk
+        #print "Using libshout version %s" % shout.version()
+
+        #__chunk = 0
+        self.channel.open()
+        print 'Opening ' + self.short_name + '...'
+        time.sleep(0.5)
+
+        # Playlist
+        playlist = self.get_playlist()
+        lp = len(playlist)
+        self.rand_list = range(0,lp)
+
+        
+        while True:
+            if lp == 0:
+                break
+
+            # Get a client out of the queue
+            #client = self.stream_pool.get()
+
+            #if client != None:
+
+            time.sleep(0.1)
+            if self.mode_shuffle == 1:
+                playlist, media = self.get_next_media_rand(playlist)
+            else:
+                playlist, media = self.get_next_media_lin(playlist)
+
+            file_name = string.replace(media, self.media_dir + os.sep, '')
+            #print 'Playlist (%s ch%s) : %s' % (self.short_name, self.channel_id, file_name)
+            #print playlist
+            #print media
+            self.channel.set_metadata({'song': file_name})
+            command = self.main_command + ' "%s"' % media
+            stream = self.core_process(command, self.buffer_size)
+            #stream = Stream(self.media_dir, media)
+            print 'D-fuzz this file on %s ch%s (%s): %s' % (self.short_name, self.channel_id, self.id, file_name)
+
+            for __chunk in stream:
+                self.channel.send(__chunk)
+                self.channel.sync()
+
+        self.channel.close()
 
 
 
