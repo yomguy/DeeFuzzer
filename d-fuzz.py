@@ -69,12 +69,12 @@ class DFuzz(Thread):
         print "D-fuzz v"+self.version
         self.conf = self.get_conf_dict()
         print self.conf
-        nb_stations = len(self.conf['d-fuzz'])
+        nb_stations = len(self.conf['d-fuzz']['station'])
         print str(nb_stations)
         
         for i in range(0,nb_stations):
-            print str(i)
-            station = self.conf['d-fuzz']['station']
+            #print str(i)
+            station = self.conf['d-fuzz']['station'][i]
             print station
             station_thread = Station(station)
             station_thread.start()
@@ -85,7 +85,6 @@ class Station(DFuzz):
     def __init__ (self, station):
         Thread.__init__(self)
         self.station = station
-        print self.station
         self.channels = int(self.station['infos']['channels'])
         
     def run(self):
@@ -118,7 +117,7 @@ class Channel(Thread):
         self.channel.user = 'source'
         self.channel.password = station['server']['sourcepassword']
         self.channel.mount = '/' + station['infos']['short_name'] + '_' +  \
-                                    str(self.id) + '.' + self.channel.format
+                                    str(self.channel_id) + '.' + self.channel.format
         print self.channel.mount
         self.channel.public = int(station['server']['public'])
 
