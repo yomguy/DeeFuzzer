@@ -81,7 +81,7 @@ class DFuzz:
         for i in range(0,nb_stations):
             station = self.conf['d-fuzz']['station'][i]
             channels = int(station['infos']['channels'])
-            print 'Station n°%s : %s channels' % (str(i), str(channels))
+            print 'Station nï¿½%s : %s channels' % (str(i), str(channels))
             #print station
             for channel_id in range(0,channels):
                 #print channel_id
@@ -91,7 +91,7 @@ class DFuzz:
 
 
 class Channel(Thread):
-    """A channel shout thread"""
+    """A channel shouting thread"""
 
     def __init__(self, station, channel_id):
         Thread.__init__(self)
@@ -238,7 +238,7 @@ class Channel(Thread):
 
 
 class DFuzzError:
-
+    """The D-Fuzz main error class"""
     def __init__(self, message, command, subprocess):
         self.message = message
         self.command = str(command)

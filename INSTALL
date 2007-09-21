@@ -13,3 +13,10 @@
  recommends : python-mutagen
  provides : shout-python
  
+
+This last library is included in D-Fuzz but needs to be compiled.
+As explained in shout-python/INSTALL, you just have to run this command :
+
+    cd shout-python; sudo python setup.py install
+
+    
