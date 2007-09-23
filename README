@@ -31,12 +31,14 @@ see INSTALL
 # 4. Usage
 # =========
 
-Usage : d-fuzz $1
+Usage : d-fuzz CONFIGFILE
   
-  where $1 is the path for a XML config file
+  where CONFIGFILE is the path for a XML config file
   ex: d-fuzz ./myfuzz.xml
 
 Note that you must edit the config file with right parameters before executing...
+You can find an example for the XML file in the directory "example/" of this
+application.
 
 Be carefull : at the moment the Thread implementation raises exceptions when
 shutting down with CTRL + C...
@@ -62,5 +64,5 @@ Some parts of this work are also taken from another Parisson's project : Telemet
 # 7. Contact / Infos
 # ==================
 
-see http://svn.parisson.org/d-fuzz/  or  http://parisson.com  for more details
+see http://svn.parisson.org/d-fuzz/ or http://parisson.com for more details...
 
