@@ -66,23 +66,24 @@ class DFuzz:
 
     def get_station_names(self):
         return self.conf['station']['name']
-        
 
     def run(self):
         print "D-fuzz v"+self.version
         self.conf = self.get_conf_dict()
-        #print self.conf
+        print self.conf
+        
         nb_stations = len(self.conf['d-fuzz']['station'])
         print 'Number of stations : ' + str(nb_stations)
         
-        # Create our Queue:
+        # Create a Queue:
         #stream_pool = Queue.Queue ( 0 )
 
         for i in range(0,nb_stations):
             station = self.conf['d-fuzz']['station'][i]
+            print station
+            name = station['infos']['name']
             channels = int(station['infos']['channels'])
-            print 'Station n�%s : %s channels' % (str(i), str(channels))
-            #print station
+            print 'Station %s has %s channels' % (name, str(channels))
             for channel_id in range(0,channels):
                 #print channel_id
                 Channel(station, channel_id + 1).start()
@@ -99,8 +100,10 @@ class Channel(Thread):
         self.main_command = 'cat'
         self.buffer_size = 0xFFFF
         self.channel_id = channel_id
+
+        # Pool Queue
         #self.stream_pool = stream_pool
-        #
+        
         self.channel = Shout()
         #self.station = station
         self.id = 999999
@@ -195,7 +198,7 @@ class Channel(Thread):
 
         #__chunk = 0
         self.channel.open()
-        print 'Opening ' + self.short_name + '...'
+        print 'Opening ' + self.channel.name + '...'
         time.sleep(0.5)
 
         # Playlist
@@ -227,7 +230,7 @@ class Channel(Thread):
             command = self.main_command + ' "%s"' % media
             stream = self.core_process(command, self.buffer_size)
             #stream = Stream(self.media_dir, media)
-            print 'D-fuzz this file on %s ch%s (%s): %s' % (self.short_name, self.channel_id, self.id, file_name)
+            print 'D-fuzz this file on %s (channel: %s, track: %s): %s' % (self.short_name, self.channel_id, self.id, file_name)
 
             for __chunk in stream:
                 self.channel.send(__chunk)
