@@ -71,15 +71,23 @@ class DFuzz:
         print "D-fuzz v"+self.version
         self.conf = self.get_conf_dict()
         print self.conf
-        
-        nb_stations = len(self.conf['d-fuzz']['station'])
+
+        # Fix wrong type data from xmltodict when one station (*)
+        if isinstance(self.conf['d-fuzz']['station'], dict):
+            nb_stations = 1
+        else:
+            nb_stations = len(self.conf['d-fuzz']['station'])
         print 'Number of stations : ' + str(nb_stations)
         
         # Create a Queue:
         #stream_pool = Queue.Queue ( 0 )
 
         for i in range(0,nb_stations):
-            station = self.conf['d-fuzz']['station'][i]
+            # (*) idem
+            if isinstance(self.conf['d-fuzz']['station'], dict):
+                station = self.conf['d-fuzz']['station']
+            else:
+                station = self.conf['d-fuzz']['station'][i]
             print station
             name = station['infos']['name']
             channels = int(station['infos']['channels'])
