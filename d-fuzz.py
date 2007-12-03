@@ -81,6 +81,7 @@ class DFuzz:
         s = Stations(q)
         station_timer = s.get_station_timer()
         print str(station_timer)
+        station_buffer = s.get_buffer_size()
         s.start()
 
         total_channel_number = 0
@@ -97,7 +98,9 @@ class DFuzz:
             total_channel_number = total_channel_number + nb_channels
             print 'Station %s: %s has %s channels' % (str(i+1), name, str(nb_channels))
 
-        channel_timer = station_timer * total_channel_number
+        channel_buffer = station_buffer * total_channel_number
+        print channel_buffer
+        
         for i in range(0,nb_stations):
             if isinstance(self.conf['d-fuzz']['station'], dict):
                 station = self.conf['d-fuzz']['station']
@@ -109,7 +112,7 @@ class DFuzz:
             for channel_id in range(0, nb_channels):
                 print channel_id
                 #print channel_id
-                c = Channel(station, channel_id + 1, channel_timer, q)
+                c = Channel(station, channel_id + 1, channel_buffer, q)
                 c.start()
                 time.sleep(1)
 
@@ -121,13 +124,16 @@ class Stations(Thread):
     def __init__(self, station_q):
         Thread.__init__(self)
         self.station_q = station_q
-        self.buffer_size = 0xFFFF
+        self.buffer_size = 0xFFF
         print self.buffer_size
         self.frequency = 44100
         self.station_timer = float(int(self.buffer_size)) / self.frequency
         
     def get_station_timer(self):
         return self.station_timer
+
+    def get_buffer_size(self):
+        return self.buffer_size
     
     def run(self):
         station_q = self.station_q
@@ -143,7 +149,7 @@ class Stations(Thread):
 class Channel(Thread):
     """A channel shouting thread"""
 
-    def __init__(self, station, channel_id, timer, channel_q):
+    def __init__(self, station, channel_id, channel_buffer, channel_q):
         Thread.__init__(self)
         self.channel_q = channel_q
         self.station = station
@@ -152,8 +158,9 @@ class Channel(Thread):
         self.channel = Shout()
         self.id = 999999
         self.counter = 0
-        self.buffer_size = 0xFFFF
-        self.timer = timer
+        self.frequency = 44100
+        self.buffer_size = channel_buffer
+        self.timer = self.buffer_size / self.frequency
         self.rand_list = []
         # Media
         self.media_dir = self.station['media']['dir']
