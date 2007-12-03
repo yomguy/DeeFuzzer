@@ -15,11 +15,12 @@ import sys
 import time
 import string
 import random
-import Queue
+import jack
 import subprocess
 from shout import Shout
 from xmltodict import *
 from threading import Thread
+import Queue
 from mutagen.oggvorbis import OggVorbis
 
 version = '0.2'
@@ -74,11 +75,12 @@ class DFuzz:
         else:
             nb_stations = len(self.conf['d-fuzz']['station'])
         print 'Number of stations : ' + str(nb_stations)
+
+        # Create a Queue
+        q = Queue.Queue(16)
         
         for i in range(0,nb_stations):
-            # Create a Queue
-            q = Queue.Queue(1)
-
+            #time.sleep(0.1)
             # (*) idem
             if isinstance(self.conf['d-fuzz']['station'], dict):
                 station = self.conf['d-fuzz']['station']
@@ -88,48 +90,63 @@ class DFuzz:
             name = station['infos']['name']
             nb_channels = int(station['infos']['channels'])
             print 'Station %s: %s has %s channels' % (str(i+1), name, str(nb_channels))
-            s = Station(station, nb_channels, q)
+
+            s = Station(q, nb_channels)
+            channel_timer = s.get_channel_timer()
             s.start()
-            time.sleep(0.1)
+            
             for channel_id in range(0, nb_channels):
+                print channel_id
                 #print channel_id
-                c = Channel(station, channel_id + 1, q)
+                c = Channel(station, channel_id + 1, channel_timer, q)
                 c.start()
-                #time.sleep(0.5)
+                #time.sleep(0.001)
+
 
 
 class Station(Thread):
-    """A D-Fuzz Station thread"""
+    """A D-Fuzz Station (Producer) thread"""
 
-    def __init__(self, station, nb_channels, station_q):
+    def __init__(self, station_q, nb_channels):
         Thread.__init__(self)
         self.station_q = station_q
-        self.station = station
-        self.nb_channels = nb_channels
+        self.buffer_size = 0xFFFF
+        self.frequency = 44100
+        self.station_timer = float(int(self.buffer_size)) / self.frequency
+        print str(self.station_timer)
+        self.channel_timer = self.station_timer * nb_channels
+        print str(self.channel_timer)
+        #self.station = station
+        #self.nb_channels = nb_channels
 
+    def get_channel_timer(self):
+        return self.channel_timer
+    
     def run(self):
-        #station_q = self.station_q
-        i=0
+        station_q = self.station_q
+        i=0  
         while 1 : 
             #print currentThread(),"Produced One Item:",i
-            self.station_q.put(i,1)
+            time.sleep(self.station_timer)
+            station_q.put(i,1)
             i+=1
-            #time.sleep(1)
+            
 
 
 class Channel(Thread):
     """A channel shouting thread"""
 
-    def __init__(self, station, channel_id, channel_q):
+    def __init__(self, station, channel_id, timer, channel_q):
         Thread.__init__(self)
         self.channel_q = channel_q
         self.station = station
         self.main_command = 'cat'
-        self.buffer_size = 16384
         self.channel_id = channel_id
         self.channel = Shout()
         self.id = 999999
         self.counter = 0
+        self.buffer_size = 0xFFFF
+        self.timer = timer
         self.rand_list = []
         # Media
         self.media_dir = self.station['media']['dir']
@@ -215,7 +232,7 @@ class Channel(Thread):
         #__chunk = 0
         self.channel.open()
         print 'Opening ' + self.channel.name + '...'
-        time.sleep(0.5)
+        time.sleep(0.1)
 
         # Playlist
         playlist = self.get_playlist()
@@ -242,12 +259,23 @@ class Channel(Thread):
             print 'D-fuzz this file on %s (channel: %s, track: %s): %s' % (self.short_name, self.channel_id, self.id, file_name)
 
             for __chunk in stream:
+                # Wait
+                time.sleep(self.timer)
                 # Get the queue
                 self.channel_q.get(1)
                 self.channel.send(__chunk)
                 self.channel.sync()
 
         self.channel.close()
+
+
+class Jack:
+    """A connexion to the JACK server"""
+
+    def __init__(self):
+        self.name = 'D-Fuzz'
+        pass
+        
 
 
 class DFuzzError:
