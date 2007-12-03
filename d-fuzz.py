@@ -15,7 +15,7 @@ import sys
 import time
 import string
 import random
-import jack
+#import jack
 import subprocess
 from shout import Shout
 from xmltodict import *
@@ -77,8 +77,13 @@ class DFuzz:
         print 'Number of stations : ' + str(nb_stations)
 
         # Create a Queue
-        q = Queue.Queue(16)
-        
+        q = Queue.Queue(0)
+        s = Stations(q)
+        station_timer = s.get_station_timer()
+        print str(station_timer)
+        s.start()
+
+        total_channel_number = 0
         for i in range(0,nb_stations):
             #time.sleep(0.1)
             # (*) idem
@@ -89,38 +94,40 @@ class DFuzz:
             #print station
             name = station['infos']['name']
             nb_channels = int(station['infos']['channels'])
+            total_channel_number = total_channel_number + nb_channels
             print 'Station %s: %s has %s channels' % (str(i+1), name, str(nb_channels))
 
-            s = Station(q, nb_channels)
-            channel_timer = s.get_channel_timer()
-            s.start()
-            
+        channel_timer = station_timer * total_channel_number
+        for i in range(0,nb_stations):
+            if isinstance(self.conf['d-fuzz']['station'], dict):
+                station = self.conf['d-fuzz']['station']
+            else:
+                station = self.conf['d-fuzz']['station'][i]
+            #print station
+            name = station['infos']['name']
+            nb_channels = int(station['infos']['channels'])
             for channel_id in range(0, nb_channels):
                 print channel_id
                 #print channel_id
                 c = Channel(station, channel_id + 1, channel_timer, q)
                 c.start()
-                #time.sleep(0.001)
+                time.sleep(1)
 
 
 
-class Station(Thread):
-    """A D-Fuzz Station (Producer) thread"""
+class Stations(Thread):
+    """D-Fuzz Station (Producer) thread"""
 
-    def __init__(self, station_q, nb_channels):
+    def __init__(self, station_q):
         Thread.__init__(self)
         self.station_q = station_q
         self.buffer_size = 0xFFFF
+        print self.buffer_size
         self.frequency = 44100
         self.station_timer = float(int(self.buffer_size)) / self.frequency
-        print str(self.station_timer)
-        self.channel_timer = self.station_timer * nb_channels
-        print str(self.channel_timer)
-        #self.station = station
-        #self.nb_channels = nb_channels
-
-    def get_channel_timer(self):
-        return self.channel_timer
+        
+    def get_station_timer(self):
+        return self.station_timer
     
     def run(self):
         station_q = self.station_q
@@ -256,7 +263,7 @@ class Channel(Thread):
             command = self.main_command + ' "%s"' % media
             stream = self.core_process(command, self.buffer_size)
             #stream = Stream(self.media_dir, media)
-            print 'D-fuzz this file on %s (channel: %s, track: %s): %s' % (self.short_name, self.channel_id, self.id, file_name)
+            print 'D-fuzzing this file on %s (channel: %s, track: %s): %s' % (self.short_name, self.channel_id, self.id, file_name)
 
             for __chunk in stream:
                 # Wait
