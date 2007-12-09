@@ -1,0 +1,6 @@
+d-fuzz (0.2-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- G. Pellerin <yomguy@altern.org>  Sun, 09 Dec 2007 21:50:43 +0100
+

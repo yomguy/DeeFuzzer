@@ -20,7 +20,7 @@ import subprocess
 from shout import Shout
 from xmltodict import *
 from threading import Thread
-import Queue
+from Queue import Queue
 from mutagen.oggvorbis import OggVorbis
 
 version = '0.2'
@@ -77,10 +77,12 @@ class DFuzz:
         print 'Number of stations : ' + str(nb_stations)
 
         # Create a Queue
-        q = Queue.Queue(0)
-        s = Stations(q)
+        q = Queue(0)
+        send = Stack()
+        recv = Stack()
+        s = Stations(q, send)
         station_timer = s.get_station_timer()
-        print str(station_timer)
+        print 'Station timer : ' + str(station_timer)
         station_buffer = s.get_buffer_size()
         s.start()
 
@@ -99,7 +101,7 @@ class DFuzz:
             print 'Station %s: %s has %s channels' % (str(i+1), name, str(nb_channels))
 
         channel_buffer = station_buffer * total_channel_number
-        print channel_buffer
+        print 'Channel buffer : ' + str(channel_buffer)
         
         for i in range(0,nb_stations):
             if isinstance(self.conf['d-fuzz']['station'], dict):
@@ -110,22 +112,35 @@ class DFuzz:
             name = station['infos']['name']
             nb_channels = int(station['infos']['channels'])
             for channel_id in range(0, nb_channels):
-                print channel_id
                 #print channel_id
-                c = Channel(station, channel_id + 1, channel_buffer, q)
+                #print channel_id
+                c = Channel(station, channel_id + 1, channel_buffer, q, recv)
                 c.start()
+                
                 time.sleep(1)
 
+class Widget:
+    pass
 
+class Stack:
+    def __init__(self):
+        self.__stack = list()
+    def __len__(self):
+        return len(self.__stack)
+    def push(self, item):
+        self.__stack.append(item)
+    def pop(self):
+        return self.__stack.pop()
 
 class Stations(Thread):
     """D-Fuzz Station (Producer) thread"""
 
-    def __init__(self, station_q):
+    def __init__(self, station_q, send):
         Thread.__init__(self)
         self.station_q = station_q
-        self.buffer_size = 0xFFF
-        print self.buffer_size
+        self.send = send
+        self.buffer_size = 65536
+        print 'Buffer size : ' + str(self.buffer_size)  
         self.frequency = 44100
         self.station_timer = float(int(self.buffer_size)) / self.frequency
         
@@ -137,21 +152,27 @@ class Stations(Thread):
     
     def run(self):
         station_q = self.station_q
-        i=0  
+        send = self.send
+        #i=0  
         while 1 : 
             #print currentThread(),"Produced One Item:",i
+            # time.sleep(self.station_timer)
             time.sleep(self.station_timer)
-            station_q.put(i,1)
-            i+=1
+            item = Widget()
+            station_q.put(item)
+            send.push(item)
+            #station_q.put(i,1)
+            #i+=1
             
 
 
 class Channel(Thread):
     """A channel shouting thread"""
 
-    def __init__(self, station, channel_id, channel_buffer, channel_q):
+    def __init__(self, station, channel_id, channel_buffer, channel_q, recv):
         Thread.__init__(self)
         self.channel_q = channel_q
+        self.recv = recv
         self.station = station
         self.main_command = 'cat'
         self.channel_id = channel_id
@@ -184,12 +205,20 @@ class Channel(Thread):
         # s.audio_info = { 'key': 'val', ... }
         #  (keys are shout.SHOUT_AI_BITRATE, shout.SHOUT_AI_SAMPLERATE,
         #   shout.SHOUT_AI_CHANNELS, shout.SHOUT_AI_QUALITY)
+        self.formats = ['mp3', 'ogg', 'flac']
 
+
+    def get_file_extension(self, file):
+        file_split = file.split('.')
+        return file_split[len(file_split)-1]
+    
     def get_playlist(self):
         file_list = []
         for root, dirs, files in os.walk(self.media_dir):
             for file in files:
-                file_list.append(root + os.sep + file)
+                extension = self.get_file_extension(file)
+                if extension in self.formats:
+                    file_list.append(root + os.sep + file)
         return file_list
 
     def get_next_media_lin(self, playlist):
@@ -244,9 +273,11 @@ class Channel(Thread):
     def run(self):
         #print "Using libshout version %s" % shout.version()
         #__chunk = 0
+        recv = self.recv
+        channel_q = self.channel_q
         self.channel.open()
         print 'Opening ' + self.channel.name + '...'
-        time.sleep(0.1)
+        #time.sleep(0.1)
 
         # Playlist
         playlist = self.get_playlist()
@@ -274,9 +305,9 @@ class Channel(Thread):
 
             for __chunk in stream:
                 # Wait
-                time.sleep(self.timer)
-                # Get the queue
-                self.channel_q.get(1)
+                #time.sleep(self.timer)
+                recv.push(channel_q.get())
+                #self.channel_q.get(1)
                 self.channel.send(__chunk)
                 self.channel.sync()
 

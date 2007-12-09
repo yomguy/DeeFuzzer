@@ -1,0 +1,12 @@
+Source: d-fuzz
+Section: sound
+Priority: extra
+Maintainer: Guillaume Pellerin <yomguy@altern.org>
+Build-Depends: cdbs, debhelper (>= 5)
+Standards-Version: 3.7.2
+
+Package: d-fuzz
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
