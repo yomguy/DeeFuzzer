@@ -23,7 +23,7 @@ from threading import Thread
 from Queue import Queue
 from mutagen.oggvorbis import OggVorbis
 
-version = '0.2'
+version = '0.2.1a'
 
 def prog_info():
         desc = '\n d-fuzz : easy and light streaming tool\n'
@@ -77,12 +77,12 @@ class DFuzz:
         print 'Number of stations : ' + str(nb_stations)
 
         # Create a Queue
-        q = Queue(0)
+        q = Queue()
         send = Stack()
         recv = Stack()
         s = Stations(q, send)
         station_timer = s.get_station_timer()
-        print 'Station timer : ' + str(station_timer)
+        print 'Station timer: ' + str(station_timer) + ' s'
         station_buffer = s.get_buffer_size()
         s.start()
 
@@ -101,7 +101,7 @@ class DFuzz:
             print 'Station %s: %s has %s channels' % (str(i+1), name, str(nb_channels))
 
         channel_buffer = station_buffer * total_channel_number
-        print 'Channel buffer : ' + str(channel_buffer)
+        print 'Channel buffer size: ' + str(channel_buffer)
         
         for i in range(0,nb_stations):
             if isinstance(self.conf['d-fuzz']['station'], dict):
@@ -116,8 +116,7 @@ class DFuzz:
                 #print channel_id
                 c = Channel(station, channel_id + 1, channel_buffer, q, recv)
                 c.start()
-                
-                time.sleep(1)
+                time.sleep(0.1)
 
 class Widget:
     pass
@@ -139,8 +138,8 @@ class Stations(Thread):
         Thread.__init__(self)
         self.station_q = station_q
         self.send = send
-        self.buffer_size = 65536
-        print 'Buffer size : ' + str(self.buffer_size)  
+        self.buffer_size = 16384
+        print 'Station buffer size: ' + str(self.buffer_size)
         self.frequency = 44100
         self.station_timer = float(int(self.buffer_size)) / self.frequency
         
@@ -154,15 +153,15 @@ class Stations(Thread):
         station_q = self.station_q
         send = self.send
         #i=0  
-        while 1 : 
+        while True: 
             #print currentThread(),"Produced One Item:",i
-            # time.sleep(self.station_timer)
-            time.sleep(self.station_timer)
+            #time.sleep(self.station_timer)
             item = Widget()
             station_q.put(item)
-            send.push(item)
+            #send.push(item)
             #station_q.put(i,1)
             #i+=1
+        station_q.join()
             
 
 
@@ -198,6 +197,7 @@ class Channel(Thread):
         self.channel.host = self.station['server']['host']
         self.channel.port = int(self.station['server']['port'])
         self.channel.user = 'source'
+        #self.channel.nonblocking = True
         self.channel.password = self.station['server']['sourcepassword']
         self.channel.mount = '/' + self.short_name + '.' + self.channel.format
         #print self.channel.mount
@@ -223,7 +223,7 @@ class Channel(Thread):
 
     def get_next_media_lin(self, playlist):
         lp = len(playlist)
-        if self.id >= (lp - 1):
+        if self.id >= (lp -1):
             playlist = self.get_playlist()
             self.id = 0
         else:
@@ -282,6 +282,7 @@ class Channel(Thread):
         # Playlist
         playlist = self.get_playlist()
         lp = len(playlist)
+	print 'There are ' + str(lp) + ' items in your playlist'
         self.rand_list = range(0,lp)
         
         while True:
@@ -306,10 +307,17 @@ class Channel(Thread):
             for __chunk in stream:
                 # Wait
                 #time.sleep(self.timer)
-                recv.push(channel_q.get())
+                q = channel_q.get()
+                #if q is None:
+                #    break
+                #recv.push(channel_q.get())
                 #self.channel_q.get(1)
+                #print self.channel.delay()
                 self.channel.send(__chunk)
+                #print self.channel.delay()
                 self.channel.sync()
+                #channel_q.task_done()
+                #print self.channel.queuelen()
 
         self.channel.close()
 

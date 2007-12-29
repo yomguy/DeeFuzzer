@@ -1,12 +1,12 @@
 Source: d-fuzz
 Section: sound
-Priority: extra
+Priority: optional
 Maintainer: Guillaume Pellerin <yomguy@altern.org>
-Build-Depends: cdbs, debhelper (>= 5)
+Build-Depends: cdbs (>= 0.4.23-1.1), debhelper (>= 5), debhelper (>= 5)
 Standards-Version: 3.7.2
 
 Package: d-fuzz
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Description: Python client to stream audio over icecast
+ Coming soon !
