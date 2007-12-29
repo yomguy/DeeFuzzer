@@ -74,7 +74,9 @@ class DFuzz:
             nb_stations = 1
         else:
             nb_stations = len(self.conf['d-fuzz']['station'])
-        print 'Number of stations : ' + str(nb_stations)
+        print '+------------------------------------------------------'
+        print 'Configuration file: ' + self.conf_file
+        print 'Number of stations: ' + str(nb_stations)
 
         # Create a Queue
         q = Queue()
@@ -276,13 +278,14 @@ class Channel(Thread):
         recv = self.recv
         channel_q = self.channel_q
         self.channel.open()
+        print '+------------------------------------------------------'
         print 'Opening ' + self.channel.name + '...'
         #time.sleep(0.1)
 
         # Playlist
         playlist = self.get_playlist()
         lp = len(playlist)
-	print 'There are ' + str(lp) + ' items in your playlist'
+        print 'There are ' + str(lp) + ' items in your playlist'
         self.rand_list = range(0,lp)
         
         while True:
@@ -349,7 +352,7 @@ class DFuzzError:
 
 def main():    
     if len(sys.argv) == 2:
-        print "D-fuzz v"+version
+        print "D-Fuzz v"+version
         dfuzz_main = DFuzz(sys.argv[1])
         dfuzz_main.run()
     else:
