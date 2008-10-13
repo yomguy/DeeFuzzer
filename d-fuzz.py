@@ -19,7 +19,7 @@ import random
 import Queue
 import subprocess
 from shout import Shout
-from xmltodict import *
+from tools import *
 from threading import Thread
 from mutagen.oggvorbis import OggVorbis
 
