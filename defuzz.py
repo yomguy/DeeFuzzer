@@ -19,7 +19,6 @@ import random
 import Queue
 import shout
 import subprocess
-from shout import Shout
 from tools import *
 from threading import Thread
 from mutagen.oggvorbis import OggVorbis
@@ -69,7 +68,7 @@ class DeFuzzError:
                                                 error)
 
 class DeFuzz:
-    """A DeFuzz station"""
+    """A DeFuzz diffuser"""
 
     def __init__(self, conf_file):
         self.conf_file = conf_file
@@ -93,31 +92,33 @@ class DeFuzz:
         else:
             nb_stations = len(self.conf['defuzz']['station'])
         print 'Number of stations : ' + str(nb_stations)
-        
+
         # Create a Queue
         q = Queue.Queue(nb_stations)
+
+        # Create a Producer 
         p = Producer(q)
         p.start()
+
         s = []
-        
         for i in range(0,nb_stations):
             if isinstance(self.conf['defuzz']['station'], dict):
                 station = self.conf['defuzz']['station']
             else:
                 station = self.conf['defuzz']['station'][i]
-            #print station
             name = station['infos']['name']
+            # Create a Station
             s.append(Station(station, q))
-        
+
         for i in range(0,nb_stations):
+            # Start the Stations
             s[i].start()
             time.sleep(0.1)
-            #s[i].join()
             pass
-            
+
 
 class Producer(Thread):
-    """A DeFuzz Producer master thread"""
+    """a DeFuzz Producer master thread"""
 
     def __init__(self, q):
         Thread.__init__(self)
@@ -130,19 +131,17 @@ class Producer(Thread):
             #print "Producer produced one queue step: "+str(i)
             self.q.put(i,1)
             i+=1
-            #time.sleep(0.1)
 
 
 class Station(Thread):
-    """A DeFuzz Station shouting slave thread"""
+    """a DeFuzz Station shouting slave thread"""
 
     def __init__(self, station, q):
         Thread.__init__(self)
         self.q = q
         self.station = station
         self.buffer_size = 16384
-        #self.channel_id = channel_id
-        self.channel = Shout()
+        self.channel = shout.Shout()
         self.id = 999999
         self.counter = 0
         self.rand_list = []
@@ -164,7 +163,6 @@ class Station(Thread):
         self.channel.user = 'source'
         self.channel.password = self.station['server']['sourcepassword']
         self.channel.mount = '/' + self.short_name + '.' + self.channel.format
-        #print self.channel.mount
         self.channel.public = int(self.station['server']['public'])
         # s.audio_info = { 'key': 'val', ... }
         #  (keys are shout.SHOUT_AI_BITRATE, shout.SHOUT_AI_SAMPLERATE,
@@ -190,18 +188,15 @@ class Station(Thread):
     def get_next_media_rand(self, playlist):
         lp = len(playlist)
         if self.id >= (lp - 1):
-            #print 'Get random list...'
             playlist = self.get_playlist()
             lp_new = len(playlist)
             if lp_new != lp or self.counter == 0:
                 self.rand_list = range(0,lp_new)
                 random.shuffle(self.rand_list)
-                #print self.rand_list
             self.id = 0
         else:
             self.id = self.id + 1
         index = self.rand_list[self.id]
-        #print str(self.id) +':'+ str(index)
         return playlist, playlist[index]
 
     def core_process(self, media, buffer_size):
@@ -246,12 +241,11 @@ class Station(Thread):
             if lp == 0:
                 break
             if self.mode_shuffle == 1:
-                #print 'Shuffle mode'
                 playlist, media = self.get_next_media_rand(playlist)
             else:
                 playlist, media = self.get_next_media_lin(playlist)
+
             self.counter += 1
-            
             if os.path.exists(media) and not '/.' in media:
                 file_name = string.replace(media, self.media_dir + os.sep, '')
                 self.channel.set_metadata({'song': file_name})
@@ -259,12 +253,11 @@ class Station(Thread):
                 print 'Defuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
 
                 for __chunk in stream:
-                    # Get the queue
                     self.channel.send(__chunk)
                     self.channel.sync()
+                    # Get the queue
                     it = q.get(1)
                     #print "Station eated one queue step: "+str(it)
-
         self.channel.close()
 
 
