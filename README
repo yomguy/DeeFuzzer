@@ -34,11 +34,11 @@ see INSTALL
 Usage : defuzz CONFIGFILE
   
   where CONFIGFILE is the path for a XML config file
-  ex: defuzz ./myfuzz.xml
+  ex: defuzz example/myfuzz.xml
 
 Note that you must edit the config file with right parameters before executing...
 You can find an example for the XML file in the directory "example/" of this
-application.
+application (maybe in /usr/share/defuzz if installed with the help of install.py
 
 Be carefull : at the moment the Thread implementation raises exceptions when
 shutting down with CTRL + C...
