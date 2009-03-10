@@ -234,15 +234,13 @@ class Station(Thread):
         print "Using libshout version %s" % shout.version()
         q = self.q
         __chunk = 0
-        self.channel.open()
-        print 'Opening ' + self.short_name + ' - ' + self.channel.name + '...'
-        time.sleep(0.1)
-
-        # Playlist
         playlist = self.get_playlist()
         lp = len(playlist)
-        #print playlist
         self.rand_list = range(0,lp-1)
+        self.channel.open()
+        print 'Opening ' + self.short_name + ' - ' + self.channel.name + \
+                ' (' + str(lp) + ' tracks)...'
+        time.sleep(0.1)
 
         while True:
             if lp == 0:

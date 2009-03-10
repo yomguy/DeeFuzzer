@@ -1,0 +1,195 @@
+<defuzz>
+    <station>
+        <infos>
+            <short_name>My_Station_1</short_name>
+            <name>My best funky station</name>
+            <description>My personal best funky playlist ever !</description>
+            <url>http://mydomain.com</url>
+            <genre>Other</genre>
+        </infos>
+        <server>
+            <host>localhost</host>
+            <port>8000</port>
+            <sourcepassword>source2parisson</sourcepassword>
+            <public>1</public>
+        </server>
+        <media>
+            <dir>/home/momo/music/mp3/groovemaster_drums/</dir>
+            <format>mp3</format>
+            <bitrate>192</bitrate>
+            <ogg_quality>7</ogg_quality>
+            <samplerate>44100</samplerate>
+            <voices>2</voices>
+            <shuffle>1</shuffle>
+        </media>
+    </station>
+        <station>
+        <infos>
+            <short_name>My_Station_2</short_name>
+            <name>My best funky station</name>
+            <description>My personal best funky playlist ever !</description>
+            <url>http://mydomain.com</url>
+            <genre>Other</genre>
+        </infos>
+        <server>
+            <host>localhost</host>
+            <port>8000</port>
+            <sourcepassword>source2parisson</sourcepassword>
+            <public>1</public>
+        </server>
+        <media>
+            <dir>/home/momo/music/mp3/groovemaster_drums/</dir>
+            <format>mp3</format>
+            <bitrate>192</bitrate>
+            <ogg_quality>7</ogg_quality>
+            <samplerate>44100</samplerate>
+            <voices>2</voices>
+            <shuffle>1</shuffle>
+        </media>
+    </station>
+        <station>
+        <infos>
+            <short_name>My_Station_3</short_name>
+            <name>My best funky station</name>
+            <description>My personal best funky playlist ever !</description>
+            <url>http://mydomain.com</url>
+            <genre>Other</genre>
+        </infos>
+        <server>
+            <host>localhost</host>
+            <port>8000</port>
+            <sourcepassword>source2parisson</sourcepassword>
+            <public>1</public>
+        </server>
+        <media>
+            <dir>/home/momo/music/mp3/groovemaster_drums/</dir>
+            <format>mp3</format>
+            <bitrate>192</bitrate>
+            <ogg_quality>7</ogg_quality>
+            <samplerate>44100</samplerate>
+            <voices>2</voices>
+            <shuffle>1</shuffle>
+        </media>
+    </station>
+        <station>
+        <infos>
+            <short_name>My_Station_4</short_name>
+            <name>My best funky station</name>
+            <description>My personal best funky playlist ever !</description>
+            <url>http://mydomain.com</url>
+            <genre>Other</genre>
+        </infos>
+        <server>
+            <host>localhost</host>
+            <port>8000</port>
+            <sourcepassword>source2parisson</sourcepassword>
+            <public>1</public>
+        </server>
+        <media>
+            <dir>/home/momo/music/mp3/groovemaster_drums/</dir>
+            <format>mp3</format>
+            <bitrate>192</bitrate>
+            <ogg_quality>7</ogg_quality>
+            <samplerate>44100</samplerate>
+            <voices>2</voices>
+            <shuffle>1</shuffle>
+        </media>
+    </station>
+        <station>
+        <infos>
+            <short_name>My_Station_5</short_name>
+            <name>My best funky station</name>
+            <description>My personal best funky playlist ever !</description>
+            <url>http://mydomain.com</url>
+            <genre>Other</genre>
+        </infos>
+        <server>
+            <host>localhost</host>
+            <port>8000</port>
+            <sourcepassword>source2parisson</sourcepassword>
+            <public>1</public>
+        </server>
+        <media>
+            <dir>/home/momo/music/mp3/groovemaster_drums/</dir>
+            <format>mp3</format>
+            <bitrate>192</bitrate>
+            <ogg_quality>7</ogg_quality>
+            <samplerate>44100</samplerate>
+            <voices>2</voices>
+            <shuffle>1</shuffle>
+        </media>
+    </station>
+        <station>
+        <infos>
+            <short_name>My_Station_6</short_name>
+            <name>My best funky station</name>
+            <description>My personal best funky playlist ever !</description>
+            <url>http://mydomain.com</url>
+            <genre>Other</genre>
+        </infos>
+        <server>
+            <host>localhost</host>
+            <port>8000</port>
+            <sourcepassword>source2parisson</sourcepassword>
+            <public>1</public>
+        </server>
+        <media>
+            <dir>/home/momo/music/mp3/groovemaster_drums/</dir>
+            <format>mp3</format>
+            <bitrate>192</bitrate>
+            <ogg_quality>7</ogg_quality>
+            <samplerate>44100</samplerate>
+            <voices>2</voices>
+            <shuffle>1</shuffle>
+        </media>
+    </station>
+        <station>
+        <infos>
+            <short_name>My_Station_7</short_name>
+            <name>My best funky station</name>
+            <description>My personal best funky playlist ever !</description>
+            <url>http://mydomain.com</url>
+            <genre>Other</genre>
+        </infos>
+        <server>
+            <host>localhost</host>
+            <port>8000</port>
+            <sourcepassword>source2parisson</sourcepassword>
+            <public>1</public>
+        </server>
+        <media>
+            <dir>/home/momo/music/mp3/groovemaster_drums/</dir>
+            <format>mp3</format>
+            <bitrate>192</bitrate>
+            <ogg_quality>7</ogg_quality>
+            <samplerate>44100</samplerate>
+            <voices>2</voices>
+            <shuffle>1</shuffle>
+        </media>
+    </station>
+        <station>
+        <infos>
+            <short_name>My_Station_8</short_name>
+            <name>My best funky station</name>
+            <description>My personal best funky playlist ever !</description>
+            <url>http://mydomain.com</url>
+            <genre>Other</genre>
+        </infos>
+        <server>
+            <host>localhost</host>
+            <port>8000</port>
+            <sourcepassword>source2parisson</sourcepassword>
+            <public>1</public>
+        </server>
+        <media>
+            <dir>/home/momo/music/mp3/groovemaster_drums/</dir>
+            <format>mp3</format>
+            <bitrate>192</bitrate>
+            <ogg_quality>7</ogg_quality>
+            <samplerate>44100</samplerate>
+            <voices>2</voices>
+            <shuffle>1</shuffle>
+        </media>
+    </station>
+</defuzz>
+
