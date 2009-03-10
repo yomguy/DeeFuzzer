@@ -37,7 +37,7 @@ os.system('rm -rf '+install_dir+os.sep+'debian')
 if os.path.exists('/usr/bin/defuzz'):
     os.system('rm -r /usr/bin/defuzz')
 
-os.system('ln -s '+install_dir+os.sep+'defuzz.py '+'/usr/bin/fuzz')
+os.system('ln -s '+install_dir+os.sep+'defuzz.py '+'/usr/bin/defuzz')
 
 print """
    Installation successfull ! 

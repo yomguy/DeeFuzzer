@@ -35,7 +35,7 @@ def prog_info():
         
  This software is licensed as described in the file COPYING, which
  you should have received as part of this distribution. The terms
- are also available at http://svn.parisson.org/d-fuzz/DFuzzLicense
+ are also available at http://svn.parisson.org/d-fuzz/DeFuzzLicense
         
  depends : python, python-xml, python-shout, libshout3, icecast2
  recommends : python-mutagen
@@ -45,7 +45,7 @@ def prog_info():
   where $1 is the path for a XML config file
   ex: defuzz example/myfuzz.xml
  
- see http://parisson.com/defuzz/ for more details
+ see http://svn.parisson.org/defuzz/ for more details
         """ % (year)
         text = desc + ver + info
         return text
