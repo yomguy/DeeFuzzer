@@ -1,13 +1,13 @@
 # README
 # ======
 
-d-fuzz : a lightweight icecast streaming client written in python
+defuzz : a lightweight icecast streaming client written in python
 
 
 # 1. Introduction
 # ===============
 
-D-Fuzz is a light python program that streams media data from disks to icecast2
+DeFuzz is a light python program that streams media data from disks to icecast2
 with some metadata. It supports MP3, OGG, SPEEX and THEORA media.
 
 It is neccessary to provide a config file which sets all needed parameters
@@ -25,16 +25,16 @@ see INSTALL
 
  This software is licensed as described in the file COPYING, which
  you should have received as part of this distribution. The terms
- are also available at http://svn.parisson.org/d-fuzz/DFuzzLicense
+ are also available at http://svn.parisson.org/defuzz/DeFuzzLicense
 
 
 # 4. Usage
 # =========
 
-Usage : d-fuzz CONFIGFILE
+Usage : defuzz CONFIGFILE
   
   where CONFIGFILE is the path for a XML config file
-  ex: d-fuzz ./myfuzz.xml
+  ex: defuzz ./myfuzz.xml
 
 Note that you must edit the config file with right parameters before executing...
 You can find an example for the XML file in the directory "example/" of this
@@ -42,7 +42,7 @@ application.
 
 Be carefull : at the moment the Thread implementation raises exceptions when
 shutting down with CTRL + C...
-You have then to kill each stream manually or make a full `pkill d-fuzz` .
+You have then to kill each stream manually or make a full `pkill defuzz` .
  
 # 5. Author
 # =========
@@ -64,5 +64,5 @@ Some parts of this work are also taken from another Parisson's project : Telemet
 # 7. Contact / Infos
 # ==================
 
-see http://svn.parisson.org/d-fuzz/ or http://parisson.com for more details...
+see http://svn.parisson.org/defuzz/ or http://parisson.com for more details...
 

@@ -174,7 +174,8 @@ class Channel(Thread):
         file_list = []
         for root, dirs, files in os.walk(self.media_dir):
             for file in files:
-                file_list.append(root + os.sep + file)
+                if not '/.' in file:
+                    file_list.append(root + os.sep + file)
         return file_list
 
     def get_next_media_lin(self, playlist):
@@ -248,8 +249,9 @@ class Channel(Thread):
 
         # Playlist
         playlist = self.get_playlist()
-        lp = len(playlist)-1
-        self.rand_list = range(0,lp)
+        lp = len(playlist)
+        print playlist
+        self.rand_list = range(0,lp-1)
 
         while True:
             if lp == 0:

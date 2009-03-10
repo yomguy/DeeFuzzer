@@ -9,14 +9,13 @@
 #
 # Author: Guillaume Pellerin <pellerin@parisson.com>
 
- depends : python, python-xml, shout-python, libshout3, icecast2
+ depends : python, python-xml, python-shout | shout-python, libshout3, icecast2
  recommends : python-mutagen
  provides : shout-python
- 
 
-This last library is included in D-Fuzz but needs to be compiled.
+python-shout is included in DeFuzz but needs to be compiled.
 As explained in shout-python/INSTALL, you just have to run this command :
 
-    cd shout-python; sudo python setup.py install
-
-    
+  $ cd shout-python
+  $ sudo python setup.py install
+  
