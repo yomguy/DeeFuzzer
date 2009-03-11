@@ -140,7 +140,7 @@ class Station(Thread):
         Thread.__init__(self)
         self.q = q
         self.station = station
-        self.buffer_size = 65536
+        self.buffer_size = 4096
         self.channel = shout.Shout()
         self.id = 999999
         self.counter = 0
