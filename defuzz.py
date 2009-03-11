@@ -150,12 +150,17 @@ class Station(Thread):
         self.media_dir = self.station['media']['dir']
         self.channel.format = self.station['media']['format']
         self.mode_shuffle = int(self.station['media']['shuffle'])
+        self.bitrate = self.station['media']['bitrate']
+        self.ogg_quality = self.station['media']['ogg_quality']
+        self.samplerate = self.station['media']['samplerate']
+        self.voices = self.station['media']['voices']
         # Infos
         self.short_name = self.station['infos']['short_name']
         self.channel.name = self.station['infos']['name']
         self.channel.genre = self.station['infos']['genre']
         self.channel.description = self.station['infos']['description']
         self.channel.url = self.station['infos']['url']
+        self.rss_file = '/tmp/' + self.short_name + '.xml'
         # Server
         self.channel.protocol = 'http'     # | 'xaudiocast' | 'icy'
         self.channel.host = self.station['server']['host']
@@ -164,9 +169,37 @@ class Station(Thread):
         self.channel.password = self.station['server']['sourcepassword']
         self.channel.mount = '/' + self.short_name + '.' + self.channel.format
         self.channel.public = int(self.station['server']['public'])
-        # s.audio_info = { 'key': 'val', ... }
-        #  (keys are shout.SHOUT_AI_BITRATE, shout.SHOUT_AI_SAMPLERATE,
-        #   shout.SHOUT_AI_CHANNELS, shout.SHOUT_AI_QUALITY)
+        self.channel.audio_info = { 'SHOUT_AI_BITRATE': self.bitrate,
+                                    'SHOUT_AI_SAMPLERATE': self.samplerate,
+                                    'SHOUT_AI_QUALITY': self.ogg_quality,
+                                    'SHOUT_AI_CHANNELS': self.voices,
+                                  }
+        self.channel.open()
+        self.playlist = self.get_playlist()
+        self.lp = len(self.playlist)
+        self.rand_list = range(0,self.lp-1)
+        print 'Opening ' + self.short_name + ' - ' + self.channel.name + \
+                ' (' + str(self.lp) + ' tracks)...'
+        time.sleep(0.1)
+
+    def update_rss(self, file_name):
+        self.media_url_dir = '/media/'
+        rss = PyRSS2Gen.RSS2(
+        title = self.channel.name,
+        link = self.channel.url,
+        description = self.channel.description,
+        lastBuildDate = datetime.datetime.now(),
+
+        items = [
+        PyRSS2Gen.RSSItem(
+            title = file_name,
+            link = self.channel.url + self.media_url_dir + file_name,
+            description = file_name,
+            guid = PyRSS2Gen.Guid(self.channel.url + self.media_url_dir + file_name),
+            pubDate = datetime.datetime(2003, 9, 6, 21, 31)),
+        ])
+
+        rss.write_xml(open(self.rss_file, "w"))
 
     def get_playlist(self):
         file_list = []
@@ -199,6 +232,7 @@ class Station(Thread):
         index = self.rand_list[self.id]
         return playlist, playlist[index]
 
+
     def core_process(self, media, buffer_size):
         """Read media and stream data through a generator.
         Taken from Telemeta (see http://telemeta.org)"""
@@ -226,24 +260,17 @@ class Station(Thread):
             yield __chunk
 
     def run(self):
-        print "Using libshout version %s" % shout.version()
+        #print "Using libshout version %s" % shout.version()
         q = self.q
         __chunk = 0
-        playlist = self.get_playlist()
-        lp = len(playlist)
-        self.rand_list = range(0,lp-1)
-        self.channel.open()
-        print 'Opening ' + self.short_name + ' - ' + self.channel.name + \
-                ' (' + str(lp) + ' tracks)...'
-        time.sleep(0.1)
 
         while True:
-            if lp == 0:
+            if self.lp == 0:
                 break
             if self.mode_shuffle == 1:
-                playlist, media = self.get_next_media_rand(playlist)
+                self.playlist, media = self.get_next_media_rand(self.playlist)
             else:
-                playlist, media = self.get_next_media_lin(playlist)
+                self.playlist, media = self.get_next_media_lin(self.playlist)
 
             self.counter += 1
             if os.path.exists(media) and not '/.' in media:
@@ -251,14 +278,16 @@ class Station(Thread):
                 self.channel.set_metadata({'song': file_name})
                 stream = self.core_process(media, self.buffer_size)
                 print 'Defuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
-
+                self.update_rss(file_name)
+                
                 for __chunk in stream:
                     self.channel.send(__chunk)
                     self.channel.sync()
                     # Get the queue
                     it = q.get(1)
                     #print "Station eated one queue step: "+str(it)
-        self.channel.close()
+
+        #self.channel.close()
 
 
 def main():
