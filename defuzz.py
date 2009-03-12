@@ -94,7 +94,7 @@ class DeFuzz:
         print 'Number of stations : ' + str(nb_stations)
 
         # Create a Queue
-        q = Queue.Queue(nb_stations)
+        q = Queue.Queue(1)
 
         # Create a Producer 
         p = Producer(q)
@@ -145,7 +145,7 @@ class Station(Thread):
         self.id = 999999
         self.counter = 0
         self.rand_list = []
-        self.command = "cat "
+        self.command = 'cat '
         # Media
         self.media_dir = self.station['media']['dir']
         self.channel.format = self.station['media']['format']
@@ -174,13 +174,8 @@ class Station(Thread):
                                     'SHOUT_AI_QUALITY': self.ogg_quality,
                                     'SHOUT_AI_CHANNELS': self.voices,
                                   }
-        self.channel.open()
-        self.playlist = self.get_playlist()
-        self.lp = len(self.playlist)
-        self.rand_list = range(0,self.lp-1)
-        print 'Opening ' + self.short_name + ' - ' + self.channel.name + \
-                ' (' + str(self.lp) + ' tracks)...'
-        time.sleep(0.1)
+
+        #time.sleep(0.1)
 
     def update_rss(self, file_name):
         self.media_url_dir = '/media/'
@@ -263,6 +258,12 @@ class Station(Thread):
         #print "Using libshout version %s" % shout.version()
         q = self.q
         __chunk = 0
+        self.channel.open()
+        self.playlist = self.get_playlist()
+        self.lp = len(self.playlist)
+        self.rand_list = range(0,self.lp-1)
+        print 'Opening ' + self.short_name + ' - ' + self.channel.name + \
+                ' (' + str(self.lp) + ' tracks)...'
 
         while True:
             if self.lp == 0:
@@ -276,18 +277,20 @@ class Station(Thread):
             if os.path.exists(media) and not '/.' in media:
                 file_name = string.replace(media, self.media_dir + os.sep, '')
                 self.channel.set_metadata({'song': file_name})
-                stream = self.core_process(media, self.buffer_size)
-                print 'Defuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
                 self.update_rss(file_name)
+                _stream = self.core_process(media, self.buffer_size)
+                print 'Defuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
                 
-                for __chunk in stream:
+                for __chunk in _stream:
+                    if len(__chunk) == 0:
+                        break
                     self.channel.send(__chunk)
                     self.channel.sync()
                     # Get the queue
                     it = q.get(1)
-                    #print "Station eated one queue step: "+str(it)
+                    print "Station " + self.short_name + " eated 1 queue step: "+str(it)
 
-        #self.channel.close()
+        self.channel.close()
 
 
 def main():
