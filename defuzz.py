@@ -140,7 +140,7 @@ class Station(Thread):
         Thread.__init__(self)
         self.q = q
         self.station = station
-        self.buffer_size = 4096
+        self.buffer_size = 1024
         self.channel = shout.Shout()
         self.id = 999999
         self.counter = 0
@@ -160,7 +160,7 @@ class Station(Thread):
         self.channel.genre = self.station['infos']['genre']
         self.channel.description = self.station['infos']['description']
         self.channel.url = self.station['infos']['url']
-        self.rss_file = '/tmp/' + self.short_name + '.xml'
+        self.rss_file = '/var/www/files/rss/' + self.short_name + '.xml'
         # Server
         self.channel.protocol = 'http'     # | 'xaudiocast' | 'icy'
         self.channel.host = self.station['server']['host']
@@ -285,10 +285,10 @@ class Station(Thread):
                     if len(__chunk) == 0:
                         break
                     self.channel.send(__chunk)
-                    self.channel.sync()
-                    # Get the queue
                     it = q.get(1)
-                    print "Station " + self.short_name + " eated 1 queue step: "+str(it)
+                    self.channel.sync()
+                    #time.sleep(0.001)
+                    #print "Station " + self.short_name + " eated 1 queue step: "+str(it)
 
         self.channel.close()
 
