@@ -6,7 +6,7 @@
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution. The terms
-# are also available at http://svn.parisson.org/defuzz/wiki/DefuzzLicense.
+# are also available at http://svn.parisson.org/deefuzz/wiki/DefuzzLicense.
 #
 # Author: Guillaume Pellerin <yomguy@parisson.com>
 
@@ -28,31 +28,31 @@ year = datetime.datetime.now().strftime("%Y")
 
 
 def prog_info():
-        desc = '\n defuzz : easy and light streaming tool\n'
+        desc = '\n deefuzz : easy and light streaming tool\n'
         ver = ' version : %s \n\n' % (version)
         info = """ Copyright (c) 2007-%s Guillaume Pellerin <yomguy@parisson.com>
  All rights reserved.
         
  This software is licensed as described in the file COPYING, which
  you should have received as part of this distribution. The terms
- are also available at http://svn.parisson.org/d-fuzz/DeFuzzLicense
+ are also available at http://svn.parisson.org/d-fuzz/DeeFuzzLicense
         
  depends : python, python-xml, python-shout, libshout3, icecast2
  recommends : python-mutagen
  provides : python-shout
        
- Usage : defuzz $1
+ Usage : deefuzz $1
   where $1 is the path for a XML config file
-  ex: defuzz example/myfuzz.xml
+  ex: deefuzz example/myfuzz.xml
  
- see http://svn.parisson.org/defuzz/ for more details
+ see http://svn.parisson.org/deefuzz/ for more details
         """ % (year)
         text = desc + ver + info
         return text
 
 
-class DeFuzzError:
-    """The DeFuzz main error class"""
+class DeeFuzzError:
+    """The DeeFuzz main error class"""
     def __init__(self, message, command, subprocess):
         self.message = message
         self.command = str(command)
@@ -67,8 +67,8 @@ class DeFuzzError:
                                                 self.command,
                                                 error)
 
-class DeFuzz:
-    """A DeFuzz diffuser"""
+class DeeFuzz:
+    """A DeeFuzz diffuser"""
 
     def __init__(self, conf_file):
         self.conf_file = conf_file
@@ -87,14 +87,14 @@ class DeFuzz:
 
     def start(self):
         # Fix wrong type data from xmltodict when one station (*)
-        if isinstance(self.conf['defuzz']['station'], dict):
+        if isinstance(self.conf['deefuzz']['station'], dict):
             nb_stations = 1
         else:
-            nb_stations = len(self.conf['defuzz']['station'])
+            nb_stations = len(self.conf['deefuzz']['station'])
         print 'Number of stations : ' + str(nb_stations)
 
         # Create a Queue
-        q = Queue.Queue(1)
+        q = Queue.Queue(nb_stations)
 
         # Create a Producer 
         p = Producer(q)
@@ -102,10 +102,10 @@ class DeFuzz:
 
         s = []
         for i in range(0,nb_stations):
-            if isinstance(self.conf['defuzz']['station'], dict):
-                station = self.conf['defuzz']['station']
+            if isinstance(self.conf['deefuzz']['station'], dict):
+                station = self.conf['deefuzz']['station']
             else:
-                station = self.conf['defuzz']['station'][i]
+                station = self.conf['deefuzz']['station'][i]
             name = station['infos']['name']
             # Create a Station
             s.append(Station(station, q))
@@ -118,7 +118,7 @@ class DeFuzz:
 
 
 class Producer(Thread):
-    """a DeFuzz Producer master thread"""
+    """a DeeFuzz Producer master thread"""
 
     def __init__(self, q):
         Thread.__init__(self)
@@ -134,18 +134,18 @@ class Producer(Thread):
 
 
 class Station(Thread):
-    """a DeFuzz Station shouting slave thread"""
+    """a DeeFuzz Station shouting slave thread"""
 
     def __init__(self, station, q):
         Thread.__init__(self)
         self.q = q
         self.station = station
-        self.buffer_size = 1024
+        self.buffer_size = 16384
         self.channel = shout.Shout()
         self.id = 999999
         self.counter = 0
         self.rand_list = []
-        self.command = 'cat '
+        self.command = "cat "
         # Media
         self.media_dir = self.station['media']['dir']
         self.channel.format = self.station['media']['format']
@@ -160,7 +160,7 @@ class Station(Thread):
         self.channel.genre = self.station['infos']['genre']
         self.channel.description = self.station['infos']['description']
         self.channel.url = self.station['infos']['url']
-        self.rss_file = '/var/www/files/rss/' + self.short_name + '.xml'
+        self.rss_file = '/tmp/' + self.short_name + '.xml'
         # Server
         self.channel.protocol = 'http'     # | 'xaudiocast' | 'icy'
         self.channel.host = self.station['server']['host']
@@ -174,8 +174,14 @@ class Station(Thread):
                                     'SHOUT_AI_QUALITY': self.ogg_quality,
                                     'SHOUT_AI_CHANNELS': self.voices,
                                   }
-
-        #time.sleep(0.1)
+        self.channel.open()
+        self.playlist = self.get_playlist()
+        self.lp = len(self.playlist)
+        self.rand_list = range(0,self.lp-1)
+        print 'Opening ' + self.short_name + ' - ' + self.channel.name + \
+                ' (' + str(self.lp) + ' tracks)...'
+        #print "Using libshout version %s" % shout.version()
+        time.sleep(0.1)
 
     def update_rss(self, file_name):
         self.media_url_dir = '/media/'
@@ -234,6 +240,7 @@ class Station(Thread):
 
         command = self.command + '"' + media + '"'
         __chunk = 0
+
         try:
             proc = subprocess.Popen(command,
                     shell = True,
@@ -242,28 +249,21 @@ class Station(Thread):
                     stdout = subprocess.PIPE,
                     close_fds = True)
         except:
-            raise DeFuzzError('Command failure:', command, proc)
+            raise DeeFuzzError('Command failure:', command, proc)
 
         # Core processing
         while True:
             __chunk = proc.stdout.read(buffer_size)
             status = proc.poll()
             if status != None and status != 0:
-                raise DeFuzzError('Command failure:', command, proc)
+                raise DeeFuzzError('Command failure:', command, proc)
             if len(__chunk) == 0:
                 break
             yield __chunk
 
     def run(self):
-        #print "Using libshout version %s" % shout.version()
         q = self.q
         __chunk = 0
-        self.channel.open()
-        self.playlist = self.get_playlist()
-        self.lp = len(self.playlist)
-        self.rand_list = range(0,self.lp-1)
-        print 'Opening ' + self.short_name + ' - ' + self.channel.name + \
-                ' (' + str(self.lp) + ' tracks)...'
 
         while True:
             if self.lp == 0:
@@ -277,27 +277,25 @@ class Station(Thread):
             if os.path.exists(media) and not '/.' in media:
                 file_name = string.replace(media, self.media_dir + os.sep, '')
                 self.channel.set_metadata({'song': file_name})
-                self.update_rss(file_name)
-                _stream = self.core_process(media, self.buffer_size)
+                stream = self.core_process(media, self.buffer_size)
                 print 'Defuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
+                self.update_rss(file_name)
                 
-                for __chunk in _stream:
-                    if len(__chunk) == 0:
-                        break
+                for __chunk in stream:
                     self.channel.send(__chunk)
-                    it = q.get(1)
                     self.channel.sync()
-                    #time.sleep(0.001)
-                    #print "Station " + self.short_name + " eated 1 queue step: "+str(it)
+                    # Get the queue
+                    it = q.get(1)
+                    #print "Station eated one queue step: "+str(it)
 
-        self.channel.close()
+        #self.channel.close()
 
 
 def main():
     if len(sys.argv) == 2:
         print "Defuzz v"+version
-        defuzz_main = DeFuzz(sys.argv[1])
-        defuzz_main.start()
+        deefuzz_main = DeeFuzz(sys.argv[1])
+        deefuzz_main.start()
     else:
         text = prog_info()
         sys.exit(text)
