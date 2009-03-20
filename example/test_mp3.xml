@@ -1,4 +1,4 @@
-<defuzz>
+<deefuzz>
     <station>
         <infos>
             <short_name>My_Station_1</short_name>
@@ -191,5 +191,5 @@
             <shuffle>1</shuffle>
         </media>
     </station>
-</defuzz>
+</deefuzz>
 
