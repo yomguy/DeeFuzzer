@@ -14,7 +14,7 @@
             <public>1</public>
         </server>
         <media>
-            <dir>/home/momo/music/mp3/groovemaster_drums/</dir>
+            <dir>/home/momo/music/music2/mp3/Billy Cobham</dir>
             <format>mp3</format>
             <bitrate>192</bitrate>
             <ogg_quality>7</ogg_quality>
@@ -23,7 +23,7 @@
             <shuffle>1</shuffle>
         </media>
     </station>
-        <station>
+    <station>
         <infos>
             <short_name>My_Station_2</short_name>
             <name>My best funky station</name>
@@ -38,7 +38,7 @@
             <public>1</public>
         </server>
         <media>
-            <dir>/home/momo/music/mp3/groovemaster_drums/</dir>
+            <dir>/home/momo/music/music2/mp3/Billy Cobham</dir>
             <format>mp3</format>
             <bitrate>192</bitrate>
             <ogg_quality>7</ogg_quality>
@@ -47,7 +47,7 @@
             <shuffle>1</shuffle>
         </media>
     </station>
-        <station>
+    <station>
         <infos>
             <short_name>My_Station_3</short_name>
             <name>My best funky station</name>
@@ -62,7 +62,7 @@
             <public>1</public>
         </server>
         <media>
-            <dir>/home/momo/music/mp3/groovemaster_drums/</dir>
+            <dir>/home/momo/music/music2/mp3/Billy Cobham</dir>
             <format>mp3</format>
             <bitrate>192</bitrate>
             <ogg_quality>7</ogg_quality>
@@ -71,7 +71,7 @@
             <shuffle>1</shuffle>
         </media>
     </station>
-        <station>
+    <station>
         <infos>
             <short_name>My_Station_4</short_name>
             <name>My best funky station</name>
@@ -86,7 +86,7 @@
             <public>1</public>
         </server>
         <media>
-            <dir>/home/momo/music/mp3/groovemaster_drums/</dir>
+            <dir>/home/momo/music/music2/mp3/Billy Cobham</dir>
             <format>mp3</format>
             <bitrate>192</bitrate>
             <ogg_quality>7</ogg_quality>
@@ -95,7 +95,7 @@
             <shuffle>1</shuffle>
         </media>
     </station>
-        <station>
+    <station>
         <infos>
             <short_name>My_Station_5</short_name>
             <name>My best funky station</name>
@@ -110,7 +110,7 @@
             <public>1</public>
         </server>
         <media>
-            <dir>/home/momo/music/mp3/groovemaster_drums/</dir>
+            <dir>/home/momo/music/music2/mp3/Billy Cobham</dir>
             <format>mp3</format>
             <bitrate>192</bitrate>
             <ogg_quality>7</ogg_quality>
@@ -119,7 +119,7 @@
             <shuffle>1</shuffle>
         </media>
     </station>
-        <station>
+    <station>
         <infos>
             <short_name>My_Station_6</short_name>
             <name>My best funky station</name>
@@ -134,7 +134,7 @@
             <public>1</public>
         </server>
         <media>
-            <dir>/home/momo/music/mp3/groovemaster_drums/</dir>
+            <dir>/home/momo/music/music2/mp3/Billy Cobham</dir>
             <format>mp3</format>
             <bitrate>192</bitrate>
             <ogg_quality>7</ogg_quality>
@@ -143,7 +143,7 @@
             <shuffle>1</shuffle>
         </media>
     </station>
-        <station>
+    <station>
         <infos>
             <short_name>My_Station_7</short_name>
             <name>My best funky station</name>
@@ -158,7 +158,7 @@
             <public>1</public>
         </server>
         <media>
-            <dir>/home/momo/music/mp3/groovemaster_drums/</dir>
+            <dir>/home/momo/music/music2/mp3/Billy Cobham</dir>
             <format>mp3</format>
             <bitrate>192</bitrate>
             <ogg_quality>7</ogg_quality>
@@ -167,7 +167,7 @@
             <shuffle>1</shuffle>
         </media>
     </station>
-        <station>
+    <station>
         <infos>
             <short_name>My_Station_8</short_name>
             <name>My best funky station</name>
@@ -182,7 +182,7 @@
             <public>1</public>
         </server>
         <media>
-            <dir>/home/momo/music/mp3/groovemaster_drums/</dir>
+            <dir>/home/momo/music/music2/mp3/Billy Cobham</dir>
             <format>mp3</format>
             <bitrate>192</bitrate>
             <ogg_quality>7</ogg_quality>

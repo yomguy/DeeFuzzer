@@ -85,14 +85,14 @@ class DeeFuzz:
     def get_station_names(self):
         return self.conf['station']['name']
 
-    def start(self):
+    def play(self):
         if isinstance(self.conf['deefuzz']['station'], dict):
             # Fix wrong type data from xmltodict when one station (*)
             nb_stations = 1
         else:
             nb_stations = len(self.conf['deefuzz']['station'])
         print 'Number of stations : ' + str(nb_stations)
-
+        
         # Create a Queue
         q = Queue.Queue(0)
 
@@ -100,6 +100,9 @@ class DeeFuzz:
         p = Producer(q)
         p.start()
 
+        # Define the buffer_size
+        buffer_size = 65536/nb_stations
+        
         s = []
         for i in range(0,nb_stations):
             if isinstance(self.conf['deefuzz']['station'], dict):
@@ -108,13 +111,11 @@ class DeeFuzz:
                 station = self.conf['deefuzz']['station'][i]
             name = station['infos']['name']
             # Create a Station
-            s.append(Station(station, q))
+            s.append(Station(station, q, buffer_size))
 
         for i in range(0,nb_stations):
             # Start the Stations
-            s[i].start()
-            time.sleep(0.1)
-            pass
+            s[i].start()            
 
 
 class Producer(Thread):
@@ -127,7 +128,7 @@ class Producer(Thread):
     def run(self):
         q = self.q
         i=0
-        while 1 : 
+        while 1: 
             #print "Producer produced one queue step: "+str(i)
             self.q.put(i,1)
             i+=1
@@ -136,11 +137,11 @@ class Producer(Thread):
 class Station(Thread):
     """a DeeFuzz Station shouting slave thread"""
 
-    def __init__(self, station, q):
+    def __init__(self, station, q, buffer_size):
         Thread.__init__(self)
-        self.q = q
         self.station = station
-        self.buffer_size = 16384
+        self.q = q
+        self.buffer_size = buffer_size
         self.channel = shout.Shout()
         self.id = 999999
         self.counter = 0
@@ -176,15 +177,18 @@ class Station(Thread):
                                   }
         self.channel.open()
         self.playlist = self.get_playlist()
+        #print self.playlist
         self.lp = len(self.playlist)
         self.rand_list = range(0,self.lp-1)
         print 'Opening ' + self.short_name + ' - ' + self.channel.name + \
                 ' (' + str(self.lp) + ' tracks)...'
         #print "Using libshout version %s" % shout.version()
-        time.sleep(0.1)
+        time.sleep(0.5)
 
     def update_rss(self, file_name):
         self.media_url_dir = '/media/'
+        media_size = os.path.getsize(self.media_dir + os.sep + file_name)
+        media_link = self.channel.url + self.media_url_dir + file_name
         rss = PyRSS2Gen.RSS2(
         title = self.channel.name,
         link = self.channel.url,
@@ -194,9 +198,10 @@ class Station(Thread):
         items = [
         PyRSS2Gen.RSSItem(
             title = file_name,
-            link = self.channel.url + self.media_url_dir + file_name,
+            link = media_link
             description = file_name,
-            guid = PyRSS2Gen.Guid(self.channel.url + self.media_url_dir + file_name),
+            enclosure = PyRSS2Gen.Enclosure(media_link, str(media_size), 'audio/mpeg'),
+            guid = PyRSS2Gen.Guid(media_link),
             pubDate = datetime.datetime(2003, 9, 6, 21, 31)),
         ])
 
@@ -206,7 +211,9 @@ class Station(Thread):
         file_list = []
         for root, dirs, files in os.walk(self.media_dir):
             for file in files:
-                if '.'+self.channel.format in file and not '/.' in file:
+                s = file.split('.')
+                ext = s[len(s)-1]
+                if ext.lower() == self.channel.format and not '/.' in file:
                     file_list.append(root + os.sep + file)
         return file_list
 
@@ -233,6 +240,8 @@ class Station(Thread):
         index = self.rand_list[self.id]
         return playlist, playlist[index]
 
+    def log_queue(self, it):
+        print 'Station ' + self.short_name + ' eated one queue step: '+str(it)
 
     def core_process(self, media, buffer_size):
         """Read media and stream data through a generator.
@@ -266,28 +275,33 @@ class Station(Thread):
         __chunk = 0
 
         while True:
+            it = q.get(1)
             if self.lp == 0:
                 break
             if self.mode_shuffle == 1:
                 self.playlist, media = self.get_next_media_rand(self.playlist)
             else:
                 self.playlist, media = self.get_next_media_lin(self.playlist)
-
             self.counter += 1
+            q.task_done()
+            #self.log_queue(it)
+            
             if os.path.exists(media) and not '/.' in media:
-                file_name = string.replace(media, self.media_dir + os.sep, '')
+                it = q.get(1)
+                file_name = string.replace(media, self.media_dir, '')
                 self.channel.set_metadata({'song': file_name})
-                stream = self.core_process(media, self.buffer_size)
-                print 'Deefuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
                 self.update_rss(file_name)
-
+                print 'Deefuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
+                stream = self.core_process(media, self.buffer_size)
+                q.task_done()
+                #self.log_queue(it)
+                
                 for __chunk in stream:
                     it = q.get(1)
                     self.channel.send(__chunk)
                     self.channel.sync()
-                    # Get the queue
                     q.task_done()
-                    #print "Station eated one queue step: "+str(it)
+                    #self.log_queue(it)
 
         self.channel.close()
 
@@ -295,8 +309,8 @@ class Station(Thread):
 def main():
     if len(sys.argv) == 2:
         print "Deefuzz v"+version
-        deefuzz_main = DeeFuzz(sys.argv[1])
-        deefuzz_main.start()
+        d = DeeFuzz(sys.argv[1])
+        d.play()
     else:
         text = prog_info()
         sys.exit(text)
