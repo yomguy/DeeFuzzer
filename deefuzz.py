@@ -198,7 +198,7 @@ class Station(Thread):
         items = [
         PyRSS2Gen.RSSItem(
             title = file_name,
-            link = media_link
+            link = media_link,
             description = file_name,
             enclosure = PyRSS2Gen.Enclosure(media_link, str(media_size), 'audio/mpeg'),
             guid = PyRSS2Gen.Guid(media_link),
@@ -288,10 +288,10 @@ class Station(Thread):
             
             if os.path.exists(media) and not '/.' in media:
                 it = q.get(1)
-                file_name = string.replace(media, self.media_dir, '')
+                file_name = string.replace(media, self.media_dir + os.sep, '')
                 self.channel.set_metadata({'song': file_name})
                 self.update_rss(file_name)
-                print 'Deefuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
+                print 'DeeFuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
                 stream = self.core_process(media, self.buffer_size)
                 q.task_done()
                 #self.log_queue(it)
@@ -308,7 +308,7 @@ class Station(Thread):
 
 def main():
     if len(sys.argv) == 2:
-        print "Deefuzz v"+version
+        print "DeeFuzz v"+version
         d = DeeFuzz(sys.argv[1])
         d.play()
     else:
