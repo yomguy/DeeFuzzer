@@ -287,7 +287,7 @@ class Station(Thread):
                     self.channel.sync()
                     # Get the queue
                     q.task_done()
-                    print "Station eated one queue step: "+str(it)
+                    #print "Station eated one queue step: "+str(it)
 
         self.channel.close()
 
