@@ -202,7 +202,7 @@ class Station(Thread):
             description = file_name,
             enclosure = PyRSS2Gen.Enclosure(media_link, str(media_size), 'audio/mpeg'),
             guid = PyRSS2Gen.Guid(media_link),
-            pubDate = datetime.datetime(2003, 9, 6, 21, 31)),
+            pubDate = datetime.datetime.now()),
         ])
 
         rss.write_xml(open(self.rss_file, "w"))
