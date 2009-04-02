@@ -23,7 +23,7 @@ from tools import *
 from threading import Thread
 from mutagen.oggvorbis import OggVorbis
 
-version = '0.2.2'
+version = '0.2.3'
 year = datetime.datetime.now().strftime("%Y")
 
 
@@ -86,15 +86,15 @@ class DeeFuzz:
         return self.conf['station']['name']
 
     def start(self):
-        # Fix wrong type data from xmltodict when one station (*)
         if isinstance(self.conf['deefuzz']['station'], dict):
+            # Fix wrong type data from xmltodict when one station (*)
             nb_stations = 1
         else:
             nb_stations = len(self.conf['deefuzz']['station'])
         print 'Number of stations : ' + str(nb_stations)
 
         # Create a Queue
-        q = Queue.Queue(nb_stations)
+        q = Queue.Queue(0)
 
         # Create a Producer 
         p = Producer(q)
@@ -145,7 +145,7 @@ class Station(Thread):
         self.id = 999999
         self.counter = 0
         self.rand_list = []
-        self.command = "cat "
+        self.command = 'cat '
         # Media
         self.media_dir = self.station['media']['dir']
         self.channel.format = self.station['media']['format']
@@ -206,7 +206,7 @@ class Station(Thread):
         file_list = []
         for root, dirs, files in os.walk(self.media_dir):
             for file in files:
-                if not '/.' in file:
+                if '.'+self.channel.format in file and not '/.' in file:
                     file_list.append(root + os.sep + file)
         return file_list
 
@@ -278,22 +278,23 @@ class Station(Thread):
                 file_name = string.replace(media, self.media_dir + os.sep, '')
                 self.channel.set_metadata({'song': file_name})
                 stream = self.core_process(media, self.buffer_size)
-                print 'Defuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
+                print 'Deefuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
                 self.update_rss(file_name)
-                
+
                 for __chunk in stream:
+                    it = q.get(1)
                     self.channel.send(__chunk)
                     self.channel.sync()
                     # Get the queue
-                    it = q.get(1)
-                    #print "Station eated one queue step: "+str(it)
+                    q.task_done()
+                    print "Station eated one queue step: "+str(it)
 
-        #self.channel.close()
+        self.channel.close()
 
 
 def main():
     if len(sys.argv) == 2:
-        print "Defuzz v"+version
+        print "Deefuzz v"+version
         deefuzz_main = DeeFuzz(sys.argv[1])
         deefuzz_main.start()
     else:
