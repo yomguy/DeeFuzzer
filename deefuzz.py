@@ -21,7 +21,6 @@ import shout
 import subprocess
 from tools import *
 from threading import Thread
-from mutagen.oggvorbis import OggVorbis
 
 version = '0.2.3'
 year = datetime.datetime.now().strftime("%Y")
@@ -188,9 +187,9 @@ class Station(Thread):
         
         
 
-    def update_rss(self, file_name):
-        media_size = os.path.getsize(self.media_dir + os.sep + file_name)
-        media_link = self.channel.url + self.media_url_dir + file_name
+    def update_rss(self, media_obj):
+        media_size = media_obj.size
+        media_link = self.channel.url + self.media_url_dir + media_obj.file_name
         rss = PyRSS2Gen.RSS2(
         title = self.channel.name,
         link = self.channel.url,
@@ -199,9 +198,12 @@ class Station(Thread):
 
         items = [
         PyRSS2Gen.RSSItem(
-            title = file_name.split('.')[-2],
+            title = media_obj.metadata['artist'] + ' : ' + media_obj.metadata['title'],
             link = media_link,
-            description = file_name,
+            description = 'Album: ' + media_obj.metadata['album'] +
+                          ', Date:' + media_obj.metadata['date'] +
+                          ', Genre:' + media_obj.metadata['genre'] +
+                          ', Comment:' + media_obj.metadata['comment'],
             enclosure = PyRSS2Gen.Enclosure(media_link, str(media_size), 'audio/mpeg'),
             guid = PyRSS2Gen.Guid(media_link),
             pubDate = datetime.datetime.now()),
@@ -285,15 +287,24 @@ class Station(Thread):
             else:
                 self.playlist, media = self.get_next_media_lin(self.playlist)
             self.counter += 1
+
+            file_name = media.split(os.sep)[-1]
+            file_title = file_name.split('.')[-2]
+            file_ext = file_name.split('.')[-1]
+            
+            if file_ext.lower() == 'mp3':
+                media_obj = Mp3(media)
+            elif file_ext.lower() == 'ogg':
+                media_obj = Ogg(media)
+                
             q.task_done()
             #self.log_queue(it)
             
             if os.path.exists(media) and not os.sep+'.' in media:
                 it = q.get(1)
-                file_name = media.split(os.sep)[-1]
-                file_title = file_name.split('.')[-2]
-                self.channel.set_metadata({'song': file_title})
-                self.update_rss(file_name)
+                title = media_obj.metadata['title']
+                self.channel.set_metadata({'song': str(title)})
+                self.update_rss(media_obj)
                 print 'DeeFuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
                 stream = self.core_process(media)
                 q.task_done()
@@ -307,6 +318,7 @@ class Station(Thread):
                     #self.log_queue(it)
 
         self.channel.close()
+
 
 
 def main():

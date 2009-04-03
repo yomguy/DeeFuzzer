@@ -37,6 +37,8 @@ class Mp3:
         self.description = self.get_description()
         self.mime_type = self.get_mime_type()
         self.extension = self.get_file_extension()
+        self.size = os.path.getsize(media)
+        self.file_name = media.split(os.sep)[-1]
         #self.args = self.get_args()
                     
     def get_format(self):
@@ -50,7 +52,7 @@ class Mp3:
 
     def get_description(self):
         return "MPEG audio Layer III"
-
+    
     def get_metadata(self):
         m = MP3(self.media, ID3=EasyID3)
         metadata = {}
@@ -58,7 +60,7 @@ class Mp3:
             try:
                 metadata[key] = m[key][0]
             except:
-                pass
+                metadata[key] = ''
         return metadata
 
     def decode(self):

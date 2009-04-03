@@ -12,18 +12,12 @@
 
 import os
 import string
-import subprocess
-
-from telemeta.export.core import *
-from telemeta.export.api import IExporter
 from mutagen.oggvorbis import OggVorbis
 
-class OggExporter(ExporterCore):
+class Ogg:
     """Defines methods to export to OGG Vorbis"""
-
-    implements(IExporter)
     
-    def __init__(self):
+    def __init__(self, media):
         self.item_id = ''
         self.metadata = {}
         self.description = ''
