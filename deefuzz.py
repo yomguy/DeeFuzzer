@@ -92,7 +92,7 @@ class DeeFuzz:
         else:
             nb_stations = len(self.conf['deefuzz']['station'])
         print 'Number of stations : ' + str(nb_stations)
-        
+
         # Create a Queue
         q = Queue.Queue(0)
 
@@ -102,6 +102,7 @@ class DeeFuzz:
 
         # Define the buffer_size
         buffer_size = 65536/nb_stations
+        print 'Buffer size per station = ' + str(buffer_size)
         
         s = []
         for i in range(0,nb_stations):
@@ -161,7 +162,9 @@ class Station(Thread):
         self.channel.genre = self.station['infos']['genre']
         self.channel.description = self.station['infos']['description']
         self.channel.url = self.station['infos']['url']
-        self.rss_file = '/tmp/' + self.short_name + '.xml'
+        self.rss_dir = os.sep + 'tmp'
+        self.rss_file = self.rss_dir + os.sep + self.short_name + '.xml'
+        self.media_url_dir = '/media/'
         # Server
         self.channel.protocol = 'http'     # | 'xaudiocast' | 'icy'
         self.channel.host = self.station['server']['host']
@@ -175,18 +178,17 @@ class Station(Thread):
                                     'SHOUT_AI_QUALITY': self.ogg_quality,
                                     'SHOUT_AI_CHANNELS': self.voices,
                                   }
-        self.channel.open()
         self.playlist = self.get_playlist()
         #print self.playlist
         self.lp = len(self.playlist)
-        self.rand_list = range(0,self.lp-1)
+        self.channel.open()
         print 'Opening ' + self.short_name + ' - ' + self.channel.name + \
                 ' (' + str(self.lp) + ' tracks)...'
-        #print "Using libshout version %s" % shout.version()
         time.sleep(0.5)
+        
+        
 
     def update_rss(self, file_name):
-        self.media_url_dir = '/media/'
         media_size = os.path.getsize(self.media_dir + os.sep + file_name)
         media_link = self.channel.url + self.media_url_dir + file_name
         rss = PyRSS2Gen.RSS2(
@@ -197,7 +199,7 @@ class Station(Thread):
 
         items = [
         PyRSS2Gen.RSSItem(
-            title = file_name,
+            title = file_name.split('.')[-2],
             link = media_link,
             description = file_name,
             enclosure = PyRSS2Gen.Enclosure(media_link, str(media_size), 'audio/mpeg'),
@@ -243,7 +245,7 @@ class Station(Thread):
     def log_queue(self, it):
         print 'Station ' + self.short_name + ' eated one queue step: '+str(it)
 
-    def core_process(self, media, buffer_size):
+    def core_process(self, media):
         """Read media and stream data through a generator.
         Taken from Telemeta (see http://telemeta.org)"""
 
@@ -253,7 +255,7 @@ class Station(Thread):
         try:
             proc = subprocess.Popen(command,
                     shell = True,
-                    bufsize = buffer_size,
+                    bufsize = self.buffer_size,
                     stdin = subprocess.PIPE,
                     stdout = subprocess.PIPE,
                     close_fds = True)
@@ -262,7 +264,7 @@ class Station(Thread):
 
         # Core processing
         while True:
-            __chunk = proc.stdout.read(buffer_size)
+            __chunk = proc.stdout.read(self.buffer_size)
             status = proc.poll()
             if status != None and status != 0:
                 raise DeeFuzzError('Command failure:', command, proc)
@@ -286,13 +288,14 @@ class Station(Thread):
             q.task_done()
             #self.log_queue(it)
             
-            if os.path.exists(media) and not '/.' in media:
+            if os.path.exists(media) and not os.sep+'.' in media:
                 it = q.get(1)
-                file_name = string.replace(media, self.media_dir + os.sep, '')
-                self.channel.set_metadata({'song': file_name})
+                file_name = media.split(os.sep)[-1]
+                file_title = file_name.split('.')[-2]
+                self.channel.set_metadata({'song': file_title})
                 self.update_rss(file_name)
                 print 'DeeFuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
-                stream = self.core_process(media, self.buffer_size)
+                stream = self.core_process(media)
                 q.task_done()
                 #self.log_queue(it)
                 
@@ -309,6 +312,7 @@ class Station(Thread):
 def main():
     if len(sys.argv) == 2:
         print "DeeFuzz v"+version
+        print "Using libshout version %s" % shout.version()
         d = DeeFuzz(sys.argv[1])
         d.play()
     else:
