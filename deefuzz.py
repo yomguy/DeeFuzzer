@@ -190,6 +190,10 @@ class Station(Thread):
     def update_rss(self, media_obj):
         media_size = media_obj.size
         media_link = self.channel.url + self.media_url_dir + media_obj.file_name
+        media_description = ''
+        for key in media_obj.metadata.keys():
+            if media_obj.metadata[key] != '':
+                media_description += key + ' : ' + media_obj.metadata[key] + ', '
         rss = PyRSS2Gen.RSS2(
         title = self.channel.name,
         link = self.channel.url,
@@ -200,10 +204,7 @@ class Station(Thread):
         PyRSS2Gen.RSSItem(
             title = media_obj.metadata['artist'] + ' : ' + media_obj.metadata['title'],
             link = media_link,
-            description = 'Album: ' + media_obj.metadata['album'] +
-                          ', Date:' + media_obj.metadata['date'] +
-                          ', Genre:' + media_obj.metadata['genre'] +
-                          ', Comment:' + media_obj.metadata['comment'],
+            description = media_description,
             enclosure = PyRSS2Gen.Enclosure(media_link, str(media_size), 'audio/mpeg'),
             guid = PyRSS2Gen.Guid(media_link),
             pubDate = datetime.datetime.now()),
