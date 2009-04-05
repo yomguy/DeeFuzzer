@@ -41,7 +41,7 @@ import string
 from mutagen.oggvorbis import OggVorbis
 
 class Ogg:
-    """Defines methods to export to OGG Vorbis"""
+    """An OGG file object"""
     
     def __init__(self, media):
         self.item_id = ''

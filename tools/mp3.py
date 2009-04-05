@@ -44,7 +44,7 @@ from mutagen.mp3 import MP3
 EasyID3.valid_keys["comment"]="COMM::'XXX'"
 
 class Mp3:
-    """An MP3 file object"""
+    """A MP3 file object"""
     
     def __init__(self, media):
         self.media = media
@@ -60,7 +60,7 @@ class Mp3:
                     'comment': 'COMM',
                     'genre': 'TCON',
                     }
-        self.metadata = self.get_metadata()
+        self.metadata = self.get_file_metadata()
         self.description = self.get_description()
         self.mime_type = self.get_mime_type()
         self.extension = self.get_file_extension()
@@ -80,7 +80,7 @@ class Mp3:
     def get_description(self):
         return "MPEG audio Layer III"
     
-    def get_metadata(self):
+    def get_file_metadata(self):
         m = MP3(self.media, ID3=EasyID3)
         metadata = {}
         for key in self.keys2id3.keys():
