@@ -1,13 +1,39 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2007-2009 Guillaume Pellerin <yomguy@parisson.com>
-# All rights reserved.
-#
-# This software is licensed as described in the file COPYING, which
-# you should have received as part of this distribution. The terms
-# are also available at http://svn.parisson.org/deefuzz/wiki/DefuzzLicense.
-#
+# Copyright Guillaume Pellerin (2006-2009)
+
+# <yomguy@parisson.com>
+
+# This software is a computer program whose purpose is to stream audio
+# and video data through icecast2 servers.
+
+# This software is governed by the CeCILL  license under French law and
+# abiding by the rules of distribution of free software.  You can  use, 
+# modify and/ or redistribute the software under the terms of the CeCILL
+# license as circulated by CEA, CNRS and INRIA at the following URL
+# "http://www.cecill.info". 
+
+# As a counterpart to the access to the source code and  rights to copy,
+# modify and redistribute granted by the license, users are provided only
+# with a limited warranty  and the software's author,  the holder of the
+# economic rights,  and the successive licensors  have only  limited
+# liability. 
+
+# In this respect, the user's attention is drawn to the risks associated
+# with loading,  using,  modifying and/or developing or reproducing the
+# software by the user in light of its specific status of free software,
+# that may mean  that it is complicated to manipulate,  and  that  also
+# therefore means  that it is reserved for developers  and  experienced
+# professionals having in-depth computer knowledge. Users are therefore
+# encouraged to load and test the software's suitability as regards their
+# requirements in conditions enabling the security of their systems and/or 
+# data to be ensured and,  more generally, to use and operate it in the 
+# same conditions as regards security.
+
+# The fact that you are presently reading this means that you have had
+# knowledge of the CeCILL license and that you accept its terms.
+
 # Author: Guillaume Pellerin <yomguy@parisson.com>
 
 import os
@@ -22,7 +48,7 @@ import subprocess
 from tools import *
 from threading import Thread
 
-version = '0.2.3'
+version = '0.3'
 year = datetime.datetime.now().strftime("%Y")
 
 
@@ -65,6 +91,7 @@ class DeeFuzzError:
         return "%s ; command: %s; error: %s" % (self.message,
                                                 self.command,
                                                 error)
+
 
 class DeeFuzz:
     """A DeeFuzz diffuser"""
@@ -126,7 +153,6 @@ class Producer(Thread):
         self.q = q
 
     def run(self):
-        q = self.q
         i=0
         while 1: 
             #print "Producer produced one queue step: "+str(i)
@@ -184,8 +210,6 @@ class Station(Thread):
         print 'Opening ' + self.short_name + ' - ' + self.channel.name + \
                 ' (' + str(self.lp) + ' tracks)...'
         time.sleep(0.5)
-        
-        
 
     def update_rss(self, media_obj):
         media_size = media_obj.size
@@ -193,7 +217,7 @@ class Station(Thread):
         media_description = ''
         for key in media_obj.metadata.keys():
             if media_obj.metadata[key] != '':
-                media_description += key + ' : ' + media_obj.metadata[key] + ', '
+                media_description += key.capitalize() + ' : ' + media_obj.metadata[key] + ', '
         rss = PyRSS2Gen.RSS2(
         title = self.channel.name,
         link = self.channel.url,
@@ -276,11 +300,10 @@ class Station(Thread):
             yield __chunk
 
     def run(self):
-        q = self.q
         __chunk = 0
 
         while True:
-            it = q.get(1)
+            it = self.q.get(1)
             if self.lp == 0:
                 break
             if self.mode_shuffle == 1:
@@ -298,28 +321,27 @@ class Station(Thread):
             elif file_ext.lower() == 'ogg':
                 media_obj = Ogg(media)
                 
-            q.task_done()
+            self.q.task_done()
             #self.log_queue(it)
             
             if os.path.exists(media) and not os.sep+'.' in media:
-                it = q.get(1)
+                it = self.q.get(1)
                 title = media_obj.metadata['title']
                 self.channel.set_metadata({'song': str(title)})
                 self.update_rss(media_obj)
                 print 'DeeFuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
                 stream = self.core_process(media)
-                q.task_done()
+                self.q.task_done()
                 #self.log_queue(it)
                 
                 for __chunk in stream:
-                    it = q.get(1)
+                    it = self.q.get(1)
                     self.channel.send(__chunk)
                     self.channel.sync()
-                    q.task_done()
+                    self.q.task_done()
                     #self.log_queue(it)
 
         self.channel.close()
-
 
 
 def main():
@@ -334,4 +356,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
