@@ -188,7 +188,8 @@ class Station(Thread):
         self.channel.description = self.station['infos']['description']
         self.channel.url = self.station['infos']['url']
         self.rss_dir = os.sep + 'tmp'
-        self.rss_file = self.rss_dir + os.sep + self.short_name + '.xml'
+        self.rss_current_file = self.rss_dir + os.sep + self.short_name + '_current.xml'
+        self.rss_playlist_file = self.rss_dir + os.sep + self.short_name + '_playlist.xml'
         self.media_url_dir = '/media/'
         # Server
         self.channel.protocol = 'http'     # | 'xaudiocast' | 'icy'
@@ -211,30 +212,38 @@ class Station(Thread):
                 ' (' + str(self.lp) + ' tracks)...'
         time.sleep(0.5)
 
-    def update_rss(self, media_obj):
-        media_size = media_obj.size
-        media_link = self.channel.url + self.media_url_dir + media_obj.file_name
-        media_description = ''
-        for key in media_obj.metadata.keys():
-            if media_obj.metadata[key] != '':
-                media_description += key.capitalize() + ' : ' + media_obj.metadata[key] + ', '
-        rss = PyRSS2Gen.RSS2(
-        title = self.channel.name,
-        link = self.channel.url,
-        description = self.channel.description,
-        lastBuildDate = datetime.datetime.now(),
+    def update_rss(self, media_obj_list, rss_file):
+        i =0
+        rss_item_list = []
+        
+        if len(media_obj_list) == 1:
+            sub_title = '(currently playing...)'
+        else:
+            sub_title = '(playlist)'
+            
+        for media_obj in media_obj_list:
+            media_size = media_obj.size
+            media_link = self.channel.url + self.media_url_dir + media_obj.file_name
+            media_description = ''
 
-        items = [
-        PyRSS2Gen.RSSItem(
-            title = media_obj.metadata['artist'] + ' : ' + media_obj.metadata['title'],
-            link = media_link,
-            description = media_description,
-            enclosure = PyRSS2Gen.Enclosure(media_link, str(media_size), 'audio/mpeg'),
-            guid = PyRSS2Gen.Guid(media_link),
-            pubDate = datetime.datetime.now()),
-        ])
-
-        rss.write_xml(open(self.rss_file, "w"))
+            for key in media_obj.metadata.keys():
+                if media_obj.metadata[key] != '':
+                    media_description += key.capitalize() + ' : ' + media_obj.metadata[key] + ', '
+            rss_item_list.append(PyRSS2Gen.RSSItem(
+                title = media_obj.metadata['artist'] + ' : ' + media_obj.metadata['title'],
+                link = media_link,
+                description = media_description,
+                enclosure = PyRSS2Gen.Enclosure(media_link, str(media_size), 'audio/mpeg'),
+                guid = PyRSS2Gen.Guid(media_link),
+                pubDate = datetime.datetime.now())
+                )
+                
+        rss = PyRSS2Gen.RSS2(title = self.channel.name + ' ' + sub_title,
+                            link = self.channel.url,
+                            description = self.channel.description,
+                            lastBuildDate = datetime.datetime.now(),
+                            items = rss_item_list,)
+        rss.write_xml(open(rss_file, "w"))
 
     def get_playlist(self):
         file_list = []
@@ -246,32 +255,52 @@ class Station(Thread):
                     file_list.append(root + os.sep + file)
         return file_list
 
-    def get_next_media_lin(self, playlist):
-        lp = len(playlist)
-        if self.id >= (lp - 1):
-            playlist = self.get_playlist()
+    def get_next_media_lin(self):
+        self.lp = len(self.playlist)
+        if self.id >= (self.lp - 1):
+            self.playlist = self.get_playlist()
             self.id = 0
+            self.lp = len(self.playlist)
+            self.update_rss(self.playlist_to_objs(), self.rss_playlist_file)
         else:
             self.id = self.id + 1
-        return playlist, playlist[self.id]
+        return self.playlist[self.id]
 
-    def get_next_media_rand(self, playlist):
-        lp = len(playlist)
-        if self.id >= (lp - 1):
-            playlist = self.get_playlist()
-            lp_new = len(playlist)
-            if lp_new != lp or self.counter == 0:
+    def get_next_media_rand(self):
+        self.lp = len(self.playlist)
+        if self.id >= (self.lp - 1):
+            self.playlist = self.get_playlist()
+            lp_new = len(self.playlist)
+            if lp_new != self.lp or self.counter == 0:
                 self.rand_list = range(0,lp_new)
                 random.shuffle(self.rand_list)
             self.id = 0
+            self.lp = len(self.playlist)
+            self.update_rss(self.playlist_to_objs(), self.rss_playlist_file)
         else:
             self.id = self.id + 1
         index = self.rand_list[self.id]
-        return playlist, playlist[index]
+        return self.playlist[index]
 
     def log_queue(self, it):
         print 'Station ' + self.short_name + ' eated one queue step: '+str(it)
 
+    def playlist_to_objs(self):
+        media_objs = []
+        for media in self.playlist:
+            file_name, file_title, file_ext = self.get_file_info(media)
+            if file_ext.lower() == 'mp3':
+                media_objs.append(Mp3(media))
+            elif file_ext.lower() == 'ogg':
+                media_objs.append(Ogg(media))
+        return media_objs
+
+    def get_file_info(self, media):
+        file_name = media.split(os.sep)[-1]
+        file_title = file_name.split('.')[-2]
+        file_ext = file_name.split('.')[-1]
+        return file_name, file_title, file_ext
+            
     def core_process(self, media):
         """Read media and stream data through a generator.
         Taken from Telemeta (see http://telemeta.org)"""
@@ -307,20 +336,17 @@ class Station(Thread):
             if self.lp == 0:
                 break
             if self.mode_shuffle == 1:
-                self.playlist, media = self.get_next_media_rand(self.playlist)
+                media = self.get_next_media_rand()
             else:
-                self.playlist, media = self.get_next_media_lin(self.playlist)
+                media = self.get_next_media_lin()
             self.counter += 1
-
-            file_name = media.split(os.sep)[-1]
-            file_title = file_name.split('.')[-2]
-            file_ext = file_name.split('.')[-1]
-            
+            self.lp = len(self.playlist)
+            file_name, file_title, file_ext = self.get_file_info(media)
             if file_ext.lower() == 'mp3':
                 media_obj = Mp3(media)
             elif file_ext.lower() == 'ogg':
                 media_obj = Ogg(media)
-                
+
             self.q.task_done()
             #self.log_queue(it)
             
@@ -328,7 +354,7 @@ class Station(Thread):
                 it = self.q.get(1)
                 title = media_obj.metadata['title']
                 self.channel.set_metadata({'song': str(title)})
-                self.update_rss(media_obj)
+                self.update_rss([media_obj], self.rss_current_file)
                 print 'DeeFuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
                 stream = self.core_process(media)
                 self.q.task_done()
