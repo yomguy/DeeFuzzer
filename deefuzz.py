@@ -187,7 +187,7 @@ class Station(Thread):
         self.channel.genre = self.station['infos']['genre']
         self.channel.description = self.station['infos']['description']
         self.channel.url = self.station['infos']['url']
-        self.rss_dir = os.sep + 'tmp'
+        self.rss_dir = os.sep + 'tmp' + os.sep + 'rss'
         self.rss_current_file = self.rss_dir + os.sep + self.short_name + '_current.xml'
         self.rss_playlist_file = self.rss_dir + os.sep + self.short_name + '_playlist.xml'
         self.media_url_dir = '/media/'
@@ -215,6 +215,8 @@ class Station(Thread):
     def update_rss(self, media_obj_list, rss_file):
         i =0
         rss_item_list = []
+        if not os.path.exists(self.rss_dir):
+            os.makedirs(self.rss_dir)
         
         if len(media_obj_list) == 1:
             sub_title = '(currently playing)'
@@ -224,11 +226,12 @@ class Station(Thread):
         for media_obj in media_obj_list:
             media_size = media_obj.size
             media_link = self.channel.url + self.media_url_dir + media_obj.file_name
-            media_description = ''
-
+            media_description = '<table>'
             for key in media_obj.metadata.keys():
                 if media_obj.metadata[key] != '':
-                    media_description += key.capitalize() + ' : ' + media_obj.metadata[key] + ', '
+                    media_description += '<tr><td>%s: </td><td><b>%s</b></td></tr>' % \
+                                            (key.capitalize(), media_obj.metadata[key])
+            media_description += '</table>'
             rss_item_list.append(PyRSS2Gen.RSSItem(
                 title = media_obj.metadata['artist'] + ' : ' + media_obj.metadata['title'],
                 link = media_link,
