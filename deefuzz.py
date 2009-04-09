@@ -301,7 +301,7 @@ class Station(Thread):
         file_ext = file_name.split('.')[-1]
         return file_name, file_title, file_ext
             
-    def core_process(self, media):
+    def core_process_stream(self, media):
         """Read media and stream data through a generator.
         Taken from Telemeta (see http://telemeta.org)"""
 
@@ -327,6 +327,21 @@ class Station(Thread):
             if len(__chunk) == 0:
                 break
             yield __chunk
+        
+    def core_process_read(self, media):
+        """Read media and stream data through a generator.
+        Taken from Telemeta (see http://telemeta.org)"""
+
+        __chunk = 0
+        m = open(media, 'r')
+        # Core processing
+        while True:
+            __chunk = m.read(self.buffer_size)
+            if len(__chunk) == 0:
+                break
+            yield __chunk
+        m.close()
+
 
     def run(self):
         __chunk = 0
@@ -356,7 +371,7 @@ class Station(Thread):
                 self.channel.set_metadata({'song': str(title)})
                 self.update_rss([media_obj], self.rss_current_file)
                 print 'DeeFuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
-                stream = self.core_process(media)
+                stream = self.core_process_read(media)
                 self.q.task_done()
                 #self.log_queue(it)
                 
