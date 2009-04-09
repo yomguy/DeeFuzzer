@@ -217,7 +217,7 @@ class Station(Thread):
         rss_item_list = []
         
         if len(media_obj_list) == 1:
-            sub_title = '(currently playing...)'
+            sub_title = '(currently playing)'
         else:
             sub_title = '(playlist)'
             
