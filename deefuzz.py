@@ -212,33 +212,35 @@ class Station(Thread):
                 ' (' + str(self.lp) + ' tracks)...'
         time.sleep(0.5)
 
-    def update_rss(self, media_obj_list, rss_file):
-        i =0
+    def update_rss(self, media_list, rss_file):
         rss_item_list = []
         if not os.path.exists(self.rss_dir):
             os.makedirs(self.rss_dir)
         
-        if len(media_obj_list) == 1:
+        if len(media_list) == 1:
             sub_title = '(currently playing)'
         else:
             sub_title = '(playlist)'
             
-        for media_obj in media_obj_list:
-            media_size = media_obj.size
-            media_link = self.channel.url + self.media_url_dir + media_obj.file_name
+        for media in media_list:
+            media_link = self.channel.url + self.media_url_dir + media.file_name
             media_description = '<table>'
-            for key in media_obj.metadata.keys():
-                if media_obj.metadata[key] != '':
-                    media_description += '<tr><td>%s: </td><td><b>%s</b></td></tr>' % \
-                                            (key.capitalize(), media_obj.metadata[key])
+            for key in media.metadata.keys():
+                if media.metadata[key] != '':
+                    media_description += '<tr><td>%s:   </td><td><b>%s</b></td></tr>' % \
+                                            (key.capitalize(), media.metadata[key])
             media_description += '</table>'
+            media_stats = os.stat(media.media)
+            media_date = time.localtime(media_stats[8])
+            media_date = time.strftime("%a, %d %b %Y %H:%M:%S +0000", media_date)
+            
             rss_item_list.append(PyRSS2Gen.RSSItem(
-                title = media_obj.metadata['artist'] + ' : ' + media_obj.metadata['title'],
+                title = media.metadata['artist'] + ' : ' + media.metadata['title'],
                 link = media_link,
                 description = media_description,
-                enclosure = PyRSS2Gen.Enclosure(media_link, str(media_size), 'audio/mpeg'),
+                enclosure = PyRSS2Gen.Enclosure(media_link, str(media.size), 'audio/mpeg'),
                 guid = PyRSS2Gen.Guid(media_link),
-                pubDate = datetime.datetime.now())
+                pubDate = media_date,)
                 )
                 
         rss = PyRSS2Gen.RSS2(title = self.channel.name + ' ' + sub_title,
@@ -246,7 +248,10 @@ class Station(Thread):
                             description = self.channel.description,
                             lastBuildDate = datetime.datetime.now(),
                             items = rss_item_list,)
-        rss.write_xml(open(rss_file, "w"))
+        
+        f = open(rss_file, 'w')
+        rss.write_xml(f)
+        f.close()
 
     def get_playlist(self):
         file_list = []
