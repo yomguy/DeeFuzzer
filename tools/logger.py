@@ -3,7 +3,8 @@
 import logging
 
 class Logger:
-
+    """A logging object"""
+    
     def __init__(self, file):
         self.logger = logging.getLogger('myapp')
         self.hdlr = logging.FileHandler(file)

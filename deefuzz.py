@@ -94,7 +94,7 @@ class DeeFuzzError:
 
 
 class DeeFuzz:
-    """A DeeFuzz diffuser"""
+    """a DeeFuzz diffuser"""
 
     def __init__(self, conf_file):
         self.conf_file = conf_file
@@ -107,13 +107,12 @@ class DeeFuzz:
         dict = xmltodict(conf_xml,'utf-8')
         return dict
 
-    def run(self):
+    def play(self):
         if isinstance(self.conf['deefuzz']['station'], dict):
             # Fix wrong type data from xmltodict when one station (*)
             nb_stations = 1
         else:
             nb_stations = len(self.conf['deefuzz']['station'])
-        #print 'Number of stations : ' + str(nb_stations)
 
         # Create a Queue
         q = Queue.Queue(1)
@@ -122,15 +121,18 @@ class DeeFuzz:
         p = Producer(q)
         p.start()
 
-        # Define the buffer_size
-        self.buffer_size = 65536/nb_stations
-        #print 'Buffer size per station = ' + str(self.buffer_size)
-
         # Set the deefuzz logger
         self.logger = Logger(self.conf['deefuzz']['log'])
+        self.logger.write('DeeFuzz v' + version)
+        self.logger.write('Using libshout version %s' % shout.version())
+
+        # Define the buffer_size
+        self.buffer_size = 65536/nb_stations
+        self.logger.write('Buffer size per station = ' + str(self.buffer_size))
 
         # Start the Stations
         s = []
+        self.logger.write('Number of stations : ' + str(nb_stations))
         for i in range(0,nb_stations):
             if isinstance(self.conf['deefuzz']['station'], dict):
                 station = self.conf['deefuzz']['station']
@@ -155,7 +157,6 @@ class Producer(Thread):
         i=0
         q = self.q
         while 1: 
-            #print "Producer produced one queue step: "+str(i)
             q.put(i,1)
             i+=1
 
@@ -206,13 +207,10 @@ class Station(Thread):
                                     'SHOUT_AI_CHANNELS': self.voices,
                                   }
         self.playlist = self.get_playlist()
-        #print self.playlist
         self.lp = len(self.playlist)
         self.channel.open()
 
         # Logging
-        self.logger.write('DeeFuzz v' + version)
-        self.logger.write('Using libshout version %s' % shout.version())
         self.logger.write('Opening ' + self.short_name + ' - ' + self.channel.name + \
                 ' (' + str(self.lp) + ' tracks)...')
 
@@ -220,12 +218,12 @@ class Station(Thread):
         rss_item_list = []
         if not os.path.exists(self.rss_dir):
             os.makedirs(self.rss_dir)
-        
+
         if len(media_list) == 1:
             sub_title = '(currently playing)'
         else:
             sub_title = '(playlist)'
-            
+
         for media in media_list:
             media_link = self.channel.url + self.media_url_dir + media.file_name
             media_description = '<table>'
@@ -353,6 +351,7 @@ class Station(Thread):
 
     def run(self):
         q = self.q
+
         while True:
             it = q.get(1)
             if self.lp == 0:
@@ -375,7 +374,6 @@ class Station(Thread):
                                     % (self.short_name, self.id, file_name))
                 stream = self.core_process_read(media)
                 q.task_done()
-                
                 for __chunk in stream:
                     it = q.get(1)
                     self.channel.send(__chunk)
@@ -389,7 +387,7 @@ class Station(Thread):
 def main():
     if len(sys.argv) == 2:
         d = DeeFuzz(sys.argv[1])
-        d.run()
+        d.play()
     else:
         text = prog_info()
         sys.exit(text)
