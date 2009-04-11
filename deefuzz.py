@@ -107,16 +107,13 @@ class DeeFuzz:
         dict = xmltodict(conf_xml,'utf-8')
         return dict
 
-    def get_station_names(self):
-        return self.conf['station']['name']
-
     def run(self):
         if isinstance(self.conf['deefuzz']['station'], dict):
             # Fix wrong type data from xmltodict when one station (*)
             nb_stations = 1
         else:
             nb_stations = len(self.conf['deefuzz']['station'])
-        print 'Number of stations : ' + str(nb_stations)
+        #print 'Number of stations : ' + str(nb_stations)
 
         # Create a Queue
         q = Queue.Queue(1)
@@ -127,21 +124,23 @@ class DeeFuzz:
 
         # Define the buffer_size
         self.buffer_size = 65536/nb_stations
-        print 'Buffer size per station = ' + str(self.buffer_size)
+        #print 'Buffer size per station = ' + str(self.buffer_size)
 
-        # Start the stations
+        # Set the deefuzz logger
+        self.logger = Logger(self.conf['deefuzz']['log'])
+
+        # Start the Stations
         s = []
         for i in range(0,nb_stations):
             if isinstance(self.conf['deefuzz']['station'], dict):
                 station = self.conf['deefuzz']['station']
             else:
                 station = self.conf['deefuzz']['station'][i]
-            name = station['infos']['name']
+
             # Create a Station
-            s.append(Station(station, q, self.buffer_size))
+            s.append(Station(station, q, self.buffer_size, self.logger))
 
         for i in range(0,nb_stations):
-            # Start the Stations
             s[i].start()   
 
 
@@ -164,11 +163,12 @@ class Producer(Thread):
 class Station(Thread):
     """a DeeFuzz shouting station thread"""
 
-    def __init__(self, station, q, buffer_size):
+    def __init__(self, station, q, buffer_size, logger):
         Thread.__init__(self)
         self.station = station
         self.q = q
         self.buffer_size = buffer_size
+        self.logger = logger
         self.channel = shout.Shout()
         self.id = 999999
         self.counter = 0
@@ -209,8 +209,12 @@ class Station(Thread):
         #print self.playlist
         self.lp = len(self.playlist)
         self.channel.open()
-        print 'Opening ' + self.short_name + ' - ' + self.channel.name + \
-                ' (' + str(self.lp) + ' tracks)...'
+
+        # Logging
+        self.logger.write('DeeFuzz v' + version)
+        self.logger.write('Using libshout version %s' % shout.version())
+        self.logger.write('Opening ' + self.short_name + ' - ' + self.channel.name + \
+                ' (' + str(self.lp) + ' tracks)...')
 
     def update_rss(self, media_list, rss_file):
         rss_item_list = []
@@ -367,7 +371,8 @@ class Station(Thread):
                 self.channel.set_metadata({'song': str(title)})
                 self.update_rss(self.current_media_obj, self.rss_current_file)
                 file_name, file_title, file_ext = self.get_file_info(media)
-                print 'DeeFuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
+                self.logger.write('DeeFuzzing this file on %s :  id = %s, name = %s' \
+                                    % (self.short_name, self.id, file_name))
                 stream = self.core_process_read(media)
                 q.task_done()
                 
@@ -383,8 +388,6 @@ class Station(Thread):
 
 def main():
     if len(sys.argv) == 2:
-        print "DeeFuzz v"+version
-        print "Using libshout version %s" % shout.version()
         d = DeeFuzz(sys.argv[1])
         d.run()
     else:

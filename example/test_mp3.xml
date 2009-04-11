@@ -1,4 +1,5 @@
 <deefuzz>
+    <log>/tmp/deefuzz.log</log>
     <station>
         <infos>
             <short_name>My_Station_1</short_name>

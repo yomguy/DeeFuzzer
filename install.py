@@ -57,6 +57,7 @@ if os.path.exists('/usr/bin/deefuzz'):
     os.system('rm -r /usr/bin/deefuzz')
 
 os.system('ln -s '+install_dir+os.sep+'deefuzz.py '+'/usr/bin/deefuzz')
+os.system('ln -s '+install_dir+os.sep+'deefuzz-deamon.sh '+'/usr/bin/deefuzz-deamon')
 
 print """
    Installation successfull ! 
