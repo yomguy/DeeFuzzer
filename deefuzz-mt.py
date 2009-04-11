@@ -46,6 +46,7 @@ import Queue
 import shout
 import subprocess
 from tools import *
+from threading import Thread
 
 version = '0.3'
 year = datetime.datetime.now().strftime("%Y")
@@ -98,6 +99,7 @@ class DeeFuzz:
     def __init__(self, conf_file):
         self.conf_file = conf_file
         self.conf = self.get_conf_dict()
+        self.buffer_size = 1024
 
     def get_conf_dict(self):
         confile = open(self.conf_file,'r')
@@ -109,7 +111,7 @@ class DeeFuzz:
     def get_station_names(self):
         return self.conf['station']['name']
 
-    def run(self):
+    def play(self):
         if isinstance(self.conf['deefuzz']['station'], dict):
             # Fix wrong type data from xmltodict when one station (*)
             nb_stations = 1
@@ -117,25 +119,52 @@ class DeeFuzz:
             nb_stations = len(self.conf['deefuzz']['station'])
         print 'Number of stations : ' + str(nb_stations)
 
-        if nb_stations > 1:
-            print "You are trying to start multiple stations at the same time..."
-            print "Please deefuzz-mt.py for that !"
+        # Create a Queue
+        q = Queue.Queue(0)
 
-        # Define the buffer_size
-        buffer_size = 65536
-        print 'Buffer size per station = ' + str(buffer_size)
+        # Create a Producer 
+        p = Producer(q)
+        p.start()
+        
+        print 'Buffer size per station = ' + str(self.buffer_size)
+        
+        s = []
+        for i in range(0,nb_stations):
+            if isinstance(self.conf['deefuzz']['station'], dict):
+                station = self.conf['deefuzz']['station']
+            else:
+                station = self.conf['deefuzz']['station'][i]
+            name = station['infos']['name']
+            # Create a Station
+            s.append(Station(station, q, self.buffer_size))
 
-        # Start the station
-        station = self.conf['deefuzz']['station']
-        s = Station(station, buffer_size)
-        s.run()
+        for i in range(0,nb_stations):
+            # Start the Stations
+            s[i].start()            
 
 
-class Station:
-    """a DeeFuzz shouting station"""
+class Producer(Thread):
+    """a DeeFuzz Producer master thread"""
 
-    def __init__(self, station, buffer_size):
+    def __init__(self, q):
+        Thread.__init__(self)
+        self.q = q
+
+    def run(self):
+        i=0
+        while 1: 
+            #print "Producer produced one queue step: "+str(i)
+            self.q.put(i,1)
+            i+=1
+
+
+class Station(Thread):
+    """a DeeFuzz Station shouting slave thread"""
+
+    def __init__(self, station, q, buffer_size):
+        Thread.__init__(self)
         self.station = station
+        self.q = q
         self.buffer_size = buffer_size
         self.channel = shout.Shout()
         self.id = 999999
@@ -179,7 +208,7 @@ class Station:
         self.channel.open()
         print 'Opening ' + self.short_name + ' - ' + self.channel.name + \
                 ' (' + str(self.lp) + ' tracks)...'
-        time.sleep(0.5)
+        #time.sleep(0.1)
 
     def update_rss(self, media_list, rss_file):
         rss_item_list = []
@@ -211,7 +240,7 @@ class Station:
                 guid = PyRSS2Gen.Guid(media_link),
                 pubDate = media_date,)
                 )
-
+                
         rss = PyRSS2Gen.RSS2(title = self.channel.name + ' ' + sub_title,
                             link = self.channel.url,
                             description = self.channel.description,
@@ -238,7 +267,7 @@ class Station:
             self.playlist = self.get_playlist()
             self.id = 0
             self.lp = len(self.playlist)
-            self.update_rss(self.media_to_objs(self.playlist), self.rss_playlist_file)
+            self.update_rss(self.playlist_to_objs(), self.rss_playlist_file)
         else:
             self.id = self.id + 1
         return self.playlist[self.id]
@@ -253,7 +282,7 @@ class Station:
                 random.shuffle(self.rand_list)
             self.id = 0
             self.lp = len(self.playlist)
-            self.update_rss(self.media_to_objs(self.playlist), self.rss_playlist_file)
+            self.update_rss(self.playlist_to_objs(), self.rss_playlist_file)
         else:
             self.id = self.id + 1
         index = self.rand_list[self.id]
@@ -262,9 +291,9 @@ class Station:
     def log_queue(self, it):
         print 'Station ' + self.short_name + ' eated one queue step: '+str(it)
 
-    def media_to_objs(self, media_list):
+    def playlist_to_objs(self):
         media_objs = []
-        for media in media_list:
+        for media in self.playlist:
             file_name, file_title, file_ext = self.get_file_info(media)
             if file_ext.lower() == 'mp3':
                 media_objs.append(Mp3(media))
@@ -283,6 +312,7 @@ class Station:
         Taken from Telemeta (see http://telemeta.org)"""
 
         command = self.command + '"' + media + '"'
+        __chunk = 0
 
         try:
             proc = subprocess.Popen(command,
@@ -303,12 +333,14 @@ class Station:
             if len(__chunk) == 0:
                 break
             yield __chunk
-
+        
     def core_process_read(self, media):
         """Read media and stream data through a generator.
         Taken from Telemeta (see http://telemeta.org)"""
 
+        __chunk = 0
         m = open(media, 'r')
+        # Core processing
         while True:
             __chunk = m.read(self.buffer_size)
             if len(__chunk) == 0:
@@ -316,9 +348,12 @@ class Station:
             yield __chunk
         m.close()
 
+
     def run(self):
+        __chunk = 0
 
         while True:
+            it = self.q.get(1)
             if self.lp == 0:
                 break
             if self.mode_shuffle == 1:
@@ -326,21 +361,33 @@ class Station:
             else:
                 media = self.get_next_media_lin()
             self.counter += 1
+            self.lp = len(self.playlist)
+            file_name, file_title, file_ext = self.get_file_info(media)
+            if file_ext.lower() == 'mp3':
+                media_obj = Mp3(media)
+            elif file_ext.lower() == 'ogg':
+                media_obj = Ogg(media)
+
+            self.q.task_done()
+            #self.log_queue(it)
             
             if os.path.exists(media) and not os.sep+'.' in media:
-                self.current_media_obj = self.media_to_objs([media])
-                title = self.current_media_obj[0].metadata['title']
+                it = self.q.get(1)
+                title = media_obj.metadata['title']
                 self.channel.set_metadata({'song': str(title)})
-                self.update_rss(self.current_media_obj, self.rss_current_file)
-                file_name, file_title, file_ext = self.get_file_info(media)
+                self.update_rss([media_obj], self.rss_current_file)
                 print 'DeeFuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
                 stream = self.core_process_read(media)
-
+                self.q.task_done()
+                #self.log_queue(it)
+                
                 for __chunk in stream:
+                    it = self.q.get(1)
                     self.channel.send(__chunk)
                     self.channel.sync()
-                stream.close()
-        
+                    self.q.task_done()
+                    #self.log_queue(it)
+
         self.channel.close()
 
 
@@ -349,8 +396,10 @@ def main():
         print "DeeFuzz v"+version
         print "Using libshout version %s" % shout.version()
         d = DeeFuzz(sys.argv[1])
-        d.run()
+        d.play()
     else:
+        text = prog_info()
+        sys.exit(text)
 
 if __name__ == '__main__':
     main()
