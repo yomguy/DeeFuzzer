@@ -45,6 +45,7 @@ import random
 import Queue
 import shout
 import subprocess
+from threading import Thread
 from tools import *
 
 version = '0.3'
@@ -117,25 +118,56 @@ class DeeFuzz:
             nb_stations = len(self.conf['deefuzz']['station'])
         print 'Number of stations : ' + str(nb_stations)
 
-        if nb_stations > 1:
-            print "You are trying to start multiple stations at the same time..."
-            print "Please deefuzz-mt.py for that !"
+        # Create a Queue
+        q = Queue.Queue(1)
+
+        # Create a Producer 
+        p = Producer(q)
+        p.start()
 
         # Define the buffer_size
-        buffer_size = 65536
-        print 'Buffer size per station = ' + str(buffer_size)
+        self.buffer_size = 65536/nb_stations
+        print 'Buffer size per station = ' + str(self.buffer_size)
 
-        # Start the station
-        station = self.conf['deefuzz']['station']
-        s = Station(station, buffer_size)
-        s.run()
+        # Start the stations
+        s = []
+        for i in range(0,nb_stations):
+            if isinstance(self.conf['deefuzz']['station'], dict):
+                station = self.conf['deefuzz']['station']
+            else:
+                station = self.conf['deefuzz']['station'][i]
+            name = station['infos']['name']
+            # Create a Station
+            s.append(Station(station, q, self.buffer_size))
+
+        for i in range(0,nb_stations):
+            # Start the Stations
+            s[i].start()   
 
 
-class Station:
-    """a DeeFuzz shouting station"""
+class Producer(Thread):
+    """a DeeFuzz Producer master thread"""
 
-    def __init__(self, station, buffer_size):
+    def __init__(self, q):
+        Thread.__init__(self)
+        self.q = q
+
+    def run(self):
+        i=0
+        q = self.q
+        while 1: 
+            #print "Producer produced one queue step: "+str(i)
+            q.put(i,1)
+            i+=1
+
+
+class Station(Thread):
+    """a DeeFuzz shouting station thread"""
+
+    def __init__(self, station, q, buffer_size):
+        Thread.__init__(self)
         self.station = station
+        self.q = q
         self.buffer_size = buffer_size
         self.channel = shout.Shout()
         self.id = 999999
@@ -179,7 +211,6 @@ class Station:
         self.channel.open()
         print 'Opening ' + self.short_name + ' - ' + self.channel.name + \
                 ' (' + str(self.lp) + ' tracks)...'
-        time.sleep(0.5)
 
     def update_rss(self, media_list, rss_file):
         rss_item_list = []
@@ -317,8 +348,9 @@ class Station:
         m.close()
 
     def run(self):
-
+        q = self.q
         while True:
+            it = q.get(1)
             if self.lp == 0:
                 break
             if self.mode_shuffle == 1:
@@ -326,8 +358,10 @@ class Station:
             else:
                 media = self.get_next_media_lin()
             self.counter += 1
+            q.task_done()
             
             if os.path.exists(media) and not os.sep+'.' in media:
+                it = q.get(1)
                 self.current_media_obj = self.media_to_objs([media])
                 title = self.current_media_obj[0].metadata['title']
                 self.channel.set_metadata({'song': str(title)})
@@ -335,10 +369,13 @@ class Station:
                 file_name, file_title, file_ext = self.get_file_info(media)
                 print 'DeeFuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
                 stream = self.core_process_read(media)
-
+                q.task_done()
+                
                 for __chunk in stream:
+                    it = q.get(1)
                     self.channel.send(__chunk)
                     self.channel.sync()
+                    q.task_done()
                 stream.close()
         
         self.channel.close()
@@ -351,6 +388,8 @@ def main():
         d = DeeFuzz(sys.argv[1])
         d.run()
     else:
+        text = prog_info()
+        sys.exit(text)
 
 if __name__ == '__main__':
     main()

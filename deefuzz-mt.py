@@ -99,7 +99,6 @@ class DeeFuzz:
     def __init__(self, conf_file):
         self.conf_file = conf_file
         self.conf = self.get_conf_dict()
-        self.buffer_size = 1024
 
     def get_conf_dict(self):
         confile = open(self.conf_file,'r')
@@ -120,12 +119,13 @@ class DeeFuzz:
         print 'Number of stations : ' + str(nb_stations)
 
         # Create a Queue
-        q = Queue.Queue(0)
+        q = Queue.Queue(1)
 
         # Create a Producer 
         p = Producer(q)
         p.start()
-        
+
+        self.buffer_size = 65536/nb_stations
         print 'Buffer size per station = ' + str(self.buffer_size)
         
         s = []
@@ -338,22 +338,20 @@ class Station(Thread):
         """Read media and stream data through a generator.
         Taken from Telemeta (see http://telemeta.org)"""
 
-        __chunk = 0
         m = open(media, 'r')
         # Core processing
         while True:
-            __chunk = m.read(self.buffer_size)
-            if len(__chunk) == 0:
+            _chunk = m.read(self.buffer_size)
+            if len(_chunk) == 0:
                 break
-            yield __chunk
+            yield _chunk
         m.close()
 
 
     def run(self):
-        __chunk = 0
-
+        q = self.q
         while True:
-            it = self.q.get(1)
+            it = q.get(1)
             if self.lp == 0:
                 break
             if self.mode_shuffle == 1:
@@ -368,24 +366,24 @@ class Station(Thread):
             elif file_ext.lower() == 'ogg':
                 media_obj = Ogg(media)
 
-            self.q.task_done()
+            q.task_done()
             #self.log_queue(it)
             
             if os.path.exists(media) and not os.sep+'.' in media:
-                it = self.q.get(1)
+                it = q.get(1)
                 title = media_obj.metadata['title']
                 self.channel.set_metadata({'song': str(title)})
                 self.update_rss([media_obj], self.rss_current_file)
                 print 'DeeFuzzing this file on %s :  id = %s, name = %s' % (self.short_name, self.id, file_name)
                 stream = self.core_process_read(media)
-                self.q.task_done()
+                q.task_done()
                 #self.log_queue(it)
                 
-                for __chunk in stream:
-                    it = self.q.get(1)
-                    self.channel.send(__chunk)
+                for _chunk in stream:
+                    it = q.get(1)
+                    self.channel.send(_chunk)
                     self.channel.sync()
-                    self.q.task_done()
+                    q.task_done()
                     #self.log_queue(it)
 
         self.channel.close()
