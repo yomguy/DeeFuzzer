@@ -12,8 +12,10 @@ dt = open(deefuzz_to, 'w')
 t = Template(df.read())
 
 dt.write('<deefuzz>\n')
+dt.write('    <log>/tmp/deefuzz.log</log>\n')
+
 for i in range(0,int(nb_station)):
-    xml = t.substitute(station='MyDeeFuzz_'+str(i+1))
+    xml = t.substitute(number='_'+str(i+1))
     dt.write(xml)
 dt.write('</deefuzz>\n')
 

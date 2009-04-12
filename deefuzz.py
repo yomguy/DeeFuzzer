@@ -123,8 +123,12 @@ class DeeFuzz:
         p.start()
 
         # Set the deefuzz logger
-        self.logger = Logger(self.conf['deefuzz']['log'])
-        self.logger.write('DeeFuzz v' + version)
+        if 'log' in self.conf['deefuzz'].keys():
+            self.logger = Logger(self.conf['deefuzz']['log'])
+        else:
+            self.logger = Logger('.' + os.sep + 'deefuzz.log')
+            
+        self.logger.write('Starting DeeFuzz v' + version)
         self.logger.write('Using libshout version %s' % shout.version())
 
         # Define the buffer_size
