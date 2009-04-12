@@ -1,14 +1,14 @@
 # README
 # ======
 
-deefuzz : a lightweight icecast streaming client written in python
+deefuzz : an easy and light media streaming tool
 
 
 # 1. Introduction
 # ===============
 
-DeeFuzz is a light python program that streams media data from disks to icecast2
-with some metadata. It supports MP3, OGG, SPEEX and THEORA media.
+DeeFuzz is a light python program that streams media data from file systems to icecast2
+with the metadata. It supports MP3, OGG, SPEEX and THEORA media.
 
 It is neccessary to provide a config file which sets all needed parameters
 (see example/myfuzz.xml for example).
@@ -33,17 +33,28 @@ see INSTALL
 
 Usage : deefuzz CONFIGFILE
   
-  where CONFIGFILE is the path for a XML config file
-  ex: deefuzz example/myfuzz.xml
+  where CONFIGFILE is the path for a XML config file. For example:
 
-Note that you must edit the config file with right parameters before executing...
+    $ deefuzz example/myfuzz.xml
+
+Note that you must edit the config file with right parameters before executing.
 You can find an example for the XML file in the directory "example/" of this
-application (maybe in /usr/share/deefuzz if installed with the help of install.py
+application (maybe in /usr/share/deefuzz if installed with the help of install.py)
 
-Be carefull : at the moment the Thread implementation raises exceptions when
-shutting down with CTRL + C...
-You have then to kill each stream manually or make a full `pkill deefuzz` .
- 
+DeeFuzz can also be run as a deamon using deefuzz-deamon:
+
+    $ deefuzz-deamon example/myfuzz.xml &
+
+Since 0.3, deefuzz doesn't print anything into the shell, then a right <log> parameter
+is needed in the XML config file.
+
+BE CAREFULL : at the moment, the multi-threading implementation of deefuzz instances
+avoids to shut down the streams with CTRL+C... You have to kill them manually,
+after a CTRL+Z, making this:
+
+    $ kill -9 `pgrep deefuzz`
+
+
 # 5. Author
 # =========
 
@@ -60,8 +71,13 @@ from scratch in python.
 Some parts of this work are also taken from another Parisson's project : Telemeta
 (see http://svn.parisson.org/telemeta).
 
+# 7. Licence
+# ==========
 
-# 7. Contact / Infos
+See COPYING
+
+
+# 8. Contact / Infos
 # ==================
 
 see http://svn.parisson.org/deefuzz/ or http://parisson.com for more details...

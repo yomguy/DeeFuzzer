@@ -115,6 +115,7 @@ class DeeFuzz:
             nb_stations = len(self.conf['deefuzz']['station'])
 
         # Create a Queue
+        # Not too much, otherwise, you will get memory leaks !
         q = Queue.Queue(1)
 
         # Create a Producer 
