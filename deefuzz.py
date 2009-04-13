@@ -188,13 +188,15 @@ class Station(Thread):
         self.ogg_quality = self.station['media']['ogg_quality']
         self.samplerate = self.station['media']['samplerate']
         self.voices = self.station['media']['voices']
+        self.rss_dir = self.station['media']['rss_dir']
+        self.rss_enclosure = self.station['media']['rss_enclosure']
         # Infos
         self.short_name = self.station['infos']['short_name']
         self.channel.name = self.station['infos']['name']
         self.channel.genre = self.station['infos']['genre']
         self.channel.description = self.station['infos']['description']
         self.channel.url = self.station['infos']['url']
-        self.rss_dir = os.sep + 'tmp' + os.sep + 'rss'
+        
         self.rss_current_file = self.rss_dir + os.sep + self.short_name + '_current.xml'
         self.rss_playlist_file = self.rss_dir + os.sep + self.short_name + '_playlist.xml'
         self.media_url_dir = '/media/'
@@ -240,15 +242,24 @@ class Station(Thread):
             media_stats = os.stat(media.media)
             media_date = time.localtime(media_stats[8])
             media_date = time.strftime("%a, %d %b %Y %H:%M:%S +0000", media_date)
-            
-            rss_item_list.append(PyRSS2Gen.RSSItem(
-                title = media.metadata['artist'] + ' : ' + media.metadata['title'],
-                link = media_link,
-                description = media_description,
-                enclosure = PyRSS2Gen.Enclosure(media_link, str(media.size), 'audio/mpeg'),
-                guid = PyRSS2Gen.Guid(media_link),
-                pubDate = media_date,)
-                )
+
+            if self.rss_enclosure == '1':
+                rss_item_list.append(PyRSS2Gen.RSSItem(
+                    title = media.metadata['artist'] + ' : ' + media.metadata['title'],
+                    link = media_link,
+                    description = media_description,
+                    enclosure = PyRSS2Gen.Enclosure(media_link, str(media.size), 'audio/mpeg'),
+                    guid = PyRSS2Gen.Guid(media_link),
+                    pubDate = media_date,)
+                    )
+            else:
+                rss_item_list.append(PyRSS2Gen.RSSItem(
+                    title = media.metadata['artist'] + ' : ' + media.metadata['title'],
+                    link = media_link,
+                    description = media_description,
+                    guid = PyRSS2Gen.Guid(media_link),
+                    pubDate = media_date,)
+                    )
 
         rss = PyRSS2Gen.RSS2(title = self.channel.name + ' ' + sub_title,
                             link = self.channel.url,
@@ -372,7 +383,8 @@ class Station(Thread):
                 it = q.get(1)
                 self.current_media_obj = self.media_to_objs([media])
                 title = self.current_media_obj[0].metadata['title']
-                self.channel.set_metadata({'song': str(title)})
+                artist = self.current_media_obj[0].metadata['artist']
+                self.channel.set_metadata({'song': str(artist) + ' : ' + str(title)})
                 self.update_rss(self.current_media_obj, self.rss_current_file)
                 file_name, file_title, file_ext = self.get_file_info(media)
                 self.logger.write('DeeFuzzing this file on %s :  id = %s, name = %s' \

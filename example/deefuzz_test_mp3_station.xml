@@ -1,0 +1,26 @@
+    <station>
+        <infos>
+            <short_name>deefuzz$number</short_name>
+            <name>DeeFuzz by Cellar @ Parisson.com - 100% Mix Techno House Electronic Groove !</name>
+            <description>DeeFuzz 100% Mix - The Best Techno House Electronic and Groove Mixes DeeFuzzed by Cellar from Paris 18 Chateau Rouge !</description>
+            <url>http://studio.parisson.com</url>
+            <genre>Techno House Dance Electronic Trance Mix Live</genre>
+        </infos>
+        <server>
+            <host>localhost</host>
+            <port>8000</port>
+            <sourcepassword>source2parisson</sourcepassword>
+            <public>0</public>
+        </server>
+        <media>
+            <dir>/home/momo/music/music4/mp3/janob/80s</dir>
+            <format>mp3</format>
+            <bitrate>192</bitrate>
+            <ogg_quality>7</ogg_quality>
+            <samplerate>44100</samplerate>
+            <voices>2</voices>
+            <shuffle>1</shuffle>
+            <rss_dir>/tmp/rss/</rss_dir>
+            <rss_enclosure>0</rss_enclosure>
+        </media>
+    </station>
