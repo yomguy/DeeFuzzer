@@ -93,10 +93,11 @@ class DeeFuzzError:
                                                 error)
 
 
-class DeeFuzz:
+class DeeFuzz(Thread):
     """a DeeFuzz diffuser"""
 
     def __init__(self, conf_file):
+        Thread.__init__(self)
         self.conf_file = conf_file
         self.conf = self.get_conf_dict()
 
@@ -107,7 +108,7 @@ class DeeFuzz:
         dict = xmltodict(conf_xml,'utf-8')
         return dict
 
-    def play(self):
+    def run(self):
         if isinstance(self.conf['deefuzz']['station'], dict):
             # Fix wrong type data from xmltodict when one station (*)
             nb_stations = 1
@@ -381,7 +382,7 @@ class Station(Thread):
                 try:
                     self.current_media_obj = self.media_to_objs([media])
                 except:
-                    self.logger.write('Error : Station ' + self.short_name + ' : ' + file_name + 'not found !')
+                    self.logger.write('Error : Station ' + self.short_name + ' : ' + media + 'not found !')
                     break
                 title = self.current_media_obj[0].metadata['title']
                 artist = self.current_media_obj[0].metadata['artist']
@@ -391,25 +392,25 @@ class Station(Thread):
                     song = str(artist) + ' : ' + str(title)
                 self.channel.set_metadata({'song': song})
                 self.update_rss(self.current_media_obj, self.rss_current_file)
-                
                 self.logger.write('DeeFuzzing this file on %s :  id = %s, index = %s, name = %s' \
                                     % (self.short_name, self.id, self.index_list[self.id], file_name))
-
                 stream = self.core_process_stream(media)
                 q.task_done()
+                
                 for __chunk in stream:
                     it = q.get(1)
                     self.channel.send(__chunk)
                     self.channel.sync()
                     q.task_done()
                 #stream.close()
+                
         self.channel.close()
 
 
 def main():
     if len(sys.argv) == 2:
         d = DeeFuzz(sys.argv[1])
-        d.play()
+        d.start()
     else:
         text = prog_info()
         sys.exit(text)
