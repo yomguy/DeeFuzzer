@@ -78,6 +78,14 @@ def prog_info():
 
 class DeeFuzzError:
     """The DeeFuzz main error class"""
+    def __init__(self, message):
+        self.message = message
+    def __str__(self):
+        return 'DeeFuzz Error : ' + self.message
+
+
+class DeeFuzzStreamError:
+    """The DeeFuzz stream error class"""
     def __init__(self, message, command, subprocess):
         self.message = message
         self.command = str(command)
@@ -105,8 +113,7 @@ class DeeFuzz(Thread):
         confile = open(self.conf_file,'r')
         conf_xml = confile.read()
         confile.close()
-        dict = xmltodict(conf_xml,'utf-8')
-        return dict
+        return xmltodict(conf_xml,'utf-8')
 
     def run(self):
         if isinstance(self.conf['deefuzz']['station'], dict):
@@ -128,7 +135,6 @@ class DeeFuzz(Thread):
             self.logger = Logger(self.conf['deefuzz']['log'])
         else:
             self.logger = Logger('.' + os.sep + 'deefuzz.log')
-            
         self.logger.write('Starting DeeFuzz v' + version)
         self.logger.write('Using libshout version %s' % shout.version())
 
@@ -136,7 +142,7 @@ class DeeFuzz(Thread):
         self.buffer_size = 32768
         self.logger.write('Buffer size per station = ' + str(self.buffer_size))
 
-        # Start the Stations
+        # Init all Stations
         s = []
         self.logger.write('Number of stations : ' + str(nb_stations))
         for i in range(0,nb_stations):
@@ -144,12 +150,12 @@ class DeeFuzz(Thread):
                 station = self.conf['deefuzz']['station']
             else:
                 station = self.conf['deefuzz']['station'][i]
-
             # Create a Station
             s.append(Station(station, q, self.buffer_size, self.logger))
 
+        # Start the Stations
         for i in range(0,nb_stations):
-            s[i].start()   
+            s[i].start()
 
 
 class Producer(Thread):
@@ -197,7 +203,6 @@ class Station(Thread):
         self.channel.genre = self.station['infos']['genre']
         self.channel.description = self.station['infos']['description']
         self.channel.url = self.station['infos']['url']
-        
         self.rss_current_file = self.rss_dir + os.sep + self.short_name + '_current.xml'
         self.rss_playlist_file = self.rss_dir + os.sep + self.short_name + '_playlist.xml'
         self.media_url_dir = '/media/'
@@ -217,7 +222,6 @@ class Station(Thread):
         self.set_playlist()
         self.lp = len(self.playlist)
         self.channel.open()
-
         # Logging
         self.logger.write('Opening ' + self.short_name + ' - ' + self.channel.name + \
                 ' (' + str(self.lp) + ' tracks)...')
@@ -267,7 +271,6 @@ class Station(Thread):
                             description = self.channel.description,
                             lastBuildDate = datetime.datetime.now(),
                             items = rss_item_list,)
-        
         f = open(rss_file, 'w')
         rss.write_xml(f)
         f.close()
@@ -326,7 +329,7 @@ class Station(Thread):
             pass
         file_ext = file_name.split('.')[-1]
         return file_name, file_title, file_ext
-            
+
     def core_process_stream(self, media):
         """Read media and stream data through a generator.
         Taken from Telemeta (see http://telemeta.org)"""
@@ -341,14 +344,14 @@ class Station(Thread):
                     stdout = subprocess.PIPE,
                     close_fds = True)
         except:
-            raise DeeFuzzError('Command failure:', command, proc)
+            raise DeeFuzzStreamError('Command failure:', command, proc)
 
         # Core processing
         while True:
             __chunk = proc.stdout.read(self.buffer_size)
             status = proc.poll()
             if status != None and status != 0:
-                raise DeeFuzzError('Command failure:', command, proc)
+                raise DeeFuzzStreamError('Command failure:', command, proc)
             if not __chunk:
                 break
             yield __chunk
@@ -375,7 +378,7 @@ class Station(Thread):
             media = self.get_next_media()
             self.counter += 1
             q.task_done()
-   
+
             if os.path.exists(media) and not os.sep+'.' in media:
                 it = q.get(1)
                 file_name, file_title, file_ext = self.get_file_info(media)
@@ -396,14 +399,17 @@ class Station(Thread):
                                     % (self.short_name, self.id, self.index_list[self.id], file_name))
                 stream = self.core_process_stream(media)
                 q.task_done()
-                
+
                 for __chunk in stream:
                     it = q.get(1)
                     self.channel.send(__chunk)
-                    self.channel.sync()
+                    try:
+                        self.channel.sync()
+                    except:
+                        raise DeeFuzzError('Could not sync the buffer... ')
                     q.task_done()
                 #stream.close()
-                
+
         self.channel.close()
 
 
