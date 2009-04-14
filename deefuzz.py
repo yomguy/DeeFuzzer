@@ -178,7 +178,7 @@ class Station(Thread):
         self.channel = shout.Shout()
         self.id = 999999
         self.counter = 0
-        self.rand_list = []
+        self.index_list = []
         self.command = 'cat '
         # Media
         self.media_dir = self.station['media']['dir']
@@ -281,32 +281,27 @@ class Station(Thread):
                     file_list.append(root + os.sep + file)
         return file_list
 
-    def get_next_media_lin(self):
-        self.lp = len(self.playlist)
-        if self.id >= (self.lp - 1):
-            self.playlist = self.get_playlist()
-            self.id = 0
-            self.lp = len(self.playlist)
-            self.update_rss(self.media_to_objs(self.playlist), self.rss_playlist_file)
-        else:
-            self.id = self.id + 1
-        return self.playlist[self.id]
+    def get_next_media(self):
 
-    def get_next_media_rand(self):
-        self.lp = len(self.playlist)
-        if self.id >= (self.lp - 1):
+        # Init playlist
+        if self.lp != 0 :
             self.playlist = self.get_playlist()
             lp_new = len(self.playlist)
+
             if lp_new != self.lp or self.counter == 0:
-                self.rand_list = range(0,lp_new)
-                random.shuffle(self.rand_list)
-            self.id = 0
-            self.lp = len(self.playlist)
-            self.update_rss(self.media_to_objs(self.playlist), self.rss_playlist_file)
-        else:
-            self.id = self.id + 1
-        index = self.rand_list[self.id]
-        return self.playlist[index]
+                self.id = 0
+                self.index_list = range(0,lp_new)
+                self.lp = lp_new
+                if self.mode_shuffle == 1:
+                    random.shuffle(self.index_list)
+                self.logger.write('Station ' + self.short_name + ' generating new RSS playlist')
+                self.update_rss(self.media_to_objs(self.playlist), self.rss_playlist_file)
+            # Or follow...
+            else:
+                self.id = (self.id + 1) % self.lp
+
+            index = self.index_list[self.id]
+            return self.playlist[index]
 
     def log_queue(self, it):
         print 'Station ' + self.short_name + ' eated one queue step: '+str(it)
@@ -323,7 +318,8 @@ class Station(Thread):
 
     def get_file_info(self, media):
         file_name = media.split(os.sep)[-1]
-        file_title = file_name.split('.')[-2]
+        file_title = file_name.split('.')[:-2]
+        file_title = file_title[0]
         file_ext = file_name.split('.')[-1]
         return file_name, file_title, file_ext
             
@@ -345,13 +341,13 @@ class Station(Thread):
 
         # Core processing
         while True:
-            __chunk = proc.stdout.read(self.buffer_size)
+            _chunk = proc.stdout.read(self.buffer_size)
             status = proc.poll()
             if status != None and status != 0:
                 raise DeeFuzzError('Command failure:', command, proc)
-            if len(__chunk) == 0:
+            if not _chunk:
                 break
-            yield __chunk
+            yield _chunk
 
     def core_process_read(self, media):
         """Read media and stream data through a generator.
@@ -360,35 +356,42 @@ class Station(Thread):
         m = open(media, 'r')
         while True:
             __chunk = m.read(self.buffer_size)
-            if len(__chunk) == 0:
+            if not __chunk:
                 break
             yield __chunk
         m.close()
 
     def run(self):
         q = self.q
-
         while True:
             it = q.get(1)
             if self.lp == 0:
+                self.logger.write('Error : Station ' + self.short_name + ' have no media to stream !')
                 break
-            if self.mode_shuffle == 1:
-                media = self.get_next_media_rand()
-            else:
-                media = self.get_next_media_lin()
+            media = self.get_next_media()
             self.counter += 1
             q.task_done()
-            
+   
             if os.path.exists(media) and not os.sep+'.' in media:
                 it = q.get(1)
-                self.current_media_obj = self.media_to_objs([media])
+                file_name, file_title, file_ext = self.get_file_info(media)
+                try:
+                    self.current_media_obj = self.media_to_objs([media])
+                except:
+                    self.logger.write('Error : Station ' + self.short_name + ' : ' + file_name + 'not found !')
+                    break
                 title = self.current_media_obj[0].metadata['title']
                 artist = self.current_media_obj[0].metadata['artist']
-                self.channel.set_metadata({'song': str(artist) + ' : ' + str(title)})
+                if not (title or artist):
+                    song = file_title
+                else:
+                    song = str(artist) + ' : ' + str(title)
+                self.channel.set_metadata({'song': song})
                 self.update_rss(self.current_media_obj, self.rss_current_file)
-                file_name, file_title, file_ext = self.get_file_info(media)
-                self.logger.write('DeeFuzzing this file on %s :  id = %s, name = %s' \
-                                    % (self.short_name, self.id, file_name))
+                
+                self.logger.write('DeeFuzzing this file on %s :  id = %s, index = %s, name = %s' \
+                                    % (self.short_name, self.id, self.index_list[self.id], file_name))
+
                 stream = self.core_process_read(media)
                 q.task_done()
                 for __chunk in stream:
@@ -397,7 +400,6 @@ class Station(Thread):
                     self.channel.sync()
                     q.task_done()
                 stream.close()
-        
         self.channel.close()
 
 
