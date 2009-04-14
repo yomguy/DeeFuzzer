@@ -379,8 +379,8 @@ class Station(Thread):
             self.counter += 1
             q.task_done()
 
+            it = q.get(1)
             if os.path.exists(media) and not os.sep+'.' in media:
-                it = q.get(1)
                 file_name, file_title, file_ext = self.get_file_info(media)
                 try:
                     self.current_media_obj = self.media_to_objs([media])
