@@ -132,7 +132,7 @@ class DeeFuzz:
         self.logger.write('Using libshout version %s' % shout.version())
 
         # Define the buffer_size
-        self.buffer_size = 65536/nb_stations
+        self.buffer_size = 32768
         self.logger.write('Buffer size per station = ' + str(self.buffer_size))
 
         # Start the Stations
@@ -213,7 +213,7 @@ class Station(Thread):
                                     'SHOUT_AI_QUALITY': self.ogg_quality,
                                     'SHOUT_AI_CHANNELS': self.voices,
                                   }
-        self.playlist = self.get_playlist()
+        self.set_playlist()
         self.lp = len(self.playlist)
         self.channel.open()
 
@@ -271,7 +271,7 @@ class Station(Thread):
         rss.write_xml(f)
         f.close()
 
-    def get_playlist(self):
+    def set_playlist(self):
         file_list = []
         for root, dirs, files in os.walk(self.media_dir):
             for file in files:
@@ -279,29 +279,29 @@ class Station(Thread):
                 ext = s[len(s)-1]
                 if ext.lower() == self.channel.format and not '/.' in file:
                     file_list.append(root + os.sep + file)
-        return file_list
+        self.playlist = file_list
 
     def get_next_media(self):
-
         # Init playlist
-        if self.lp != 0 :
-            self.playlist = self.get_playlist()
+        if self.lp != 0:
+            self.set_playlist()
             lp_new = len(self.playlist)
 
             if lp_new != self.lp or self.counter == 0:
                 self.id = 0
-                self.index_list = range(0,lp_new)
                 self.lp = lp_new
+                self.index_list = range(0,self.lp)
                 if self.mode_shuffle == 1:
+                    # Shake it, Fuzz it !
                     random.shuffle(self.index_list)
-                self.logger.write('Station ' + self.short_name + ' generating new RSS playlist')
+                self.logger.write('Station ' + self.short_name + \
+                                 ' : generating new playlist (' + str(self.lp) + ' tracks)')
                 self.update_rss(self.media_to_objs(self.playlist), self.rss_playlist_file)
             # Or follow...
             else:
                 self.id = (self.id + 1) % self.lp
 
-            index = self.index_list[self.id]
-            return self.playlist[index]
+            return self.playlist[self.index_list[self.id]]
 
     def log_queue(self, it):
         print 'Station ' + self.short_name + ' eated one queue step: '+str(it)
@@ -319,7 +319,10 @@ class Station(Thread):
     def get_file_info(self, media):
         file_name = media.split(os.sep)[-1]
         file_title = file_name.split('.')[:-2]
-        file_title = file_title[0]
+        try:
+            file_title = file_title[0]
+        except:
+            pass
         file_ext = file_name.split('.')[-1]
         return file_name, file_title, file_ext
             
@@ -341,13 +344,13 @@ class Station(Thread):
 
         # Core processing
         while True:
-            _chunk = proc.stdout.read(self.buffer_size)
+            __chunk = proc.stdout.read(self.buffer_size)
             status = proc.poll()
             if status != None and status != 0:
                 raise DeeFuzzError('Command failure:', command, proc)
-            if not _chunk:
+            if not __chunk:
                 break
-            yield _chunk
+            yield __chunk
 
     def core_process_read(self, media):
         """Read media and stream data through a generator.
@@ -392,14 +395,14 @@ class Station(Thread):
                 self.logger.write('DeeFuzzing this file on %s :  id = %s, index = %s, name = %s' \
                                     % (self.short_name, self.id, self.index_list[self.id], file_name))
 
-                stream = self.core_process_read(media)
+                stream = self.core_process_stream(media)
                 q.task_done()
                 for __chunk in stream:
                     it = q.get(1)
                     self.channel.send(__chunk)
                     self.channel.sync()
                     q.task_done()
-                stream.close()
+                #stream.close()
         self.channel.close()
 
 
