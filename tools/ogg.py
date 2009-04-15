@@ -44,18 +44,27 @@ class Ogg:
     """An OGG file object"""
     
     def __init__(self, media):
+        self.media = media
+        self.media_obj = OggVorbis(self.media)
         self.item_id = ''
-        self.metadata = {}
-        self.description = ''
-        self.info = []
-        self.source = ''
-        self.dest = ''
+        self.source = self.media
         self.options = {}
         self.bitrate_default = '192'
-        self.buffer_size = 0xFFFF
-        self.dub2args_dict = {'creator': 'artist',
-                             'relation': 'album'
-                             }
+        self.cache_dir = os.sep + 'tmp'
+        self.keys2ogg = {'title': 'title',
+                    'artist': 'artist',
+                    'album': 'album',
+                    'date': 'date',
+                    'comment': 'comment',
+                    'genre': 'genre',
+                    }
+        self.metadata = self.get_file_metadata()
+        self.description = self.get_description()
+        self.mime_type = self.get_mime_type()
+        self.extension = self.get_file_extension()
+        self.size = os.path.getsize(media)
+        self.file_name = media.split(os.sep)[-1].decode()
+        #self.args = self.get_args()
         
     def get_format(self):
         return 'OGG'
@@ -83,6 +92,16 @@ class Ogg:
     def set_cache_dir(self,path):
        self.cache_dir = path
 
+    def get_file_metadata(self):
+        metadata = {}
+        for key in self.keys2ogg.keys():
+            try:
+                text = self.media_obj[key][0].decode()
+                metadata[key] = text
+            except:
+                metadata[key] = ''
+        return metadata
+        
     def decode(self):
         try:
             os.system('oggdec -o "'+self.cache_dir+os.sep+self.item_id+
@@ -92,10 +111,9 @@ class Ogg:
             raise IOError('ExporterError: decoder is not compatible.')
 
     def write_tags(self):
-        media = OggVorbis(self.dest)
         for tag in self.metadata.keys():
-            media[tag] = str(self.metadata[tag])
-        media.save()
+            self.media_obj[tag] = str(self.metadata[tag])
+        media_obj.save()
 
     def get_args(self,options=None):
         """Get process options and return arguments for the encoder"""

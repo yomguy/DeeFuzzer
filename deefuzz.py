@@ -237,7 +237,7 @@ class Station(Thread):
             sub_title = '(playlist)'
 
         for media in media_list:
-            media_link = self.channel.url + self.media_url_dir + media.file_name
+            media_link = self.channel.url + self.media_url_dir + media.file_name.decode()
             media_description = '<table>'
             for key in media.metadata.keys():
                 if media.metadata[key] != '':
@@ -402,11 +402,13 @@ class Station(Thread):
 
                 for __chunk in stream:
                     it = q.get(1)
-                    self.channel.send(__chunk)
                     try:
+                        self.channel.send(__chunk)
                         self.channel.sync()
                     except:
-                        raise DeeFuzzError('Could not sync the buffer... ')
+                        self.logger.write('Error : Station ' + self.short_name + ' : could not sync the buffer... ')
+                        self.channel.close()
+                        self.channel.open()
                     q.task_done()
                 #stream.close()
 
