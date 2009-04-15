@@ -336,15 +336,12 @@ class Station(Thread):
 
         command = self.command + '"' + media + '"'
 
-        try:
-            proc = subprocess.Popen(command,
+        proc = subprocess.Popen(command,
                     shell = True,
                     bufsize = self.buffer_size,
                     stdin = subprocess.PIPE,
                     stdout = subprocess.PIPE,
                     close_fds = True)
-        except:
-            raise DeeFuzzStreamError('Command failure:', command, proc)
 
         # Core processing
         while True:
