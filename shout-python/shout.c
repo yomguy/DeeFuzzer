@@ -16,7 +16,7 @@
  *  Free Software Foundation, Inc., 59 Temple Place - Suite 330, 
  *  Boston, MA  02111-1307  USA.
  *
- * $Id: shout.c 8919 2005-02-14 19:48:33Z brendan $
+ * $Id$
  */
 
 #include <Python.h>
@@ -57,6 +57,7 @@ static int pshoutobj_setattr(PyObject* self, char* name, PyObject* v);
 
 static PyObject* pshoutobj_open(ShoutObject* self);
 static PyObject* pshoutobj_close(ShoutObject* self);
+static PyObject* pshoutobj_get_connected(ShoutObject* self);
 static PyObject* pshoutobj_send(ShoutObject* self, PyObject* args);
 static PyObject* pshoutobj_sync(ShoutObject* self);
 static PyObject* pshoutobj_delay(ShoutObject* self);
@@ -81,6 +82,7 @@ static char docstring[] = "Shout library v2 interface\n\n"
   "\"host\", \"port\", \"password\" and \"mount\" must be specified).\n\n"
   "Methods:\n"
   "            open() - connect to server\n"
+  "   get_connected() - monitor connection status in nonblocking mode\n"
   "           close() - disconnect from server\n"
   "        send(data) - send audio data to server\n"
   "            sync() - sleep until server needs more data. This is equal to\n"
@@ -185,6 +187,8 @@ static PyMethodDef ShoutObjectMethods[] = {
     "Connect to server." },
   { "close", (PyCFunction)pshoutobj_close, METH_NOARGS,
     "Close connection to server." },
+  { "get_connected", (PyCFunction)pshoutobj_get_connected, METH_NOARGS,
+    "Check for connection progress." },
   { "send", (PyCFunction)pshoutobj_send, METH_VARARGS,
     "Send audio data to server." },
   { "sync", (PyCFunction)pshoutobj_sync, METH_NOARGS,
@@ -363,9 +367,14 @@ static int pshoutobj_setattr(PyObject* self, char* name, PyObject* v) {
 }
 
 static PyObject* pshoutobj_open(ShoutObject* self) {
-  if (shout_open(self->conn) != SHOUTERR_SUCCESS) {
+  int ret;
+  Py_BEGIN_ALLOW_THREADS
+  ret=shout_open(self->conn);
+  Py_END_ALLOW_THREADS
+  if (!((ret == SHOUTERR_SUCCESS)||
+        ((ret==SHOUTERR_BUSY) && shout_get_nonblocking(self->conn)))) {
     PyErr_SetString(ShoutError, shout_get_error(self->conn));
-
+    
     return NULL;
   }
 
@@ -385,11 +394,16 @@ static PyObject* pshoutobj_close(ShoutObject* self) {
 static PyObject* pshoutobj_send(ShoutObject* self, PyObject* args) {
   const unsigned char* data;
   size_t len;
+  int res;
 
   if (!PyArg_ParseTuple(args, "s#", &data, &len))
     return NULL;
 
-  if (shout_send(self->conn, data, len) != SHOUTERR_SUCCESS) {
+  Py_BEGIN_ALLOW_THREADS
+  res = shout_send(self->conn, data, len);
+  Py_END_ALLOW_THREADS
+
+  if (res != SHOUTERR_SUCCESS) { 
     PyErr_SetString(ShoutError, shout_get_error(self->conn));
 
     return NULL;
@@ -399,9 +413,15 @@ static PyObject* pshoutobj_send(ShoutObject* self, PyObject* args) {
 }
 
 static PyObject* pshoutobj_sync(ShoutObject* self) {
+  Py_BEGIN_ALLOW_THREADS
   shout_sync(self->conn);
+  Py_END_ALLOW_THREADS
 
   return Py_BuildValue("i", 1);
+}
+
+static PyObject* pshoutobj_get_connected(ShoutObject* self) {
+  return Py_BuildValue("i", shout_get_connected(self->conn));
 }
 
 static PyObject* pshoutobj_delay(ShoutObject* self) {
@@ -419,7 +439,7 @@ static PyObject* pshoutobj_set_metadata(ShoutObject* self, PyObject* args) {
   PyObject* val;
   const char* skey;
   const char* sval;
-  int i = 0;
+  Py_ssize_t i = 0;
   int rc;
 
   if (!(metadata = shout_metadata_new())) {
@@ -557,7 +577,7 @@ static int pshoutobj_set_audio_info(ShoutObjectAttr* attr, ShoutObject* self, Py
   PyObject* val;
   const char* skey;
   const char* sval;
-  int i = 0;
+  Py_ssize_t i = 0;
   int rc;
 
   if (!PyDict_Check(v)) {
