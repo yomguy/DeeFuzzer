@@ -48,7 +48,7 @@ import subprocess
 from threading import Thread
 from tools import *
 
-version = '0.3'
+version = '0.3.0'
 year = datetime.datetime.now().strftime("%Y")
 
 
@@ -394,7 +394,7 @@ class Station(Thread):
                 else:
                     song = artist + ' : ' + title.decode('utf-8')
 
-                self.channel.set_metadata({'song': str(song)})
+                self.channel.set_metadata({'song': str(song.encode('utf-8'))})
                 self.update_rss(self.current_media_obj, self.rss_current_file)
                 self.logger.write('DeeFuzzing this file on %s :  id = %s, index = %s, name = %s' \
                     % (self.short_name, self.id, self.index_list[self.id], self.current_media_obj[0].file_name))
