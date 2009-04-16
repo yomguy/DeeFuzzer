@@ -139,7 +139,7 @@ class DeeFuzz(Thread):
         self.logger.write('Using libshout version %s' % shout.version())
 
         # Define the buffer_size
-        self.buffer_size = 32768
+        self.buffer_size = 65536
         self.logger.write('Buffer size per station = ' + str(self.buffer_size))
 
         # Init all Stations
@@ -187,6 +187,7 @@ class Station(Thread):
         self.counter = 0
         self.index_list = []
         self.command = 'cat '
+        self.delay = 0
         # Media
         self.media_dir = self.station['media']['dir']
         self.channel.format = self.station['media']['format']
@@ -374,6 +375,7 @@ class Station(Thread):
                 break
             media = self.get_next_media()
             self.counter += 1
+            
             q.task_done()
 
             it = q.get(1)
@@ -401,13 +403,16 @@ class Station(Thread):
                     it = q.get(1)
                     try:
                         self.channel.send(__chunk)
-                        self.channel.sync()
+                        #self.logger.write('Station delay (ms) ' + self.short_name + ' : '  + str(self.channel.delay()))
+                        # Sleeping only if delay is positive
+                        if self.channel.delay() > 0:
+                            self.channel.sync()
                     except:
-                        self.logger.write('Error : Station ' + self.short_name + ' : could not sync the buffer... ')
+                        self.logger.write('ERROR : Station ' + self.short_name + ' : could not send the buffer... ')
                         self.channel.close()
                         self.channel.open()
                     q.task_done()
-                #stream.close()
+                stream.close()
 
         self.channel.close()
 
