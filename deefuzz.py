@@ -256,7 +256,7 @@ class Station(Thread):
             title = media.metadata['title']
             artist = media.metadata['artist']
             if not (title or artist):
-                song = str(media.file_name)
+                song = str(media.file_title)
             else:
                 song = artist + ' : ' + title
 

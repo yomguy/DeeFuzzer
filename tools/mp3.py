@@ -64,7 +64,10 @@ class Mp3:
         self.metadata = self.get_file_metadata()
         self.description = self.get_description()
         self.mime_type = self.get_mime_type()
-        self.file_name, self.file_title, self.file_ext = get_file_info(self.media)
+        self.media_info = get_file_info(self.media)
+        self.file_name = self.media_info[0]
+        self.file_title = self.media_info[1]
+        self.file_ext = self.media_info[2]
         self.extension = self.get_file_extension()
         self.size = os.path.getsize(media)
         #self.args = self.get_args()
