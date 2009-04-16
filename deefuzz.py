@@ -108,12 +108,32 @@ class DeeFuzz(Thread):
         Thread.__init__(self)
         self.conf_file = conf_file
         self.conf = self.get_conf_dict()
-
+        if 'log' in self.conf['deefuzz'].keys():
+            self.logger = Logger(self.conf['deefuzz']['log'])
+        else:
+            self.logger = Logger('.' + os.sep + 'deefuzz.log')
+        if 'm3u' in self.conf['deefuzz'].keys():
+            self.m3u = self.conf['deefuzz']['m3u']
+        else:
+            self.m3u = '.' + os.sep + 'deefuzz.m3u'
+            
     def get_conf_dict(self):
         confile = open(self.conf_file,'r')
         conf_xml = confile.read()
         confile.close()
         return xmltodict(conf_xml,'utf-8')
+
+    def set_m3u_playlist(self):
+        m3u = open(self.m3u, 'w')
+        i = 1
+        m3u.write('#EXTM3U\n')
+        for s in self.stations:
+            info = '#EXTINF:%s,%s' % (str(i), s.channel.name + ' (' + s.short_name + ')\n')
+            url =  s.channel.protocol + '://' + s.channel.host + ':' + str(s.channel.port) + s.channel.mount + '\n'
+            m3u.write(info)
+            m3u.write(url)
+            i += 1
+        m3u.close()
 
     def run(self):
         if isinstance(self.conf['deefuzz']['station'], dict):
@@ -131,10 +151,6 @@ class DeeFuzz(Thread):
         p.start()
 
         # Set the deefuzz logger
-        if 'log' in self.conf['deefuzz'].keys():
-            self.logger = Logger(self.conf['deefuzz']['log'])
-        else:
-            self.logger = Logger('.' + os.sep + 'deefuzz.log')
         self.logger.write('Starting DeeFuzz v' + version)
         self.logger.write('Using libshout version %s' % shout.version())
 
@@ -143,7 +159,7 @@ class DeeFuzz(Thread):
         self.logger.write('Buffer size per station = ' + str(self.buffer_size))
 
         # Init all Stations
-        s = []
+        self.stations = []
         self.logger.write('Number of stations : ' + str(nb_stations))
         for i in range(0,nb_stations):
             if isinstance(self.conf['deefuzz']['station'], dict):
@@ -151,11 +167,15 @@ class DeeFuzz(Thread):
             else:
                 station = self.conf['deefuzz']['station'][i]
             # Create a Station
-            s.append(Station(station, q, self.buffer_size, self.logger))
+            self.stations.append(Station(station, q, self.buffer_size, self.logger))
 
+        # Create M3U playlist
+        self.logger.write('Writing M3U file to : ' + self.m3u)
+        self.set_m3u_playlist()
+        
         # Start the Stations
         for i in range(0,nb_stations):
-            s[i].start()
+            self.stations[i].start()
 
 
 class Producer(Thread):
@@ -206,6 +226,7 @@ class Station(Thread):
         self.channel.url = self.station['infos']['url']
         self.rss_current_file = self.rss_dir + os.sep + self.short_name + '_current.xml'
         self.rss_playlist_file = self.rss_dir + os.sep + self.short_name + '_playlist.xml'
+        self.m3u_playlist_file = self.rss_dir + os.sep + self.short_name + '.m3u'
         self.media_url_dir = '/media/'
         # Server
         self.channel.protocol = 'http'     # | 'xaudiocast' | 'icy'

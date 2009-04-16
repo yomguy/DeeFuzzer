@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 import sys
 from string import Template
@@ -13,6 +14,7 @@ t = Template(df.read())
 
 dt.write('<deefuzz>\n')
 dt.write('    <log>/tmp/deefuzz.log</log>\n')
+dt.write('    <m3u>/tmp/deefuzz.m3u</m3u>\n')
 
 for i in range(0,int(nb_station)):
     xml = t.substitute(number='_'+str(i+1))
