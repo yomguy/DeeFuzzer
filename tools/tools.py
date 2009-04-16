@@ -31,9 +31,6 @@ def clean_word(word) :
 def get_file_info(media):
     file_name = media.split(os.sep)[-1]
     file_title = file_name.split('.')[:-1]
-    try:
-        file_title = file_title[0]
-    except:
-        pass
+    file_title = '.'.join(file_title)
     file_ext = file_name.split('.')[-1]
     return file_name, file_title, file_ext
