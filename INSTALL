@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2007-2007 Guillaume Pellerin <pellerin@parisson.com>
+# Copyright (c) 2007-2009 Guillaume Pellerin <pellerin@parisson.com>
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -9,8 +9,9 @@
 #
 # Author: Guillaume Pellerin <pellerin@parisson.com>
 
- depends : python, python-dev, python-xml, python-shout | shout-python, libshout3, libshout3-dev, icecast2
- recommends : python-mutagen
+ depends : python, python-dev, python-xml, python-shout | shout-python, libshout3,
+           libshout3-dev, icecast2 python-mutagen
+           
  provides : shout-python
 
 python-shout is included in DeeFuzz but needs to be compiled and installed.

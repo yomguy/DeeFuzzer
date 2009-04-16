@@ -237,8 +237,11 @@ class Station(Thread):
         else:
             sub_title = '(playlist)'
 
+        channel_subtitle = self.channel.name + ' ' + sub_title
+
         for media in media_list:
-            media_link = self.channel.url + self.media_url_dir + media.file_name.decode()
+            media_link = self.channel.url + self.media_url_dir + media.file_name
+            media_link = media_link.decode('utf-8')
             media_description = '<table>'
             for key in media.metadata.keys():
                 if media.metadata[key] != '':
@@ -248,17 +251,19 @@ class Station(Thread):
             media_stats = os.stat(media.media)
             media_date = time.localtime(media_stats[8])
             media_date = time.strftime("%a, %d %b %Y %H:%M:%S +0000", media_date)
-
+            date_now = str(datetime.datetime.now())
+            
             title = media.metadata['title']
             artist = media.metadata['artist']
             if not (title or artist):
                 song = str(media.file_name)
             else:
                 song = artist + ' : ' + title
-                
+
+
             if self.rss_enclosure == '1':
                 rss_item_list.append(PyRSS2Gen.RSSItem(
-                    title = song.decode(),
+                    title = song,
                     link = media_link,
                     description = media_description,
                     enclosure = PyRSS2Gen.Enclosure(media_link, str(media.size), 'audio/mpeg'),
@@ -267,20 +272,20 @@ class Station(Thread):
                     )
             else:
                 rss_item_list.append(PyRSS2Gen.RSSItem(
-                    title = song.decode(),
+                    title = song,
                     link = media_link,
                     description = media_description,
                     guid = PyRSS2Gen.Guid(media_link),
                     pubDate = media_date,)
                     )
 
-        rss = PyRSS2Gen.RSS2(title = self.channel.name + ' ' + sub_title,
+        rss = PyRSS2Gen.RSS2(title = channel_subtitle,
                             link = self.channel.url,
                             description = self.channel.description,
-                            lastBuildDate = datetime.datetime.now(),
+                            lastBuildDate = date_now,
                             items = rss_item_list,)
         f = open(rss_file, 'w')
-        rss.write_xml(f)
+        rss.write_xml(f, 'utf-8')
         f.close()
 
     def set_playlist(self):
@@ -387,9 +392,9 @@ class Station(Thread):
                 if not (title or artist):
                     song = str(self.current_media_obj[0].file_name)
                 else:
-                    song = str(artist) + ' : ' + str(title)
+                    song = artist + ' : ' + title.decode('utf-8')
 
-                self.channel.set_metadata({'song': song})
+                self.channel.set_metadata({'song': str(song)})
                 self.update_rss(self.current_media_obj, self.rss_current_file)
                 self.logger.write('DeeFuzzing this file on %s :  id = %s, index = %s, name = %s' \
                     % (self.short_name, self.id, self.index_list[self.id], self.current_media_obj[0].file_name))
