@@ -254,11 +254,11 @@ class Station(Thread):
             if not (title or artist):
                 song = str(media.file_name)
             else:
-                song = str(artist) + ' : ' + str(title)
+                song = artist + ' : ' + title
                 
             if self.rss_enclosure == '1':
                 rss_item_list.append(PyRSS2Gen.RSSItem(
-                    title = song,
+                    title = song.encode('utf-8'),
                     link = media_link,
                     description = media_description,
                     enclosure = PyRSS2Gen.Enclosure(media_link, str(media.size), 'audio/mpeg'),
@@ -267,7 +267,7 @@ class Station(Thread):
                     )
             else:
                 rss_item_list.append(PyRSS2Gen.RSSItem(
-                    title = song,
+                    title = song.encode('utf-8'),
                     link = media_link,
                     description = media_description,
                     guid = PyRSS2Gen.Guid(media_link),
