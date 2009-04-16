@@ -40,6 +40,7 @@ import os
 import string
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
+from tools import *
 
 EasyID3.valid_keys["comment"]="COMM::'XXX'"
 
@@ -63,9 +64,9 @@ class Mp3:
         self.metadata = self.get_file_metadata()
         self.description = self.get_description()
         self.mime_type = self.get_mime_type()
+        self.file_name, self.file_title, self.file_ext = get_file_info(self.media)
         self.extension = self.get_file_extension()
         self.size = os.path.getsize(media)
-        self.file_name = media.split(os.sep)[-1]
         #self.args = self.get_args()
                     
     def get_format(self):
@@ -140,4 +141,3 @@ class Mp3:
                 args.append('"' + value + '"')
 
         return args
-

@@ -12,11 +12,7 @@
 
 import os
 import re
-import sys
-import time
-import datetime
 import string
-import random
 
 def clean_word(word) :
     """ Return the word without excessive blank spaces, underscores and
@@ -31,3 +27,13 @@ def clean_word(word) :
     for letter in dict:
         word = string.replace(word,letter,'_')
     return word
+
+def get_file_info(media):
+    file_name = media.split(os.sep)[-1]
+    file_title = file_name.split('.')[:-2]
+    try:
+        file_title = file_title[0]
+    except:
+        pass
+    file_ext = file_name.split('.')[-1]
+    return file_name, file_title, file_ext

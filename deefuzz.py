@@ -249,9 +249,16 @@ class Station(Thread):
             media_date = time.localtime(media_stats[8])
             media_date = time.strftime("%a, %d %b %Y %H:%M:%S +0000", media_date)
 
+            title = media.metadata['title']
+            artist = media.metadata['artist']
+            if not (title or artist):
+                song = str(media.file_name)
+            else:
+                song = str(artist) + ' : ' + str(title)
+                
             if self.rss_enclosure == '1':
                 rss_item_list.append(PyRSS2Gen.RSSItem(
-                    title = media.metadata['artist'] + ' : ' + media.metadata['title'],
+                    title = song,
                     link = media_link,
                     description = media_description,
                     enclosure = PyRSS2Gen.Enclosure(media_link, str(media.size), 'audio/mpeg'),
@@ -260,7 +267,7 @@ class Station(Thread):
                     )
             else:
                 rss_item_list.append(PyRSS2Gen.RSSItem(
-                    title = media.metadata['artist'] + ' : ' + media.metadata['title'],
+                    title = song,
                     link = media_link,
                     description = media_description,
                     guid = PyRSS2Gen.Guid(media_link),
@@ -314,22 +321,12 @@ class Station(Thread):
     def media_to_objs(self, media_list):
         media_objs = []
         for media in media_list:
-            file_name, file_title, file_ext = self.get_file_info(media)
+            file_name, file_title, file_ext = get_file_info(media)
             if file_ext.lower() == 'mp3':
                 media_objs.append(Mp3(media))
             elif file_ext.lower() == 'ogg':
                 media_objs.append(Ogg(media))
         return media_objs
-
-    def get_file_info(self, media):
-        file_name = media.split(os.sep)[-1]
-        file_title = file_name.split('.')[:-2]
-        try:
-            file_title = file_title[0]
-        except:
-            pass
-        file_ext = file_name.split('.')[-1]
-        return file_name, file_title, file_ext
 
     def core_process_stream(self, media):
         """Read media and stream data through a generator.
@@ -375,27 +372,28 @@ class Station(Thread):
                 break
             media = self.get_next_media()
             self.counter += 1
-            
             q.task_done()
 
             it = q.get(1)
             if os.path.exists(media) and not os.sep+'.' in media:
-                file_name, file_title, file_ext = self.get_file_info(media)
                 try:
                     self.current_media_obj = self.media_to_objs([media])
                 except:
                     self.logger.write('Error : Station ' + self.short_name + ' : ' + media + 'not found !')
                     break
+
                 title = self.current_media_obj[0].metadata['title']
                 artist = self.current_media_obj[0].metadata['artist']
                 if not (title or artist):
-                    song = str(file_title)
+                    song = str(self.current_media_obj.file_name)
                 else:
                     song = str(artist) + ' : ' + str(title)
+
                 self.channel.set_metadata({'song': song})
                 self.update_rss(self.current_media_obj, self.rss_current_file)
                 self.logger.write('DeeFuzzing this file on %s :  id = %s, index = %s, name = %s' \
-                                    % (self.short_name, self.id, self.index_list[self.id], file_name))
+                    % (self.short_name, self.id, self.index_list[self.id], self.current_media_obj[0].file_name))
+
                 stream = self.core_process_read(media)
                 q.task_done()
 
