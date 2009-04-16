@@ -258,7 +258,7 @@ class Station(Thread):
                 
             if self.rss_enclosure == '1':
                 rss_item_list.append(PyRSS2Gen.RSSItem(
-                    title = song.encode('utf-8'),
+                    title = song.decode(),
                     link = media_link,
                     description = media_description,
                     enclosure = PyRSS2Gen.Enclosure(media_link, str(media.size), 'audio/mpeg'),
@@ -267,7 +267,7 @@ class Station(Thread):
                     )
             else:
                 rss_item_list.append(PyRSS2Gen.RSSItem(
-                    title = song.encode('utf-8'),
+                    title = song.decode(),
                     link = media_link,
                     description = media_description,
                     guid = PyRSS2Gen.Guid(media_link),
