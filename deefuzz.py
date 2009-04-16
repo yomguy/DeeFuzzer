@@ -396,7 +396,7 @@ class Station(Thread):
                 self.update_rss(self.current_media_obj, self.rss_current_file)
                 self.logger.write('DeeFuzzing this file on %s :  id = %s, index = %s, name = %s' \
                                     % (self.short_name, self.id, self.index_list[self.id], file_name))
-                stream = self.core_process_stream(media)
+                stream = self.core_process_read(media)
                 q.task_done()
 
                 for __chunk in stream:
@@ -409,8 +409,8 @@ class Station(Thread):
                             self.channel.sync()
                     except:
                         self.logger.write('ERROR : Station ' + self.short_name + ' : could not send the buffer... ')
-                        self.channel.close()
-                        self.channel.open()
+                        #self.channel.close()
+                        #self.channel.open()
                     q.task_done()
                 stream.close()
 

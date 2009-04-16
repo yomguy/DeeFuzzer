@@ -23,6 +23,8 @@
             <samplerate>44100</samplerate>
             <voices>2</voices>
             <shuffle>1</shuffle>
+            <rss_dir>/tmp/rss/</rss_dir>
+            <rss_enclosure>0</rss_enclosure>
         </media>
     </station>
     <station>
@@ -47,7 +49,9 @@
             <ogg_quality>7</ogg_quality>
             <samplerate>44100</samplerate>
             <voices>2</voices>
-            <shuffle>1</shuffle>
+            <shuffle>0</shuffle>
+            <rss_dir>/tmp/rss/</rss_dir>
+            <rss_enclosure>1</rss_enclosure>
         </media>
     </station>
 </deefuzz>
