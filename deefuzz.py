@@ -427,10 +427,8 @@ class Station(Thread):
                     it = q.get(1)
                     try:
                         self.channel.send(__chunk)
+                        self.channel.sync()
                         # self.logger.write('Station delay (ms) ' + self.short_name + ' : '  + str(self.channel.delay()))
-                        # Sleeping only if delay is positive
-                        if self.channel.delay() > 0:
-                            self.channel.sync()
                     except:
                         self.logger.write('ERROR : Station ' + self.short_name + ' : could not send the buffer... ')
                     q.task_done()
