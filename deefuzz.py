@@ -57,15 +57,15 @@ def prog_info():
         ver = ' version : %s \n\n' % (version)
         info = """ Copyright (c) 2007-%s Guillaume Pellerin <yomguy@parisson.com>
  All rights reserved.
-        
+
  This software is licensed as described in the file COPYING, which
  you should have received as part of this distribution. The terms
  are also available at http://svn.parisson.org/d-fuzz/DeeFuzzLicense
-        
+
  depends : python, python-xml, python-shout, libshout3, icecast2
  recommends : python-mutagen
  provides : python-shout
-       
+
  Usage : deefuzz $1
   where $1 is the path for a XML config file
   ex: deefuzz example/myfuzz.xml
@@ -224,8 +224,8 @@ class Station(Thread):
         self.channel.genre = self.station['infos']['genre']
         self.channel.description = self.station['infos']['description']
         self.channel.url = self.station['infos']['url']
-        self.rss_current_file = self.rss_dir + os.sep + self.short_name + '_current.xml'
-        self.rss_playlist_file = self.rss_dir + os.sep + self.short_name + '_playlist.xml'
+        self.rss_current_file = self.rss_dir + os.sep + self.short_name + '_' + self.channel.format + '_current.xml'
+        self.rss_playlist_file = self.rss_dir + os.sep + self.short_name + '_' + self.channel.format + '_playlist.xml'
         self.m3u_playlist_file = self.rss_dir + os.sep + self.short_name + '.m3u'
         self.media_url_dir = '/media/'
         # Server
@@ -273,7 +273,7 @@ class Station(Thread):
             media_date = time.localtime(media_stats[8])
             media_date = time.strftime("%a, %d %b %Y %H:%M:%S +0000", media_date)
             date_now = str(datetime.datetime.now())
-            
+
             title = media.metadata['title']
             artist = media.metadata['artist']
             if not (title or artist):

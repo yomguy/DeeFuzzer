@@ -39,6 +39,8 @@
 import os
 import string
 from mutagen.oggvorbis import OggVorbis
+from tools import *
+
 
 class Ogg:
     """An OGG file object"""
