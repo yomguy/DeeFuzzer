@@ -1,6 +1,12 @@
+d-fuzz (0.3.0-1) unstable; urgency=low
+
+  * new and much upgraded DeeFuzz
+
+ -- Guillaume Pellerin <yomguy@>  Fri, 17 Apr 2009 09:48:25 +0200
+
 d-fuzz (0.2-1) unstable; urgency=low
 
-  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+  * Initial release
 
  -- G. Pellerin <yomguy@altern.org>  Sun, 09 Dec 2007 21:50:43 +0100
 
