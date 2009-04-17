@@ -1,12 +1,20 @@
-Source: d-fuzz
+Source: deefuzz
 Section: sound
 Priority: optional
 Maintainer: Guillaume Pellerin <yomguy@altern.org>
-Build-Depends: cdbs (>= 0.4.23-1.1), debhelper (>= 5), debhelper (>= 5)
+Build-Depends: debhelper (>= 5), python
 Standards-Version: 3.7.2
 
-Package: d-fuzz
+Package: deefuzz
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Python client to stream audio over icecast
- Coming soon !
+Depends: ${shlibs:Depends}, ${misc:Depends}, icecast2, python-xml, python-shout, libshout3, python-mutagen
+Description: easy and light media streaming tool
+ DeeFuzz Tools are new light and easy tools to stream audio and video over internet. It is dedicated to people who wants to create playlisted webradios or webTVs with rich media contents. Here are the main features of the DeeFuzz Tools:
+ * MP3 and OGG (audio & video) streaming over internet
+ * Full metadata encapsulation and management
+ * RSS podcast feeding (current tracks and playlists)
+ * M3U playlist feefing
+ * Multi-theading architecture (multiple stations now authorized)
+ * Optional random (shuffled) playlists
+ * VERY light and optimized streaming process !
+ See http://svn.parisson.org/deefuzz/ or http://parisson.com for more info.

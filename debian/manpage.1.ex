@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH D-FUZZ SECTION "décembre  9, 2007"
+.TH D-FUZZ SECTION "dÃ©cembre  9, 2007"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -16,16 +16,16 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for manpage-specific macros, see man(7)
 .SH NAME
-d-fuzz \- program to do something
+deefuzz \- program to do something
 .SH SYNOPSIS
-.B d-fuzz
+.B deefuzz
 .RI [ options ] " files" ...
 .br
 .B bar
 .RI [ options ] " files" ...
 .SH DESCRIPTION
 This manual page documents briefly the
-.B d-fuzz
+.B deefuzz
 and
 .B bar
 commands.
@@ -33,7 +33,7 @@ commands.
 .\" TeX users may be more comfortable with the \fB<whatever>\fP and
 .\" \fI<whatever>\fP escape sequences to invode bold face and italics, 
 .\" respectively.
-\fBd-fuzz\fP is a program that...
+\fBdeefuzz\fP is a program that...
 .SH OPTIONS
 These programs follow the usual GNU command line syntax, with long
 options starting with two dashes (`-').
@@ -53,7 +53,7 @@ The programs are documented fully by
 .IR "The Rise and Fall of a Fooish Bar" ,
 available via the Info system.
 .SH AUTHOR
-d-fuzz was written by <upstream author>.
+deefuzz was written by <upstream author>.
 .PP
 This manual page was written by G. Pellerin <yomguy@altern.org>,
 for the Debian project (but may be used by others).

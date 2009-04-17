@@ -11,10 +11,11 @@
 
  depends : python, python-dev, python-xml, python-shout | shout-python, libshout3,
            libshout3-dev, icecast2 python-mutagen
-           
+
  provides : shout-python
 
-python-shout is included in DeeFuzz but needs to be compiled and installed.
+python-shout is included in DeeFuzz but needs to be compiled and installed
+if you don't install deefuzz from its debian package with aptitude.
 As explained in shout-python/INSTALL, you just have to run this command :
 
   $ cd shout-python
