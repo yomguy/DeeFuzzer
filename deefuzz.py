@@ -116,7 +116,7 @@ class DeeFuzz(Thread):
             self.m3u = self.conf['deefuzz']['m3u']
         else:
             self.m3u = '.' + os.sep + 'deefuzz.m3u'
-            
+
     def get_conf_dict(self):
         confile = open(self.conf_file,'r')
         conf_xml = confile.read()
@@ -342,7 +342,7 @@ class Station(Thread):
             return self.playlist[self.index_list[self.id]]
 
     def log_queue(self, it):
-        print 'Station ' + self.short_name + ' eated one queue step: '+str(it)
+        self.logger.write('Station ' + self.short_name + ' eated one queue step: '+str(it))
 
     def media_to_objs(self, media_list):
         media_objs = []
@@ -427,14 +427,12 @@ class Station(Thread):
                     it = q.get(1)
                     try:
                         self.channel.send(__chunk)
-                        #self.logger.write('Station delay (ms) ' + self.short_name + ' : '  + str(self.channel.delay()))
+                        # self.logger.write('Station delay (ms) ' + self.short_name + ' : '  + str(self.channel.delay()))
                         # Sleeping only if delay is positive
                         if self.channel.delay() > 0:
                             self.channel.sync()
                     except:
                         self.logger.write('ERROR : Station ' + self.short_name + ' : could not send the buffer... ')
-                        #self.channel.close()
-                        #self.channel.open()
                     q.task_done()
                 stream.close()
 

@@ -61,9 +61,12 @@ class Ogg:
         self.metadata = self.get_file_metadata()
         self.description = self.get_description()
         self.mime_type = self.get_mime_type()
+        self.media_info = get_file_info(self.media)
+        self.file_name = self.media_info[0]
+        self.file_title = self.media_info[1]
+        self.file_ext = self.media_info[2]
         self.extension = self.get_file_extension()
         self.size = os.path.getsize(media)
-        self.file_name = media.split(os.sep)[-1].decode()
         #self.args = self.get_args()
         
     def get_format(self):
@@ -101,7 +104,7 @@ class Ogg:
             except:
                 metadata[key] = ''
         return metadata
-        
+
     def decode(self):
         try:
             os.system('oggdec -o "'+self.cache_dir+os.sep+self.item_id+
@@ -139,34 +142,3 @@ class Ogg:
                 args.append('-c %s="%s"' % (arg, value))
 
         return args
-
-    def process(self, item_id, source, metadata, options=None):
-        self.item_id = item_id
-        self.source = source
-        self.metadata = metadata
-        self.args = self.get_args(options)
-        self.ext = self.get_file_extension()
-        self.args = ' '.join(self.args)
-        self.command = 'sox "%s" -s -q -r 44100 -t wav -c2 - | oggenc %s -' % (self.source, self.args)
-
-        # Pre-proccessing
-        self.dest = self.pre_process(self.item_id,
-                                        self.source,
-                                        self.metadata,
-                                        self.ext,
-                                        self.cache_dir,
-                                        self.options)
-
-        # Processing (streaming + cache writing)
-        stream = self.core_process(self.command, self.buffer_size, self.dest)
-        for chunk in stream:
-            yield chunk
-    
-        # Post-proccessing
-        #self.post_process(self.item_id,
-                        #self.source,
-                        #self.metadata,
-                        #self.ext,
-                        #self.cache_dir,
-                        #self.options)
-
