@@ -6,6 +6,6 @@ log_file=/tmp/deefuzz.log
 set -e
 ulimit -c unlimited
 while true; do
-  deefuzz.py $1 > /dev/null
+  deefuzz $1 > /dev/null
   sleep 3
 done
