@@ -124,6 +124,9 @@ class DeeFuzz(Thread):
         return xmltodict(conf_xml,'utf-8')
 
     def set_m3u_playlist(self):
+        m3u_dir = os.sep.join(self.m3u.split(os.sep)[:-1])
+        if not os.path.exists(m3u_dir):
+            os.makedirs(m3u_dir)
         m3u = open(self.m3u, 'w')
         i = 1
         m3u.write('#EXTM3U\n')
@@ -302,7 +305,7 @@ class Station(Thread):
 
         rss = PyRSS2Gen.RSS2(title = channel_subtitle,
                             link = self.channel.url,
-                            description = self.channel.description,
+                            description = self.channel.description.decode('utf-8'),
                             lastBuildDate = date_now,
                             items = rss_item_list,)
         f = open(rss_file, 'w')
@@ -413,9 +416,9 @@ class Station(Thread):
                 if not (title or artist):
                     song = str(self.current_media_obj[0].file_name)
                 else:
-                    song = artist + ' : ' + title.decode('utf-8')
+                    song = artist + ' : ' + title
 
-                self.channel.set_metadata({'song': str(song.encode('utf-8'))})
+                self.channel.set_metadata({'song': str(song.encode('utf-8')), 'charset': 'utf8',})
                 self.update_rss(self.current_media_obj, self.rss_current_file)
                 self.logger.write('DeeFuzzing this file on %s :  id = %s, index = %s, name = %s' \
                     % (self.short_name, self.id, self.index_list[self.id], self.current_media_obj[0].file_name))

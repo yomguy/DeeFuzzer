@@ -1,7 +1,7 @@
 # README
 # ======
 
-deefuzz : an easy and light media streaming tool
+deefuzz : an easy and light media streaming tools
 
 
 # 1. Introduction
@@ -13,10 +13,10 @@ Here are the main features of the DeeFuzz Tools:
 
  * MP3 and OGG (audio & video) file streaming over internet
  * Full metadata encapsulation and management
- * RSS podcast feeding (current tracks and playlists)
- * M3U playlist feefing
- * Multi-theading architecture (multiple stations now authorized)
- * Optional random (shuffled) playlists
+ * RSS podcast generator (current tracks and playlists)
+ * M3U playlist generator
+ * Recursive, random (shuffled) or pre-defined playlists
+ * Multi-threaded architecture (multiple stations now authorized !)
  * VERY light and optimized streaming process !
 
 It is neccessary to provide a config file which sets all needed parameters
