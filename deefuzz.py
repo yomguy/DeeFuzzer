@@ -264,8 +264,6 @@ class Station(Thread):
         channel_subtitle = self.channel.name + ' ' + sub_title
 
         for media in media_list:
-            media_link = self.channel.url + self.media_url_dir + media.file_name
-            media_link = media_link.decode('utf-8')
             media_description = '<table>'
             for key in media.metadata.keys():
                 if media.metadata[key] != '':
@@ -284,8 +282,9 @@ class Station(Thread):
             else:
                 song = artist + ' : ' + title
 
-
             if self.rss_enclosure == '1':
+                media_link = self.channel.url + self.media_url_dir + media.file_name
+                media_link = media_link.decode('utf-8')
                 rss_item_list.append(PyRSS2Gen.RSSItem(
                     title = song,
                     link = media_link,
@@ -295,6 +294,7 @@ class Station(Thread):
                     pubDate = media_date,)
                     )
             else:
+                media_link = self.channel.url
                 rss_item_list.append(PyRSS2Gen.RSSItem(
                     title = song,
                     link = media_link,
@@ -308,6 +308,7 @@ class Station(Thread):
                             description = self.channel.description.decode('utf-8'),
                             lastBuildDate = date_now,
                             items = rss_item_list,)
+
         f = open(rss_file, 'w')
         rss.write_xml(f, 'utf-8')
         f.close()
@@ -433,7 +434,7 @@ class Station(Thread):
                         self.channel.sync()
                         # self.logger.write('Station delay (ms) ' + self.short_name + ' : '  + str(self.channel.delay()))
                     except:
-                        self.logger.write('ERROR : Station ' + self.short_name + ' : could not send the buffer... ')
+                        self.logger.write('ERROR : Station %s : could not send the buffer... ') % self.short_name
                     q.task_done()
                 stream.close()
 
