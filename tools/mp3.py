@@ -43,6 +43,7 @@ from mutagen.mp3 import MP3
 from tools import *
 
 EasyID3.valid_keys["comment"]="COMM::'XXX'"
+EasyID3.valid_keys["copyright"]="TCOP::'XXX'"
 
 class Mp3:
     """A MP3 file object"""
@@ -60,6 +61,7 @@ class Mp3:
                     'date': 'TDRC',
                     'comment': 'COMM',
                     'genre': 'TCON',
+                    'copyright': 'TCOP',
                     }
         self.metadata = self.get_file_metadata()
         self.description = self.get_description()
