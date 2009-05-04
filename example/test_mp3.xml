@@ -1,4 +1,4 @@
-<deefuzz>
+<deefuzzer>
     <log>/tmp/deefuzz.log</log>
     <station>
         <infos>
@@ -48,5 +48,5 @@
             <shuffle>1</shuffle>
         </media>
     </station>
-</deefuzz>
+</deefuzzer>
 

@@ -1,4 +1,4 @@
-<deefuzz>
+<deefuzzer>
     <log>/tmp/deefuzz.log</log>
     <station>
         <infos>
@@ -208,4 +208,4 @@
             <rss_enclosure>0</rss_enclosure>
         </media>
     </station>
-</deefuzz>
+</deefuzzer>

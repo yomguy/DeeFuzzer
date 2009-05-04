@@ -1,4 +1,4 @@
-<deefuzz>
+<deefuzzer>
     <log>/tmp/deefuzz.log</log>
     <m3u>/tmp/deefuzz.m3u</m3u>
     <station>
@@ -55,5 +55,5 @@
             <rss_enclosure>1</rss_enclosure>
         </media>
     </station>
-</deefuzz>
+</deefuzzer>
 

@@ -53,39 +53,39 @@ year = datetime.datetime.now().strftime("%Y")
 
 
 def prog_info():
-        desc = '\n deefuzz : easy and light streaming tool\n'
+        desc = '\n deefuzzer : easy and light streaming tool\n'
         ver = ' version : %s \n\n' % (version)
         info = """ Copyright (c) 2007-%s Guillaume Pellerin <yomguy@parisson.com>
  All rights reserved.
 
  This software is licensed as described in the file COPYING, which
  you should have received as part of this distribution. The terms
- are also available at http://svn.parisson.org/d-fuzz/DeeFuzzLicense
+ are also available at http://svn.parisson.org/d-fuzz/DeeFuzzerLicense
 
  depends : python, python-xml, python-shout, libshout3, icecast2
  recommends : python-mutagen
  provides : python-shout
 
- Usage : deefuzz $1
+ Usage : deefuzzer $1
   where $1 is the path for a XML config file
-  ex: deefuzz example/myfuzz.xml
+  ex: deefuzzer example/myfuzz.xml
  
- see http://svn.parisson.org/deefuzz/ for more details
+ see http://svn.parisson.org/deefuzzer/ for more details
         """ % (year)
         text = desc + ver + info
         return text
 
 
-class DeeFuzzError:
-    """The DeeFuzz main error class"""
+class DeeFuzzerError:
+    """The DeeFuzzer main error class"""
     def __init__(self, message):
         self.message = message
     def __str__(self):
-        return 'DeeFuzz Error : ' + self.message
+        return 'DeeFuzzer Error : ' + self.message
 
 
-class DeeFuzzStreamError:
-    """The DeeFuzz stream error class"""
+class DeeFuzzerStreamError:
+    """The DeeFuzzer stream error class"""
     def __init__(self, message, command, subprocess):
         self.message = message
         self.command = str(command)
@@ -101,21 +101,21 @@ class DeeFuzzStreamError:
                                                 error)
 
 
-class DeeFuzz(Thread):
-    """a DeeFuzz diffuser"""
+class DeeFuzzer(Thread):
+    """a DeeFuzzer diffuser"""
 
     def __init__(self, conf_file):
         Thread.__init__(self)
         self.conf_file = conf_file
         self.conf = self.get_conf_dict()
-        if 'log' in self.conf['deefuzz'].keys():
-            self.logger = Logger(self.conf['deefuzz']['log'])
+        if 'log' in self.conf['deefuzzer'].keys():
+            self.logger = Logger(self.conf['deefuzzer']['log'])
         else:
-            self.logger = Logger('.' + os.sep + 'deefuzz.log')
-        if 'm3u' in self.conf['deefuzz'].keys():
-            self.m3u = self.conf['deefuzz']['m3u']
+            self.logger = Logger('.' + os.sep + 'deefuzzer.log')
+        if 'm3u' in self.conf['deefuzzer'].keys():
+            self.m3u = self.conf['deefuzzer']['m3u']
         else:
-            self.m3u = '.' + os.sep + 'deefuzz.m3u'
+            self.m3u = '.' + os.sep + 'deefuzzer.m3u'
 
     def get_conf_dict(self):
         confile = open(self.conf_file,'r')
@@ -139,11 +139,11 @@ class DeeFuzz(Thread):
         m3u.close()
 
     def run(self):
-        if isinstance(self.conf['deefuzz']['station'], dict):
+        if isinstance(self.conf['deefuzzer']['station'], dict):
             # Fix wrong type data from xmltodict when one station (*)
             nb_stations = 1
         else:
-            nb_stations = len(self.conf['deefuzz']['station'])
+            nb_stations = len(self.conf['deefuzzer']['station'])
 
         # Create a Queue
         # Not too much, otherwise, you will get memory leaks !
@@ -153,8 +153,8 @@ class DeeFuzz(Thread):
         p = Producer(q)
         p.start()
 
-        # Set the deefuzz logger
-        self.logger.write('Starting DeeFuzz v' + version)
+        # Set the deefuzzer logger
+        self.logger.write('Starting DeeFuzzer v' + version)
         self.logger.write('Using libshout version %s' % shout.version())
 
         # Define the buffer_size
@@ -165,10 +165,10 @@ class DeeFuzz(Thread):
         self.stations = []
         self.logger.write('Number of stations : ' + str(nb_stations))
         for i in range(0,nb_stations):
-            if isinstance(self.conf['deefuzz']['station'], dict):
-                station = self.conf['deefuzz']['station']
+            if isinstance(self.conf['deefuzzer']['station'], dict):
+                station = self.conf['deefuzzer']['station']
             else:
-                station = self.conf['deefuzz']['station'][i]
+                station = self.conf['deefuzzer']['station'][i]
             # Create a Station
             self.stations.append(Station(station, q, self.buffer_size, self.logger))
 
@@ -182,7 +182,7 @@ class DeeFuzz(Thread):
 
 
 class Producer(Thread):
-    """a DeeFuzz Producer master thread"""
+    """a DeeFuzzer Producer master thread"""
 
     def __init__(self, q):
         Thread.__init__(self)
@@ -197,7 +197,7 @@ class Producer(Thread):
 
 
 class Station(Thread):
-    """a DeeFuzz shouting station thread"""
+    """a DeeFuzzer shouting station thread"""
 
     def __init__(self, station, q, buffer_size, logger):
         Thread.__init__(self)
@@ -380,7 +380,7 @@ class Station(Thread):
             __chunk = proc.stdout.read(self.buffer_size)
             status = proc.poll()
             if status != None and status != 0:
-                raise DeeFuzzStreamError('Command failure:', command, proc)
+                raise DeeFuzzerStreamError('Command failure:', command, proc)
             if not __chunk:
                 break
             yield __chunk
@@ -447,7 +447,7 @@ class Station(Thread):
 
 def main():
     if len(sys.argv) == 2:
-        d = DeeFuzz(sys.argv[1])
+        d = DeeFuzzer(sys.argv[1])
         d.start()
     else:
         text = prog_info()

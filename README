@@ -1,15 +1,15 @@
 # README
 # ======
 
-deefuzz : an easy and light media streaming tools
+deefuzzer : an easy and light media streaming tools
 
 
 # 1. Introduction
 # ===============
 
-DeeFuzz Tools are new light and easy tools to stream audio and video over internet. It is dedicated to people who wants to create playlisted webradios or webTVs with rich media contents. It depends on python, icecast2 server, libshout and some other tools.
+DeeFuzzer Tools are new light and easy tools to stream audio and video over internet. It is dedicated to people who wants to create playlisted webradios or webTVs with rich media contents. It depends on python, icecast2 server, libshout and some other tools.
 
-Here are the main features of the DeeFuzz Tools:
+Here are the main features of the DeeFuzzer Tools:
 
  * MP3 and OGG (audio & video) file streaming over internet
  * Full metadata encapsulation and management
@@ -34,34 +34,34 @@ see INSTALL
 
  This software is licensed as described in the file COPYING, which
  you should have received as part of this distribution. The terms
- are also available at http://svn.parisson.org/deefuzz/DeeFuzzLicense
+ are also available at http://svn.parisson.org/deefuzzer/DeeFuzzerLicense
 
 
 # 4. Usage
 # =========
 
-Usage : deefuzz CONFIGFILE
+Usage : deefuzzer CONFIGFILE
   
   where CONFIGFILE is the path for a XML config file. For example:
 
-    $ deefuzz example/myfuzz.xml
+    $ deefuzzer example/myfuzz.xml
 
 Note that you must edit the config file with right parameters before executing.
 You can find an example for the XML file in the directory "example/" of this
-application (maybe in /usr/share/deefuzz if installed with the help of install.py)
+application (maybe in /usr/share/deefuzzer if installed with the help of install.py)
 
-DeeFuzz can also be run as a deamon using deefuzz-deamon:
+DeeFuzzer can also be run as a deamon using deefuzzer-deamon:
 
-    $ deefuzz-deamon example/myfuzz.xml &
+    $ deefuzzer-deamon example/myfuzz.xml &
 
-Since 0.3, deefuzz doesn't print anything into the shell, then a right <log> parameter
+Since 0.3, deefuzzer doesn't print anything into the shell, then a right <log> parameter
 is needed in the XML config file.
 
-BE CAREFULL : at the moment, the multi-threading implementation of deefuzz instances
+BE CAREFULL : at the moment, the multi-threading implementation of deefuzzer instances
 avoids to shut down the streams with CTRL+C... You have to kill them manually,
 after a CTRL+Z, making this:
 
-    $ kill -9 `pgrep deefuzz`
+    $ kill -9 `pgrep deefuzzer`
 
 
 # 5. Author
@@ -89,5 +89,5 @@ See COPYING
 # 8. Contact / Infos
 # ==================
 
-see http://svn.parisson.org/deefuzz/ or http://parisson.com for more info.
+see http://svn.parisson.org/deefuzzer/ or http://parisson.com for more info.
 
