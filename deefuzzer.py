@@ -45,22 +45,26 @@ import random
 import Queue
 import shout
 import subprocess
+import platform
 from threading import Thread
 from tools import *
 
-version = '0.3.0'
+version = '0.3.1'
 year = datetime.datetime.now().strftime("%Y")
+platform_system = platform.system()
 
 
 def prog_info():
-        desc = '\n deefuzzer : easy and light streaming tool\n'
-        ver = ' version : %s \n\n' % (version)
-        info = """ Copyright (c) 2007-%s Guillaume Pellerin <yomguy@parisson.com>
+    desc = """ deefuzzer : easy and instant media streaming tool
+ version : %s
+ running on system : %s
+
+ Copyright (c) 2007-%s Guillaume Pellerin <yomguy@parisson.com>
  All rights reserved.
 
  This software is licensed as described in the file COPYING, which
  you should have received as part of this distribution. The terms
- are also available at http://svn.parisson.org/d-fuzz/DeeFuzzerLicense
+ are also available at http://svn.parisson.org/deefuzzer/DeeFuzzerLicense
 
  depends : python, python-xml, python-shout, libshout3, icecast2
  recommends : python-mutagen
@@ -71,9 +75,9 @@ def prog_info():
   ex: deefuzzer example/myfuzz.xml
  
  see http://svn.parisson.org/deefuzzer/ for more details
-        """ % (year)
-        text = desc + ver + info
-        return text
+        """
+
+    return desc % (version, platform_system, year)
 
 
 class DeeFuzzerError:
@@ -227,8 +231,9 @@ class Station(Thread):
         self.channel.genre = self.station['infos']['genre']
         self.channel.description = self.station['infos']['description']
         self.channel.url = self.station['infos']['url']
-        self.rss_current_file = self.rss_dir + os.sep + self.short_name + '_' + self.channel.format + '_current.xml'
-        self.rss_playlist_file = self.rss_dir + os.sep + self.short_name + '_' + self.channel.format + '_playlist.xml'
+        self.base_name = self.rss_dir + os.sep + self.short_name + '_' + self.channel.format
+        self.rss_current_file = self.base_name + '_current.xml'
+        self.rss_playlist_file = self.base_name + '_playlist.xml'
         self.m3u_playlist_file = self.rss_dir + os.sep + self.short_name + '.m3u'
         self.media_url_dir = '/media/'
         # Server
@@ -265,14 +270,12 @@ class Station(Thread):
 
         for media in media_list:
             media_description = '<table>'
+            media_description_item = '<tr><td>%s:   </td><td><b>%s</b></td></tr>'
             for key in media.metadata.keys():
                 if media.metadata[key] != '':
-                    media_description += '<tr><td>%s:   </td><td><b>%s</b></td></tr>' % \
-                                            (key.capitalize(), media.metadata[key])
-            media_description += '<tr><td>%s:   </td><td><b>%s</b></td></tr>' % \
-                                            ('Duration', str(media.length).split('.')[0])
-            media_description += '<tr><td>%s:   </td><td><b>%s</b></td></tr>' % \
-                                            ('Bitrate', str(media.bitrate) + ' kbps')
+                    media_description += media_description_item % (key.capitalize(), media.metadata[key])
+            media_description += media_description_item % ('Duration', str(media.length).split('.')[0])
+            media_description += media_description_item % ('Bitrate', str(media.bitrate) + ' kbps')
             media_description += '</table>'
             media_stats = os.stat(media.media)
             media_date = time.localtime(media_stats[8])

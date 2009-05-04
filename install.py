@@ -41,7 +41,7 @@
 import os, sys
 
 if len(sys.argv) == 1:
-    install_dir = '/usr/share/deefuzz/'
+    install_dir = '/usr/share/deefuzzer/'
 elif len(sys.argv) > 2:
     sys.exit('Give just one directory to install Telemeta, or none.')
 else:
@@ -53,14 +53,14 @@ if not os.path.exists(install_dir):
 os.system('cp -ra ./* '+install_dir+os.sep)
 os.system('rm -rf '+install_dir+os.sep+'debian')
 
-if os.path.exists('/usr/bin/deefuzz'):
-    os.system('rm -r /usr/bin/deefuzz')
+if os.path.exists('/usr/bin/deefuzzer'):
+    os.system('rm -r /usr/bin/deefuzzer')
 
-os.system('ln -s '+install_dir+os.sep+'deefuzz.py '+'/usr/bin/deefuzz')
-os.system('ln -s '+install_dir+os.sep+'deefuzz-deamon.sh '+'/usr/bin/deefuzz-deamon')
+os.system('ln -s '+install_dir+os.sep+'deefuzzer.py '+'/usr/bin/deefuzzer')
+os.system('ln -s '+install_dir+os.sep+'deefuzzer-deamon.sh '+'/usr/bin/deefuzzer-deamon')
 
 print """
    Installation successfull ! 
-   Type 'deefuzz' now...
+   Type 'deefuzzer' now...
    """
 

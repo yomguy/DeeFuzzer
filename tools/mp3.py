@@ -66,7 +66,7 @@ class Mp3:
                     }
         self.mp3 = MP3(self.media, ID3=EasyID3)
         self.info = self.mp3.info
-        self.bitrate = self.mp3.bitrate
+        self.bitrate = int(str(self.info.bitrate)[:-3])
         self.length = datetime.timedelta(0,self.info.length)
         self.metadata = self.get_file_metadata()
         self.description = self.get_description()
