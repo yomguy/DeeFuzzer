@@ -38,6 +38,7 @@
 
 import os
 import string
+import datetime
 from mutagen.oggvorbis import OggVorbis
 from tools import *
 
@@ -47,7 +48,7 @@ class Ogg:
     
     def __init__(self, media):
         self.media = media
-        self.media_obj = OggVorbis(self.media)
+        self.ogg = OggVorbis(self.media)
         self.item_id = ''
         self.source = self.media
         self.options = {}
@@ -59,7 +60,11 @@ class Ogg:
                     'date': 'date',
                     'comment': 'comment',
                     'genre': 'genre',
+                    'copyright': 'copyright',
                     }
+        self.info = self.ogg.info
+        self.bitrate = int(str(self.info.bitrate)[:-3])
+        self.length = datetime.timedelta(0,self.info.length)
         self.metadata = self.get_file_metadata()
         self.description = self.get_description()
         self.mime_type = self.get_mime_type()
@@ -70,7 +75,7 @@ class Ogg:
         self.extension = self.get_file_extension()
         self.size = os.path.getsize(media)
         #self.args = self.get_args()
-        
+
     def get_format(self):
         return 'OGG'
     
@@ -101,7 +106,7 @@ class Ogg:
         metadata = {}
         for key in self.keys2ogg.keys():
             try:
-                text = self.media_obj[key][0].decode()
+                text = self.ogg[key][0].decode()
                 metadata[key] = text
             except:
                 metadata[key] = ''
@@ -117,8 +122,8 @@ class Ogg:
 
     def write_tags(self):
         for tag in self.metadata.keys():
-            self.media_obj[tag] = str(self.metadata[tag])
-        media_obj.save()
+            self.ogg[tag] = str(self.metadata[tag])
+        ogg.save()
 
     def get_args(self,options=None):
         """Get process options and return arguments for the encoder"""
