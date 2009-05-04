@@ -244,11 +244,10 @@ class Station(Thread):
         self.channel.password = self.station['server']['sourcepassword']
         self.channel.mount = '/' + self.short_name + '.' + self.channel.format
         self.channel.public = int(self.station['server']['public'])
-        self.channel.audio_info = { 'SHOUT_AI_BITRATE': self.bitrate,
-                                    'SHOUT_AI_SAMPLERATE': self.samplerate,
-                                    'SHOUT_AI_QUALITY': self.ogg_quality,
-                                    'SHOUT_AI_CHANNELS': self.voices,
-                                  }
+        self.channel.audio_info = { 'bitrate': self.bitrate,
+                                    'samplerate': self.samplerate,
+                                    'quality': self.ogg_quality,
+                                    'channels': self.voices,}
         self.set_playlist()
         self.lp = len(self.playlist)
         self.channel.open()
