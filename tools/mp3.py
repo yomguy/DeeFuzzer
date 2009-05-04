@@ -38,8 +38,9 @@
 
 import os
 import string
+import datetime
 from mutagen.easyid3 import EasyID3
-from mutagen.mp3 import MP3
+from mutagen.mp3 import MP3, MPEGInfo
 from tools import *
 
 EasyID3.valid_keys["comment"]="COMM::'XXX'"
@@ -63,6 +64,10 @@ class Mp3:
                     'genre': 'TCON',
                     'copyright': 'TCOP',
                     }
+        self.mp3 = MP3(self.media, ID3=EasyID3)
+        self.info = self.mp3.info
+        self.bitrate = self.mp3.bitrate
+        self.length = datetime.timedelta(0,self.info.length)
         self.metadata = self.get_file_metadata()
         self.description = self.get_description()
         self.mime_type = self.get_mime_type()
@@ -87,11 +92,10 @@ class Mp3:
         return "MPEG audio Layer III"
     
     def get_file_metadata(self):
-        m = MP3(self.media, ID3=EasyID3)
         metadata = {}
         for key in self.keys2id3.keys():
             try:
-                metadata[key] = m[key][0]
+                metadata[key] = self.mp3[key][0]
             except:
                 metadata[key] = ''
         return metadata

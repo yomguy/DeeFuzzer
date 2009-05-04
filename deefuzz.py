@@ -269,6 +269,10 @@ class Station(Thread):
                 if media.metadata[key] != '':
                     media_description += '<tr><td>%s:   </td><td><b>%s</b></td></tr>' % \
                                             (key.capitalize(), media.metadata[key])
+            media_description += '<tr><td>%s:   </td><td><b>%s</b></td></tr>' % \
+                                            ('Duration', str(media.length).split('.')[0])
+            media_description += '<tr><td>%s:   </td><td><b>%s</b></td></tr>' % \
+                                            ('Bitrate', str(media.bitrate) + ' kbps')
             media_description += '</table>'
             media_stats = os.stat(media.media)
             media_date = time.localtime(media_stats[8])
