@@ -212,7 +212,6 @@ class Station(Thread):
         self.channel = shout.Shout()
         self.id = 999999
         self.counter = 0
-        self.index_list = []
         self.command = 'cat '
         self.delay = 0
         # Media
@@ -235,7 +234,6 @@ class Station(Thread):
         self.rss_current_file = self.base_name + '_current.xml'
         self.rss_playlist_file = self.base_name + '_playlist.xml'
         self.m3u_playlist_file = self.rss_dir + os.sep + self.short_name + '.m3u'
-        self.media_url_dir = '/media/'
         # Server
         self.channel.protocol = 'http'     # | 'xaudiocast' | 'icy'
         self.channel.host = self.station['server']['host']
@@ -254,6 +252,12 @@ class Station(Thread):
         # Logging
         self.logger.write('Opening ' + self.short_name + ' - ' + self.channel.name + \
                 ' (' + str(self.lp) + ' tracks)...')
+        
+        self.metadata_relative_dir = 'metadata'
+        self.metadata_url = self.channel.url + '/rss/' + self.metadata_relative_dir
+        self.metadata_dir = self.rss_dir + os.sep + self.metadata_relative_dir
+        if not os.path.exists(self.metadata_dir):
+            os.makedirs(self.metadata_dir)
 
     def update_rss(self, media_list, rss_file):
         rss_item_list = []
@@ -295,7 +299,7 @@ class Station(Thread):
             media_absolute_playtime += media.length
             
             if self.rss_enclosure == '1':
-                media_link = self.channel.url + self.media_url_dir + media.file_name
+                media_link = self.metadata_url + '/' + media.file_name + '.xml'
                 media_link = media_link.decode('utf-8')
                 rss_item_list.append(PyRSS2Gen.RSSItem(
                     title = song,
@@ -306,7 +310,7 @@ class Station(Thread):
                     pubDate = media_date,)
                     )
             else:
-                media_link = self.channel.url
+                media_link = self.metadata_url + '/' + media.file_name + '.xml'
                 rss_item_list.append(PyRSS2Gen.RSSItem(
                     title = song,
                     link = media_link,
@@ -346,18 +350,16 @@ class Station(Thread):
             if lp_new != self.lp or self.counter == 0:
                 self.id = 0
                 self.lp = lp_new
-                self.index_list = range(0,self.lp)
                 if self.mode_shuffle == 1:
-                    # Shake it, Fuzz it !
-                    random.shuffle(self.index_list)
+                # Shake it, Fuzz it !
+                    random.shuffle(self.playlist)
                 self.logger.write('Station ' + self.short_name + \
                                  ' : generating new playlist (' + str(self.lp) + ' tracks)')
                 self.update_rss(self.media_to_objs(self.playlist), self.rss_playlist_file)
-            # Or follow...
             else:
                 self.id = (self.id + 1) % self.lp
-
-            return self.playlist[self.index_list[self.id]]
+                
+            return self.playlist[self.id]
 
     def log_queue(self, it):
         self.logger.write('Station ' + self.short_name + ' eated one queue step: '+str(it))
@@ -433,10 +435,12 @@ class Station(Thread):
                 else:
                     song = artist + ' : ' + title
 
+                self.metadata_file = self.metadata_dir + os.sep + self.current_media_obj[0].file_name + '.xml'
+                self.update_rss(self.current_media_obj, self.metadata_file)
                 self.channel.set_metadata({'song': str(song.encode('utf-8')), 'charset': 'utf8',})
                 self.update_rss(self.current_media_obj, self.rss_current_file)
-                self.logger.write('DeeFuzzing this file on %s :  id = %s, index = %s, name = %s' \
-                    % (self.short_name, self.id, self.index_list[self.id], self.current_media_obj[0].file_name))
+                self.logger.write('DeeFuzzing this file on %s :  id = %s, name = %s' \
+                    % (self.short_name, self.id, self.current_media_obj[0].file_name))
 
                 stream = self.core_process_read(media)
                 q.task_done()
