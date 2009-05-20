@@ -327,6 +327,7 @@ class Station(Thread):
                 ext = s[len(s)-1]
                 if ext.lower() == self.channel.format and not '/.' in file:
                     file_list.append(root + os.sep + file)
+        file_list.sort()
         self.playlist = file_list
 
     def get_next_media(self):
@@ -334,6 +335,7 @@ class Station(Thread):
         if self.lp != 0:
             self.set_playlist()
             lp_new = len(self.playlist)
+            self.logger.write(self.playlist)
 
             if lp_new != self.lp or self.counter == 0:
                 self.id = 0
