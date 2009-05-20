@@ -335,7 +335,7 @@ class Station(Thread):
         if self.lp != 0:
             self.set_playlist()
             lp_new = len(self.playlist)
-            self.logger.write(self.playlist)
+            #self.logger.write(self.playlist)
 
             if lp_new != self.lp or self.counter == 0:
                 self.id = 0
