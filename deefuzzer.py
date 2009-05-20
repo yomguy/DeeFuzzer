@@ -266,20 +266,24 @@ class Station(Thread):
             sub_title = '(playlist)'
 
         channel_subtitle = self.channel.name + ' ' + sub_title
-
+        _date_now = datetime.datetime.now()
+        date_now = str(_date_now)
+        media_absolute_playtime = _date_now
+        
         for media in media_list:
+            media_stats = os.stat(media.media)
+            media_date = time.localtime(media_stats[8])
+            media_date = time.strftime("%a, %d %b %Y %H:%M:%S +0200", media_date)
+            media.metadata['Duration'] = str(media.length).split('.')[0]
+            media.metadata['Bitrate'] = str(media.bitrate) + ' kbps'
+            media.metadata['Next play'] = str(media_absolute_playtime).split('.')[0]
+            
             media_description = '<table>'
             media_description_item = '<tr><td>%s:   </td><td><b>%s</b></td></tr>'
             for key in media.metadata.keys():
                 if media.metadata[key] != '':
                     media_description += media_description_item % (key.capitalize(), media.metadata[key])
-            media_description += media_description_item % ('Duration', str(media.length).split('.')[0])
-            media_description += media_description_item % ('Bitrate', str(media.bitrate) + ' kbps')
             media_description += '</table>'
-            media_stats = os.stat(media.media)
-            media_date = time.localtime(media_stats[8])
-            media_date = time.strftime("%a, %d %b %Y %H:%M:%S +0000", media_date)
-            date_now = str(datetime.datetime.now())
 
             title = media.metadata['title']
             artist = media.metadata['artist']
@@ -287,7 +291,9 @@ class Station(Thread):
                 song = str(media.file_title)
             else:
                 song = artist + ' : ' + title
-
+            
+            media_absolute_playtime += media.length
+            
             if self.rss_enclosure == '1':
                 media_link = self.channel.url + self.media_url_dir + media.file_name
                 media_link = media_link.decode('utf-8')
