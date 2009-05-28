@@ -299,7 +299,7 @@ class Station(Thread):
             media_absolute_playtime += media.length
             
             if self.rss_enclosure == '1':
-                media_link = self.metadata_url + '/' + media.file_name + '.xml'
+                media_link = self.channel.url + '/media/' + media.file_name
                 media_link = media_link.decode('utf-8')
                 rss_item_list.append(PyRSS2Gen.RSSItem(
                     title = song,
