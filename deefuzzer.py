@@ -453,9 +453,11 @@ class Station(Thread):
                         self.channel.sync()
                         # self.logger.write('Station delay (ms) ' + self.short_name + ' : '  + str(self.channel.delay()))
                     except:
-                        self.logger.write('ERROR : Station %s : could not send the buffer... ') % self.short_name
+                        self.logger.write('ERROR : Station ' + self.short_name + ' : could not send the buffer... ')
+                        self.channel.close()
+                        self.channel.open()
+                        continue
                     q.task_done()
-                stream.close()
 
         self.channel.close()
 
