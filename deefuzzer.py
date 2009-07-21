@@ -246,7 +246,7 @@ class Station(Thread):
                                     'samplerate': self.samplerate,
                                     'quality': self.ogg_quality,
                                     'channels': self.voices,}
-        self.set_playlist()
+        self.playlist = self.get_playlist()
         self.lp = len(self.playlist)
         self.channel.open()
         # Logging
@@ -330,7 +330,7 @@ class Station(Thread):
         rss.write_xml(f, 'utf-8')
         f.close()
 
-    def set_playlist(self):
+    def get_playlist(self):
         file_list = []
         for root, dirs, files in os.walk(self.media_dir):
             for file in files:
@@ -339,16 +339,16 @@ class Station(Thread):
                 if ext.lower() == self.channel.format and not '/.' in file:
                     file_list.append(root + os.sep + file)
         file_list.sort()
-        self.playlist = file_list
+        return file_list
 
     def get_next_media(self):
         # Init playlist
         if self.lp != 0:
-            self.set_playlist()
-            lp_new = len(self.playlist)
+            new_playlist = self.get_playlist()
+            lp_new = len(new_playlist)
             #self.logger.write(self.playlist)
-
             if lp_new != self.lp or self.counter == 0:
+                self.playlist = new_playlist
                 self.id = 0
                 self.lp = lp_new
                 if self.mode_shuffle == 1:
@@ -361,6 +361,10 @@ class Station(Thread):
                 self.id = (self.id + 1) % self.lp
                 
             return self.playlist[self.id]
+        else:
+            mess = 'No media in media_dir !'
+            self.logger.write(mess)
+            sys.exit(mess)
 
     def log_queue(self, it):
         self.logger.write('Station ' + self.short_name + ' eated one queue step: '+str(it))
@@ -421,14 +425,9 @@ class Station(Thread):
             self.counter += 1
             q.task_done()
 
-            it = q.get(1)
             if os.path.exists(media) and not os.sep+'.' in media:
-                try:
-                    self.current_media_obj = self.media_to_objs([media])
-                except:
-                    self.logger.write('Error : Station ' + self.short_name + ' : ' + media + 'not found !')
-                    break
-
+                it = q.get(1)
+                self.current_media_obj = self.media_to_objs([media])
                 title = self.current_media_obj[0].metadata['title']
                 artist = self.current_media_obj[0].metadata['artist']
                 if not (title or artist):
@@ -458,6 +457,8 @@ class Station(Thread):
                         self.channel.open()
                         continue
                     q.task_done()
+            else:
+                self.logger.write('Error : Station ' + self.short_name + ' : ' + media + 'not found !')
 
         self.channel.close()
 
