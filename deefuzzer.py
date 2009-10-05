@@ -1,34 +1,34 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright Guillaume Pellerin (2006-2009)
+# Copyright (C) 2006-2009 Guillaume Pellerin
 
 # <yomguy@parisson.com>
 
 # This software is a computer program whose purpose is to stream audio
 # and video data through icecast2 servers.
 
-# This software is governed by the CeCILL  license under French law and
-# abiding by the rules of distribution of free software.  You can  use, 
+# This software is governed by the CeCILL license under French law and
+# abiding by the rules of distribution of free software. You can use,
 # modify and/ or redistribute the software under the terms of the CeCILL
 # license as circulated by CEA, CNRS and INRIA at the following URL
 # "http://www.cecill.info". 
 
 # As a counterpart to the access to the source code and  rights to copy,
 # modify and redistribute granted by the license, users are provided only
-# with a limited warranty  and the software's author,  the holder of the
-# economic rights,  and the successive licensors  have only  limited
+# with a limited warranty and the software's author, the holder of the
+# economic rights, and the successive licensors have only limited
 # liability. 
 
 # In this respect, the user's attention is drawn to the risks associated
-# with loading,  using,  modifying and/or developing or reproducing the
+# with loading, using,  modifying and/or developing or reproducing the
 # software by the user in light of its specific status of free software,
-# that may mean  that it is complicated to manipulate,  and  that  also
-# therefore means  that it is reserved for developers  and  experienced
+# that may mean that it is complicated to manipulate, and that also
+# therefore means that it is reserved for developers and  experienced
 # professionals having in-depth computer knowledge. Users are therefore
 # encouraged to load and test the software's suitability as regards their
 # requirements in conditions enabling the security of their systems and/or 
-# data to be ensured and,  more generally, to use and operate it in the 
+# data to be ensured and, more generally, to use and operate it in the
 # same conditions as regards security.
 
 # The fact that you are presently reading this means that you have had
@@ -49,7 +49,7 @@ import platform
 from threading import Thread
 from tools import *
 
-version = '0.3.1'
+version = '0.3.2'
 year = datetime.datetime.now().strftime("%Y")
 platform_system = platform.system()
 
@@ -259,15 +259,10 @@ class Station(Thread):
         if not os.path.exists(self.metadata_dir):
             os.makedirs(self.metadata_dir)
 
-    def update_rss(self, media_list, rss_file):
+    def update_rss(self, media_list, rss_file, sub_title):
         rss_item_list = []
         if not os.path.exists(self.rss_dir):
             os.makedirs(self.rss_dir)
-
-        if len(media_list) == 1:
-            sub_title = '(currently playing)'
-        else:
-            sub_title = '(playlist)'
 
         channel_subtitle = self.channel.name + ' ' + sub_title
         _date_now = datetime.datetime.now()
@@ -356,7 +351,7 @@ class Station(Thread):
                     random.shuffle(self.playlist)
                 self.logger.write('Station ' + self.short_name + \
                                  ' : generating new playlist (' + str(self.lp) + ' tracks)')
-                self.update_rss(self.media_to_objs(self.playlist), self.rss_playlist_file)
+                self.update_rss(self.media_to_objs(self.playlist), self.rss_playlist_file, '(playlist)')
             else:
                 self.id = (self.id + 1) % self.lp
                 
@@ -436,9 +431,9 @@ class Station(Thread):
                     song = artist + ' : ' + title
 
                 self.metadata_file = self.metadata_dir + os.sep + self.current_media_obj[0].file_name + '.xml'
-                self.update_rss(self.current_media_obj, self.metadata_file)
+                self.update_rss(self.current_media_obj, self.metadata_file, '')
                 self.channel.set_metadata({'song': str(song.encode('utf-8')), 'charset': 'utf8',})
-                self.update_rss(self.current_media_obj, self.rss_current_file)
+                self.update_rss(self.current_media_obj, self.rss_current_file, '(currently playing)')
                 self.logger.write('DeeFuzzing this file on %s :  id = %s, name = %s' \
                     % (self.short_name, self.id, self.current_media_obj[0].file_name))
 
