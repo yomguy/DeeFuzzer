@@ -50,10 +50,6 @@ Note that you must edit the config file with right parameters before executing.
 You can find an example for the XML file in the directory "example/" of this
 application (maybe in /usr/share/deefuzzer if installed with the help of install.py)
 
-DeeFuzzer can also be run as a deamon using deefuzzer-deamon:
-
-    $ deefuzzer-deamon example/myfuzz.xml &
-
 Since 0.3, deefuzzer doesn't print anything into the shell, then a right <log> parameter
 is needed in the XML config file.
 
