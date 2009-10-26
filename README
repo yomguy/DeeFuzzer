@@ -17,6 +17,7 @@ Here are the main features of the DeeFuzzer Tools:
  * M3U playlist generator
  * Recursive, random (shuffled) or pre-defined playlists
  * Multi-threaded architecture (multiple stations now authorized !)
+ * Auto TWITTER posting of the current playing track
  * VERY light and optimized streaming process !
 
 It is neccessary to provide a config file which sets all needed parameters

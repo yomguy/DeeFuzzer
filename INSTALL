@@ -10,7 +10,7 @@
 # Author: Guillaume Pellerin <pellerin@parisson.com>
 
  depends : python, python-dev, python-xml, python-shout | shout-python, libshout3,
-           libshout3-dev, icecast2 python-mutagen
+           libshout3-dev, icecast2 python-mutagen, python-twitters
 
  provides : shout-python
 

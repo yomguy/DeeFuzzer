@@ -46,6 +46,7 @@ import Queue
 import shout
 import subprocess
 import platform
+import twitter
 from threading import Thread
 from tools import *
 
@@ -214,7 +215,8 @@ class Station(Thread):
         self.counter = 0
         self.command = 'cat '
         self.delay = 0
-        # Media
+
+       # Media
         self.media_dir = self.station['media']['dir']
         self.channel.format = self.station['media']['format']
         self.mode_shuffle = int(self.station['media']['shuffle'])
@@ -222,8 +224,11 @@ class Station(Thread):
         self.ogg_quality = self.station['media']['ogg_quality']
         self.samplerate = self.station['media']['samplerate']
         self.voices = self.station['media']['voices']
-        self.rss_dir = self.station['media']['rss_dir']
-        self.rss_enclosure = self.station['media']['rss_enclosure']
+
+        # RSS
+        self.rss_dir = self.station['rss']['dir']
+        self.rss_enclosure = self.station['rss']['enclosure']
+
         # Infos
         self.short_name = self.station['infos']['short_name']
         self.channel.name = self.station['infos']['name']
@@ -234,6 +239,7 @@ class Station(Thread):
         self.rss_current_file = self.base_name + '_current.xml'
         self.rss_playlist_file = self.base_name + '_playlist.xml'
         self.m3u_playlist_file = self.rss_dir + os.sep + self.short_name + '.m3u'
+
         # Server
         self.channel.protocol = 'http'     # | 'xaudiocast' | 'icy'
         self.channel.host = self.station['server']['host']
@@ -249,6 +255,7 @@ class Station(Thread):
         self.playlist = self.get_playlist()
         self.lp = len(self.playlist)
         self.channel.open()
+
         # Logging
         self.logger.write('Opening ' + self.short_name + ' - ' + self.channel.name + \
                 ' (' + str(self.lp) + ' tracks)...')
@@ -258,6 +265,16 @@ class Station(Thread):
         self.metadata_dir = self.rss_dir + os.sep + self.metadata_relative_dir
         if not os.path.exists(self.metadata_dir):
             os.makedirs(self.metadata_dir)
+
+        # Twitter
+        if self.station['twitter']:
+            self.twitter_mode = self.station['twitter']['mode']
+            self.twitter_user = self.station['twitter']['user']
+            self.twitter_pass = self.station['twitter']['pass']
+            if self.twitter_mode == '1':
+                self.twitter = Twitter(self.twitter_user, self.twitter_pass)
+        else:
+            self.twitter_mode = '0'
 
     def update_rss(self, media_list, rss_file, sub_title):
         rss_item_list = []
@@ -354,7 +371,7 @@ class Station(Thread):
                 self.update_rss(self.media_to_objs(self.playlist), self.rss_playlist_file, '(playlist)')
             else:
                 self.id = (self.id + 1) % self.lp
-                
+
             return self.playlist[self.id]
         else:
             mess = 'No media in media_dir !'
@@ -427,15 +444,19 @@ class Station(Thread):
                 artist = self.current_media_obj[0].metadata['artist']
                 if not (title or artist):
                     song = str(self.current_media_obj[0].file_name)
+                    artist = ''
                 else:
                     song = artist + ' : ' + title
+                song = str(song.encode('utf-8'))
 
                 self.metadata_file = self.metadata_dir + os.sep + self.current_media_obj[0].file_name + '.xml'
                 self.update_rss(self.current_media_obj, self.metadata_file, '')
-                self.channel.set_metadata({'song': str(song.encode('utf-8')), 'charset': 'utf8',})
+                self.channel.set_metadata({'song': song, 'charset': 'utf8',})
                 self.update_rss(self.current_media_obj, self.rss_current_file, '(currently playing)')
                 self.logger.write('DeeFuzzing this file on %s :  id = %s, name = %s' \
                     % (self.short_name, self.id, self.current_media_obj[0].file_name))
+                if self.twitter_mode == '1':
+                    self.twitter.post(song + ' #' + artist.replace(' ', ''))
 
                 stream = self.core_process_read(media)
                 q.task_done()
@@ -456,6 +477,22 @@ class Station(Thread):
                 self.logger.write('Error : Station ' + self.short_name + ' : ' + media + 'not found !')
 
         self.channel.close()
+
+
+class Twitter:
+    """Post a message to Twitter"""
+    
+    def __init__(self, username, password):
+        #Thread.__init__(self)
+        self.username = username
+        self.password = password
+        self.api = twitter.Api(username=self.username, password=self.password)
+        
+    def set_message(self, message):
+        self.message = message
+
+    def post(self, message):
+        self.api.PostUpdate(message)
 
 
 def main():
