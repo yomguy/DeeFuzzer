@@ -47,6 +47,7 @@ import shout
 import subprocess
 import platform
 import twitter
+import tinyurl
 from threading import Thread
 from tools import *
 
@@ -122,6 +123,27 @@ class DeeFuzzer(Thread):
         else:
             self.m3u = '.' + os.sep + 'deefuzzer.m3u'
 
+        if isinstance(self.conf['deefuzzer']['station'], dict):
+            # Fix wrong type data from xmltodict when one station (*)
+            self.nb_stations = 1
+        else:
+            self.nb_stations = len(self.conf['deefuzzer']['station'])
+
+        # Set the deefuzzer logger
+        self.logger.write('Starting DeeFuzzer v' + version)
+        self.logger.write('Using libshout version %s' % shout.version())
+
+        # Define the buffer_size
+        self.buffer_size = 65536
+        self.logger.write('Buffer size per station = ' + str(self.buffer_size))
+
+        # Init all Stations
+        self.stations = []
+        self.logger.write('Number of stations : ' + str(self.nb_stations))
+
+        # Create M3U playlist
+        self.logger.write('Writing M3U file to : ' + self.m3u)
+        
     def get_conf_dict(self):
         confile = open(self.conf_file,'r')
         conf_xml = confile.read()
@@ -144,45 +166,26 @@ class DeeFuzzer(Thread):
         m3u.close()
 
     def run(self):
-        if isinstance(self.conf['deefuzzer']['station'], dict):
-            # Fix wrong type data from xmltodict when one station (*)
-            nb_stations = 1
-        else:
-            nb_stations = len(self.conf['deefuzzer']['station'])
-
         # Create a Queue
         # Not too much, otherwise, you will get memory leaks !
         q = Queue.Queue(1)
 
-        # Create a Producer 
-        p = Producer(q)
-        p.start()
-
-        # Set the deefuzzer logger
-        self.logger.write('Starting DeeFuzzer v' + version)
-        self.logger.write('Using libshout version %s' % shout.version())
-
-        # Define the buffer_size
-        self.buffer_size = 65536
-        self.logger.write('Buffer size per station = ' + str(self.buffer_size))
-
-        # Init all Stations
-        self.stations = []
-        self.logger.write('Number of stations : ' + str(nb_stations))
-        for i in range(0,nb_stations):
+        for i in range(0,self.nb_stations):
             if isinstance(self.conf['deefuzzer']['station'], dict):
                 station = self.conf['deefuzzer']['station']
             else:
                 station = self.conf['deefuzzer']['station'][i]
             # Create a Station
-            self.stations.append(Station(station, q, self.buffer_size, self.logger))
+            self.stations.append(Station(station, q, self.buffer_size, self.logger, self.m3u))
 
-        # Create M3U playlist
-        self.logger.write('Writing M3U file to : ' + self.m3u)
         self.set_m3u_playlist()
+
+        # Create a Producer 
+        p = Producer(q)
+        p.start()
         
         # Start the Stations
-        for i in range(0,nb_stations):
+        for i in range(0,self.nb_stations):
             self.stations[i].start()
 
 
@@ -204,7 +207,7 @@ class Producer(Thread):
 class Station(Thread):
     """a DeeFuzzer shouting station thread"""
 
-    def __init__(self, station, q, buffer_size, logger):
+    def __init__(self, station, q, buffer_size, logger, m3u):
         Thread.__init__(self)
         self.station = station
         self.q = q
@@ -230,15 +233,15 @@ class Station(Thread):
         self.rss_enclosure = self.station['rss']['enclosure']
 
         # Infos
+        self.channel.url = self.station['infos']['url']
         self.short_name = self.station['infos']['short_name']
-        self.channel.name = self.station['infos']['name']
+        self.channel.name = self.station['infos']['name'] + ' ' + self.channel.url
         self.channel.genre = self.station['infos']['genre']
         self.channel.description = self.station['infos']['description']
-        self.channel.url = self.station['infos']['url']
         self.base_name = self.rss_dir + os.sep + self.short_name + '_' + self.channel.format
         self.rss_current_file = self.base_name + '_current.xml'
         self.rss_playlist_file = self.base_name + '_playlist.xml'
-        self.m3u_playlist_file = self.rss_dir + os.sep + self.short_name + '.m3u'
+        self.m3u = m3u
 
         # Server
         self.channel.protocol = 'http'     # | 'xaudiocast' | 'icy'
@@ -273,9 +276,13 @@ class Station(Thread):
             self.twitter_pass = self.station['twitter']['pass']
             if self.twitter_mode == '1':
                 self.twitter = Twitter(self.twitter_user, self.twitter_pass)
-        else:
-            self.twitter_mode = '0'
-
+        self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
+        
+    def update_twitter(self):
+        if self.twitter_mode == '1':
+            message = 'Now deefuzzing: ' + self.song + ' #' + self.artist.replace(' ', '') + ' #m3u : '
+            self.twitter.post(message[:114] + self.tinyurl)
+            
     def update_rss(self, media_list, rss_file, sub_title):
         rss_item_list = []
         if not os.path.exists(self.rss_dir):
@@ -440,24 +447,22 @@ class Station(Thread):
             if os.path.exists(media) and not os.sep+'.' in media:
                 it = q.get(1)
                 self.current_media_obj = self.media_to_objs([media])
-                title = self.current_media_obj[0].metadata['title']
-                artist = self.current_media_obj[0].metadata['artist']
-                if not (title or artist):
+                self.title = self.current_media_obj[0].metadata['title']
+                self.artist = self.current_media_obj[0].metadata['artist']
+                if not (self.title or self.artist):
                     song = str(self.current_media_obj[0].file_name)
-                    artist = ''
                 else:
-                    song = artist + ' : ' + title
-                song = str(song.encode('utf-8'))
+                    song = self.artist + ' : ' + self.title
+                self.song = str(song.encode('utf-8'))
 
                 self.metadata_file = self.metadata_dir + os.sep + self.current_media_obj[0].file_name + '.xml'
                 self.update_rss(self.current_media_obj, self.metadata_file, '')
-                self.channel.set_metadata({'song': song, 'charset': 'utf8',})
+                self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
                 self.update_rss(self.current_media_obj, self.rss_current_file, '(currently playing)')
                 self.logger.write('DeeFuzzing this file on %s :  id = %s, name = %s' \
                     % (self.short_name, self.id, self.current_media_obj[0].file_name))
-                if self.twitter_mode == '1':
-                    self.twitter.post(song + ' #' + artist.replace(' ', ''))
-
+                self.update_twitter()
+                
                 stream = self.core_process_read(media)
                 q.task_done()
 
@@ -492,7 +497,10 @@ class Twitter:
         self.message = message
 
     def post(self, message):
-        self.api.PostUpdate(message)
+        try:
+            self.api.PostUpdate(message)
+        except:
+            pass
 
 
 def main():
