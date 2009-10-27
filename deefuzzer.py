@@ -12,13 +12,13 @@
 # abiding by the rules of distribution of free software. You can use,
 # modify and/ or redistribute the software under the terms of the CeCILL
 # license as circulated by CEA, CNRS and INRIA at the following URL
-# "http://www.cecill.info". 
+# "http://www.cecill.info".
 
 # As a counterpart to the access to the source code and  rights to copy,
 # modify and redistribute granted by the license, users are provided only
 # with a limited warranty and the software's author, the holder of the
 # economic rights, and the successive licensors have only limited
-# liability. 
+# liability.
 
 # In this respect, the user's attention is drawn to the risks associated
 # with loading, using,  modifying and/or developing or reproducing the
@@ -27,7 +27,7 @@
 # therefore means that it is reserved for developers and  experienced
 # professionals having in-depth computer knowledge. Users are therefore
 # encouraged to load and test the software's suitability as regards their
-# requirements in conditions enabling the security of their systems and/or 
+# requirements in conditions enabling the security of their systems and/or
 # data to be ensured and, more generally, to use and operate it in the
 # same conditions as regards security.
 
@@ -51,7 +51,7 @@ import tinyurl
 from threading import Thread
 from tools import *
 
-version = '0.3.2'
+version = '0.3.3'
 year = datetime.datetime.now().strftime("%Y")
 platform_system = platform.system()
 
@@ -75,7 +75,7 @@ def prog_info():
  Usage : deefuzzer $1
   where $1 is the path for a XML config file
   ex: deefuzzer example/myfuzz.xml
- 
+
  see http://svn.parisson.org/deefuzzer/ for more details
         """
 
@@ -143,7 +143,7 @@ class DeeFuzzer(Thread):
 
         # Create M3U playlist
         self.logger.write('Writing M3U file to : ' + self.m3u)
-        
+
     def get_conf_dict(self):
         confile = open(self.conf_file,'r')
         conf_xml = confile.read()
@@ -180,10 +180,10 @@ class DeeFuzzer(Thread):
 
         self.set_m3u_playlist()
 
-        # Create a Producer 
+        # Create a Producer
         p = Producer(q)
         p.start()
-        
+
         # Start the Stations
         for i in range(0,self.nb_stations):
             self.stations[i].start()
@@ -199,7 +199,7 @@ class Producer(Thread):
     def run(self):
         i=0
         q = self.q
-        while 1: 
+        while 1:
             q.put(i,1)
             i+=1
 
@@ -262,7 +262,7 @@ class Station(Thread):
         # Logging
         self.logger.write('Opening ' + self.short_name + ' - ' + self.channel.name + \
                 ' (' + str(self.lp) + ' tracks)...')
-        
+
         self.metadata_relative_dir = 'metadata'
         self.metadata_url = self.channel.url + '/rss/' + self.metadata_relative_dir
         self.metadata_dir = self.rss_dir + os.sep + self.metadata_relative_dir
@@ -277,12 +277,12 @@ class Station(Thread):
             if self.twitter_mode == '1':
                 self.twitter = Twitter(self.twitter_user, self.twitter_pass)
         self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
-        
+
     def update_twitter(self):
         if self.twitter_mode == '1':
             message = 'Now deefuzzing: ' + self.song + ' #' + self.artist.replace(' ', '') + ' #m3u : '
             self.twitter.post(message[:114] + self.tinyurl)
-            
+
     def update_rss(self, media_list, rss_file, sub_title):
         rss_item_list = []
         if not os.path.exists(self.rss_dir):
@@ -292,7 +292,7 @@ class Station(Thread):
         _date_now = datetime.datetime.now()
         date_now = str(_date_now)
         media_absolute_playtime = _date_now
-        
+
         for media in media_list:
             media_stats = os.stat(media.media)
             media_date = time.localtime(media_stats[8])
@@ -300,7 +300,7 @@ class Station(Thread):
             media.metadata['Duration'] = str(media.length).split('.')[0]
             media.metadata['Bitrate'] = str(media.bitrate) + ' kbps'
             media.metadata['Next play'] = str(media_absolute_playtime).split('.')[0]
-            
+
             media_description = '<table>'
             media_description_item = '<tr><td>%s:   </td><td><b>%s</b></td></tr>'
             for key in media.metadata.keys():
@@ -314,9 +314,9 @@ class Station(Thread):
                 song = str(media.file_title)
             else:
                 song = artist + ' : ' + title
-            
+
             media_absolute_playtime += media.length
-            
+
             if self.rss_enclosure == '1':
                 media_link = self.channel.url + '/media/' + media.file_name
                 media_link = media_link.decode('utf-8')
@@ -462,7 +462,7 @@ class Station(Thread):
                 self.logger.write('DeeFuzzing this file on %s :  id = %s, name = %s' \
                     % (self.short_name, self.id, self.current_media_obj[0].file_name))
                 self.update_twitter()
-                
+
                 stream = self.core_process_read(media)
                 q.task_done()
 
@@ -486,13 +486,13 @@ class Station(Thread):
 
 class Twitter:
     """Post a message to Twitter"""
-    
+
     def __init__(self, username, password):
         #Thread.__init__(self)
         self.username = username
         self.password = password
         self.api = twitter.Api(username=self.username, password=self.password)
-        
+
     def set_message(self, message):
         self.message = message
 

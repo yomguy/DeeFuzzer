@@ -8,7 +8,6 @@
             <description>My personal best funky playlist ever !</description>
             <url>http://mydomain.com</url>
             <genre>Other</genre>
-            <channels>1</channels>
         </infos>
         <server>
             <host>localhost</host>
@@ -42,7 +41,6 @@
             <description>My personal best groovy playlist ever !</description>
             <url>http://mydomain.com</url>
             <genre>Other</genre>
-            <channels>1</channels>
         </infos>
         <server>
             <host>localhost</host>
