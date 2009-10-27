@@ -280,8 +280,8 @@ class Station(Thread):
 
     def update_twitter(self):
         if self.twitter_mode == '1':
-            message = 'Now deefuzzing: ' + self.song + ' #' + self.artist.replace(' ', '') + ' #m3u : '
-            self.twitter.post(message[:114] + self.tinyurl)
+            message = 'now #deefuzzing : ' + self.song + ' #' + self.artist.replace(' ', '') + ' #m3u : '
+            self.twitter.post(message[:112] + self.tinyurl)
 
     def update_rss(self, media_list, rss_file, sub_title):
         rss_item_list = []
