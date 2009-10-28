@@ -281,8 +281,8 @@ class Station(Thread):
 
     def update_twitter(self):
         if self.twitter_mode == '1':
-            message = 'now playing: %s #%s #%s' % (self.song.replace('_', ' '), self.artist.replace(' ', ''), self.short_name
-            tags = ' #' + self.twitter_tags.join(' #')
+            message = 'now playing: %s #%s #%s' % (self.song.replace('_', ' '), self.artist.replace(' ', ''), self.short_name)
+            tags = ' #' + ' #'.join(self.twitter_tags)
             message = message + tags
             self.twitter.post(message[:113] + ' ' + self.tinyurl)
 
