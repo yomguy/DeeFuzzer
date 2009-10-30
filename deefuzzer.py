@@ -276,14 +276,15 @@ class Station(Thread):
             self.twitter_pass = self.station['twitter']['pass']
             if self.twitter_mode == '1':
                 self.twitter = Twitter(self.twitter_user, self.twitter_pass)
-            self.twitter_tags = self.station['twitter']['tags'].split(' ')
-            self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
+                self.twitter_tags = self.station['twitter']['tags'].split(' ')
+                self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
 
     def update_twitter(self):
         if self.twitter_mode == '1':
             message = 'now playing: %s #%s #%s' % (self.song.replace('_', ' '), self.artist.replace(' ', ''), self.short_name)
-            tags = ' #' + ' #'.join(self.twitter_tags)
-            message = message + tags
+            tags = '#' + ' #'.join(self.twitter_tags)
+            message = message + ' ' + tags
+            message = str(message.encode('utf-8'))
             self.twitter.post(message[:113] + ' ' + self.tinyurl)
 
     def update_rss(self, media_list, rss_file, sub_title):
@@ -457,6 +458,7 @@ class Station(Thread):
                 else:
                     song = self.artist + ' : ' + self.title
                 self.song = str(song.encode('utf-8'))
+                self.artist = str(self.artist.encode('utf-8'))
 
                 self.metadata_file = self.metadata_dir + os.sep + self.current_media_obj[0].file_name + '.xml'
                 self.update_rss(self.current_media_obj, self.metadata_file, '')
@@ -503,7 +505,7 @@ class Twitter:
         try:
             self.api.PostUpdate(message)
         except:
-            pass
+            continue
 
 
 def main():
