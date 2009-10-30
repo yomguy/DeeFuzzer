@@ -32,6 +32,7 @@
             <mode>0</mode>
             <user>xxxxxx</user>
             <pass>xxxxxx</pass>
+            <tags>bla bla</tags>
         </twitter>
     </station>
     <station>
@@ -65,6 +66,7 @@
             <mode>0</mode>
             <user>xxxxxx</user>
             <pass>xxxxxx</pass>
+            <tags>bla bla</tags>
         </twitter>
     </station>
 </deefuzzer>

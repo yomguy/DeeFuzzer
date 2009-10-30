@@ -284,7 +284,7 @@ class Station(Thread):
             message = 'now playing: %s #%s #%s' % (self.song.replace('_', ' '), self.artist.replace(' ', ''), self.short_name)
             tags = '#' + ' #'.join(self.twitter_tags)
             message = message + ' ' + tags
-            message = str(message.encode('utf-8'))
+            message = message.decode('utf8')
             self.twitter.post(message[:113] + ' ' + self.tinyurl)
 
     def update_rss(self, media_list, rss_file, sub_title):
