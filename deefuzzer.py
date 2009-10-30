@@ -505,7 +505,7 @@ class Twitter:
         try:
             self.api.PostUpdate(message)
         except:
-            continue
+            pass
 
 
 def main():
