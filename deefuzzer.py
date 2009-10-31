@@ -284,8 +284,10 @@ class Station(Thread):
             message = 'now playing: %s #%s #%s' % (self.song.replace('_', ' '), self.artist.replace(' ', ''), self.short_name)
             tags = '#' + ' #'.join(self.twitter_tags)
             message = message + ' ' + tags
+            message = message[:113] + ' ' + self.tinyurl
             message = message.decode('utf8')
-            self.twitter.post(message[:113] + ' ' + self.tinyurl)
+            self.logger.write('Twitting : "' + message + '"')
+            self.twitter.post(message)
 
     def update_rss(self, media_list, rss_file, sub_title):
         rss_item_list = []
@@ -457,8 +459,8 @@ class Station(Thread):
                     song = str(self.current_media_obj[0].file_name)
                 else:
                     song = self.artist + ' : ' + self.title
-                self.song = str(song.encode('utf-8'))
-                self.artist = str(self.artist.encode('utf-8'))
+                self.song = song.encode('utf-8')
+                self.artist = self.artist.encode('utf-8')
 
                 self.metadata_file = self.metadata_dir + os.sep + self.current_media_obj[0].file_name + '.xml'
                 self.update_rss(self.current_media_obj, self.metadata_file, '')
@@ -497,9 +499,6 @@ class Twitter:
         self.username = username
         self.password = password
         self.api = twitter.Api(username=self.username, password=self.password)
-
-    def set_message(self, message):
-        self.message = message
 
     def post(self, message):
         try:
