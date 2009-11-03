@@ -34,40 +34,11 @@
             <pass>xxxxxx</pass>
             <tags>bla bla</tags>
         </twitter>
-    </station>
-    <station>
-        <infos>
-            <short_name>My_Station_2</short_name>
-            <name>My best groovy station</name>
-            <description>My personal best groovy playlist ever !</description>
-            <url>http://mydomain.com</url>
-            <genre>Other</genre>
-        </infos>
-        <server>
-            <host>localhost</host>
-            <port>8000</port>
-            <sourcepassword>icecast_source_password</sourcepassword>
-            <public>1</public>
-        </server>
-        <media>
-            <dir>/path/to/my/mp3/</dir>
-            <format>mp3</format>
-            <bitrate>192</bitrate>
-            <ogg_quality>7</ogg_quality>
-            <samplerate>44100</samplerate>s
-            <voices>2</voices>
-            <shuffle>0</shuffle>
-        </media>
-        <rss>
-            <dir>/tmp/rss/</dir>
-            <enclosure>1</enclosure>
-        </rss>
-        <twitter>
-            <mode>0</mode>
-            <user>xxxxxx</user>
-            <pass>xxxxxx</pass>
-            <tags>bla bla</tags>
-        </twitter>
+        <jingles>
+            <mode>1</mode>
+            <dir>/path/to/jingles</dir>
+            <shuffle>1</shuffle>
+        </jingles>
     </station>
 </deefuzzer>
 

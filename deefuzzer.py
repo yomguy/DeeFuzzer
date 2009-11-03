@@ -279,6 +279,15 @@ class Station(Thread):
                 self.twitter_tags = self.station['twitter']['tags'].split(' ')
                 self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
 
+        if self.station['jingles']:
+            self.jingles_mode =  self.station['jingles']['mode']
+            self.jingles_shuffle = self.station['jingles']['shuffle']
+            self.jingles_dir = self.station['jingles']['dir']
+            if self.jingles_mode =='1':
+                self.jingles_list = self.get_jingles()
+                self.jingles_length = len(self.jingles_list)
+                self.jingle_id = 0
+
     def update_twitter(self):
         if self.twitter_mode == '1':
             message = 'now playing: %s #%s #%s' % (self.song.replace('_', ' '), self.artist.replace(' ', ''), self.short_name)
@@ -366,26 +375,46 @@ class Station(Thread):
         file_list.sort()
         return file_list
 
+    def get_jingles(self):
+        file_list = []
+        for root, dirs, files in os.walk(self.jingles_dir):
+            for file in files:
+                s = file.split('.')
+                ext = s[len(s)-1]
+                if ext.lower() == self.channel.format and not '/.' in file:
+                    file_list.append(root + os.sep + file)
+        file_list.sort()
+        return file_list
+
     def get_next_media(self):
         # Init playlist
         if self.lp != 0:
             new_playlist = self.get_playlist()
             lp_new = len(new_playlist)
-            #self.logger.write(self.playlist)
+
             if lp_new != self.lp or self.counter == 0:
                 self.playlist = new_playlist
                 self.id = 0
                 self.lp = lp_new
+
                 if self.mode_shuffle == 1:
-                # Shake it, Fuzz it !
+                    # Shake it, Fuzz it !
                     random.shuffle(self.playlist)
+
+
                 self.logger.write('Station ' + self.short_name + \
                                  ' : generating new playlist (' + str(self.lp) + ' tracks)')
                 self.update_rss(self.media_to_objs(self.playlist), self.rss_playlist_file, '(playlist)')
+
+            if self.jingles_mode == '1' and (self.counter % 2) == 0:
+                media = self.jingles_list[self.jingle_id]
+                self.jingle_id = (self.jingle_id + 1) % self.jingles_length
             else:
+                media = self.playlist[self.id]
                 self.id = (self.id + 1) % self.lp
 
-            return self.playlist[self.id]
+            return media
+
         else:
             mess = 'No media in media_dir !'
             self.logger.write(mess)
@@ -468,7 +497,9 @@ class Station(Thread):
                 self.update_rss(self.current_media_obj, self.rss_current_file, '(currently playing)')
                 self.logger.write('DeeFuzzing this file on %s :  id = %s, name = %s' \
                     % (self.short_name, self.id, self.current_media_obj[0].file_name))
-                self.update_twitter()
+
+                if not (self.jingles_mode == '1' and (self.counter % 2) == 1):
+                    self.update_twitter()
 
                 stream = self.core_process_read(media)
                 q.task_done()
