@@ -406,7 +406,7 @@ class Station(Thread):
                                  ' : generating new playlist (' + str(self.lp) + ' tracks)')
                 self.update_rss(self.media_to_objs(self.playlist), self.rss_playlist_file, '(playlist)')
 
-            if self.jingles_mode == '1' and (self.counter % 2) == 0:
+            if self.jingles_mode == '1' and (self.counter % 2) == 0 and not self.jingles_length == 0:
                 media = self.jingles_list[self.jingle_id]
                 self.jingle_id = (self.jingle_id + 1) % self.jingles_length
             else:
