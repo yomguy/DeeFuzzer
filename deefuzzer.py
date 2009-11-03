@@ -51,7 +51,7 @@ import tinyurl
 from threading import Thread
 from tools import *
 
-version = '0.4'
+version = '0.3.5'
 year = datetime.datetime.now().strftime("%Y")
 platform_system = platform.system()
 
@@ -68,8 +68,8 @@ def prog_info():
  you should have received as part of this distribution. The terms
  are also available at http://svn.parisson.org/deefuzzer/DeeFuzzerLicense
 
- depends : python, python-xml, python-shout, libshout3, icecast2
- recommends : python-mutagen
+ depends :  python, python-xml, python-shout, libshout3, icecast2,
+            python-mutagen, python-twitter, python-tinyurl
  provides : python-shout
 
  Usage : deefuzzer $1
@@ -288,7 +288,93 @@ class Station(Thread):
                 self.jingles_length = len(self.jingles_list)
                 self.jingle_id = 0
 
-    def update_rss(self, media_list, rss_file, sub_title):
+    def get_playlist(self):
+        file_list = []
+        for root, dirs, files in os.walk(self.media_dir):
+            for file in files:
+                s = file.split('.')
+                ext = s[len(s)-1]
+                if ext.lower() == self.channel.format and not '/.' in file:
+                    file_list.append(root + os.sep + file)
+        file_list.sort()
+        return file_list
+
+    def get_jingles(self):
+        file_list = []
+        for root, dirs, files in os.walk(self.jingles_dir):
+            for file in files:
+                s = file.split('.')
+                ext = s[len(s)-1]
+                if ext.lower() == self.channel.format and not '/.' in file:
+                    file_list.append(root + os.sep + file)
+        file_list.sort()
+        return file_list
+
+    def get_next_media(self):
+        # Init playlist
+        if self.lp != 0:
+            old_playlist = self.playlist
+            new_playlist = self.get_playlist()
+            lp_new = len(new_playlist)
+
+            if lp_new != self.lp or self.counter == 0:
+                # Init playlists
+                self.playlist = new_playlist
+                self.id = 0
+                self.lp = lp_new
+
+                # Twitting new tracks
+                new_playlist_set = set(self.playlist)
+                old_playlist_set = set(old_playlist)
+                new_tracks = new_playlist_set - old_playlist_set
+                if len(new_tracks) != 0:
+                    self.new_tracks = list(new_tracks.copy())
+                    new_tracks_objs = self.media_to_objs(self.new_tracks)
+
+                    for media_obj in new_tracks_objs:
+                        title = media_obj.metadata['title']
+                        artist = media_obj.metadata['artist']
+                        if not (title or artist):
+                            song = str(media_obj.file_name)
+                        else:
+                            song = artist + ' : ' + title
+                        song = song.encode('utf-8')
+                        artist = artist.encode('utf-8')
+                        message = 'New track ! %s #%s #%s' % (song.replace('_', ' '), artist.replace(' ', ''), self.short_name)
+                        self.update_twitter(message)
+
+                if self.mode_shuffle == 1:
+                    # Shake it, Fuzz it !
+                    random.shuffle(self.playlist)
+
+                self.logger.write('Station ' + self.short_name + \
+                                 ' : generating new playlist (' + str(self.lp) + ' tracks)')
+                self.update_rss(self.media_to_objs(self.playlist), self.rss_playlist_file, '(playlist)')
+
+            if self.jingles_mode == '1' and (self.counter % 2) == 0 and not self.jingles_length == 0:
+                media = self.jingles_list[self.jingle_id]
+                self.jingle_id = (self.jingle_id + 1) % self.jingles_length
+            else:
+                media = self.playlist[self.id]
+                self.id = (self.id + 1) % self.lp
+
+            return media
+
+        else:
+            mess = 'No media in media_dir !'
+            self.logger.write(mess)
+            sys.exit(mess)
+
+    def media_to_objs(self, media_list):
+        media_objs = []
+        for media in media_list:
+            file_name, file_title, file_ext = get_file_info(media)
+            if file_ext.lower() == 'mp3':
+                media_objs.append(Mp3(media))
+            elif file_ext.lower() == 'ogg':
+                media_objs.append(Ogg(media))
+        return media_objs
+        def update_rss(self, media_list, rss_file, sub_title):
         rss_item_list = []
         if not os.path.exists(self.rss_dir):
             os.makedirs(self.rss_dir)
@@ -354,28 +440,6 @@ class Station(Thread):
         rss.write_xml(f, 'utf-8')
         f.close()
 
-    def get_playlist(self):
-        file_list = []
-        for root, dirs, files in os.walk(self.media_dir):
-            for file in files:
-                s = file.split('.')
-                ext = s[len(s)-1]
-                if ext.lower() == self.channel.format and not '/.' in file:
-                    file_list.append(root + os.sep + file)
-        file_list.sort()
-        return file_list
-
-    def get_jingles(self):
-        file_list = []
-        for root, dirs, files in os.walk(self.jingles_dir):
-            for file in files:
-                s = file.split('.')
-                ext = s[len(s)-1]
-                if ext.lower() == self.channel.format and not '/.' in file:
-                    file_list.append(root + os.sep + file)
-        file_list.sort()
-        return file_list
-
     def update_twitter(self, message):
         if self.twitter_mode == '1':
             tags = '#' + ' #'.join(self.twitter_tags)
@@ -384,73 +448,6 @@ class Station(Thread):
             message = message.decode('utf8')
             self.logger.write('Twitting : "' + message + '"')
             self.twitter.post(message)
-
-    def get_next_media(self):
-        # Init playlist
-        if self.lp != 0:
-            old_playlist = self.playlist
-            new_playlist = self.get_playlist()
-            lp_new = len(new_playlist)
-
-            if lp_new != self.lp or self.counter == 0:
-                self.playlist = new_playlist
-                self.id = 0
-                self.lp = lp_new
-
-                # Twitting new tracks
-                new_playlist_set = set(self.playlist)
-                old_playlist_set = set(old_playlist)
-                new_tracks = new_playlist_set - old_playlist_set
-                if len(new_tracks) != 0:
-                    self.new_tracks = list(new_tracks.copy())
-                    new_tracks_objs = self.media_to_objs(self.new_tracks)
-
-                    for media_obj in new_tracks_objs:
-                        title = media_obj.metadata['title']
-                        artist = media_obj.metadata['artist']
-                        if not (title or artist):
-                            song = str(media_obj.file_name)
-                        else:
-                            song = artist + ' : ' + title
-                        song = song.encode('utf-8')
-                        artist = artist.encode('utf-8')
-                        message = 'New track ! %s #%s #%s' % (song.replace('_', ' '), artist.replace(' ', ''), self.short_name)
-                        self.update_twitter(message)
-
-                if self.mode_shuffle == 1:
-                    # Shake it, Fuzz it !
-                    random.shuffle(self.playlist)
-
-                self.logger.write('Station ' + self.short_name + \
-                                 ' : generating new playlist (' + str(self.lp) + ' tracks)')
-                self.update_rss(self.media_to_objs(self.playlist), self.rss_playlist_file, '(playlist)')
-
-            if self.jingles_mode == '1' and (self.counter % 2) == 0 and not self.jingles_length == 0:
-                media = self.jingles_list[self.jingle_id]
-                self.jingle_id = (self.jingle_id + 1) % self.jingles_length
-            else:
-                media = self.playlist[self.id]
-                self.id = (self.id + 1) % self.lp
-
-            return media
-
-        else:
-            mess = 'No media in media_dir !'
-            self.logger.write(mess)
-            sys.exit(mess)
-
-    def log_queue(self, it):
-        self.logger.write('Station ' + self.short_name + ' eated one queue step: '+str(it))
-
-    def media_to_objs(self, media_list):
-        media_objs = []
-        for media in media_list:
-            file_name, file_title, file_ext = get_file_info(media)
-            if file_ext.lower() == 'mp3':
-                media_objs.append(Mp3(media))
-            elif file_ext.lower() == 'ogg':
-                media_objs.append(Ogg(media))
-        return media_objs
 
     def core_process_stream(self, media):
         """Read media and stream data through a generator.
