@@ -51,7 +51,7 @@ import tinyurl
 from threading import Thread
 from tools import *
 
-version = '0.3.3'
+version = '0.4'
 year = datetime.datetime.now().strftime("%Y")
 platform_system = platform.system()
 
@@ -288,16 +288,6 @@ class Station(Thread):
                 self.jingles_length = len(self.jingles_list)
                 self.jingle_id = 0
 
-    def update_twitter(self):
-        if self.twitter_mode == '1':
-            message = 'now playing: %s #%s #%s' % (self.song.replace('_', ' '), self.artist.replace(' ', ''), self.short_name)
-            tags = '#' + ' #'.join(self.twitter_tags)
-            message = message + ' ' + tags
-            message = message[:113] + ' ' + self.tinyurl
-            message = message.decode('utf8')
-            self.logger.write('Twitting : "' + message + '"')
-            self.twitter.post(message)
-
     def update_rss(self, media_list, rss_file, sub_title):
         rss_item_list = []
         if not os.path.exists(self.rss_dir):
@@ -386,9 +376,19 @@ class Station(Thread):
         file_list.sort()
         return file_list
 
+    def update_twitter(self, message):
+        if self.twitter_mode == '1':
+            tags = '#' + ' #'.join(self.twitter_tags)
+            message = message + ' ' + tags
+            message = message[:113] + ' ' + self.tinyurl
+            message = message.decode('utf8')
+            self.logger.write('Twitting : "' + message + '"')
+            self.twitter.post(message)
+
     def get_next_media(self):
         # Init playlist
         if self.lp != 0:
+            old_playlist = self.playlist
             new_playlist = self.get_playlist()
             lp_new = len(new_playlist)
 
@@ -397,10 +397,29 @@ class Station(Thread):
                 self.id = 0
                 self.lp = lp_new
 
+                # Twitting new tracks
+                new_playlist_set = set(self.playlist)
+                old_playlist_set = set(old_playlist)
+                new_tracks = new_playlist_set - old_playlist_set
+                if len(new_tracks) != 0:
+                    self.new_tracks = list(new_tracks.copy())
+                    new_tracks_objs = self.media_to_objs(self.new_tracks)
+
+                    for media_obj in new_tracks_objs:
+                        title = media_obj.metadata['title']
+                        artist = media_obj.metadata['artist']
+                        if not (title or artist):
+                            song = str(media_obj.file_name)
+                        else:
+                            song = artist + ' : ' + title
+                        song = song.encode('utf-8')
+                        artist = artist.encode('utf-8')
+                        message = 'New track ! %s #%s #%s' % (song.replace('_', ' '), artist.replace(' ', ''), self.short_name)
+                        self.update_twitter(message)
+
                 if self.mode_shuffle == 1:
                     # Shake it, Fuzz it !
                     random.shuffle(self.playlist)
-
 
                 self.logger.write('Station ' + self.short_name + \
                                  ' : generating new playlist (' + str(self.lp) + ' tracks)')
@@ -499,7 +518,8 @@ class Station(Thread):
                     % (self.short_name, self.id, self.current_media_obj[0].file_name))
 
                 if not (self.jingles_mode == '1' and (self.counter % 2) == 1):
-                    self.update_twitter()
+                    message = 'Now playing: %s #%s #%s' % (self.song.replace('_', ' '), self.artist.replace(' ', ''), self.short_name)
+                    self.update_twitter(message)
 
                 stream = self.core_process_read(media)
                 q.task_done()
