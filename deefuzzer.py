@@ -270,7 +270,8 @@ class Station(Thread):
             os.makedirs(self.metadata_dir)
 
         # Twitter
-        if self.station['twitter']:
+        self.twitter_mode = '0'
+        if 'twitter' in self.station:
             self.twitter_mode = self.station['twitter']['mode']
             self.twitter_user = self.station['twitter']['user']
             self.twitter_pass = self.station['twitter']['pass']
@@ -279,7 +280,8 @@ class Station(Thread):
                 self.twitter_tags = self.station['twitter']['tags'].split(' ')
                 self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
 
-        if self.station['jingles']:
+        self.jingles_mode = '0'
+        if 'jingles' in self.station:
             self.jingles_mode =  self.station['jingles']['mode']
             self.jingles_shuffle = self.station['jingles']['shuffle']
             self.jingles_dir = self.station['jingles']['dir']
