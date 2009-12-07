@@ -374,7 +374,8 @@ class Station(Thread):
             elif file_ext.lower() == 'ogg':
                 media_objs.append(Ogg(media))
         return media_objs
-        def update_rss(self, media_list, rss_file, sub_title):
+    
+    def update_rss(self, media_list, rss_file, sub_title):
         rss_item_list = []
         if not os.path.exists(self.rss_dir):
             os.makedirs(self.rss_dir)
