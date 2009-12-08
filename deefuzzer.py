@@ -133,10 +133,6 @@ class DeeFuzzer(Thread):
         self.logger.write('Starting DeeFuzzer v' + version)
         self.logger.write('Using libshout version %s' % shout.version())
 
-        # Define the buffer_size
-        self.buffer_size = 65536
-        self.logger.write('Buffer size per station = ' + str(self.buffer_size))
-
         # Init all Stations
         self.stations = []
         self.logger.write('Number of stations : ' + str(self.nb_stations))
@@ -176,7 +172,7 @@ class DeeFuzzer(Thread):
             else:
                 station = self.conf['deefuzzer']['station'][i]
             # Create a Station
-            self.stations.append(Station(station, q, self.buffer_size, self.logger, self.m3u))
+            self.stations.append(Station(station, q, self.logger, self.m3u))
 
         self.set_m3u_playlist()
 
@@ -207,11 +203,10 @@ class Producer(Thread):
 class Station(Thread):
     """a DeeFuzzer shouting station thread"""
 
-    def __init__(self, station, q, buffer_size, logger, m3u):
+    def __init__(self, station, q, logger, m3u):
         Thread.__init__(self)
         self.station = station
         self.q = q
-        self.buffer_size = buffer_size
         self.logger = logger
         self.channel = shout.Shout()
         self.id = 999999
@@ -452,43 +447,10 @@ class Station(Thread):
             self.logger.write('Twitting : "' + message + '"')
             self.twitter.post(message)
 
-    def core_process_stream(self, media):
-        """Read media and stream data through a generator.
-        Taken from Telemeta (see http://telemeta.org)"""
-
-        command = self.command + '"' + media + '"'
-
-        proc = subprocess.Popen(command,
-                    shell = True,
-                    bufsize = self.buffer_size,
-                    stdin = subprocess.PIPE,
-                    stdout = subprocess.PIPE,
-                    close_fds = True)
-
-        # Core processing
-        while True:
-            __chunk = proc.stdout.read(self.buffer_size)
-            status = proc.poll()
-            if status != None and status != 0:
-                raise DeeFuzzerStreamError('Command failure:', command, proc)
-            if not __chunk:
-                break
-            yield __chunk
-
-    def core_process_read(self, media):
-        """Read media and stream data through a generator.
-        Taken from Telemeta (see http://telemeta.org)"""
-
-        m = open(media, 'r')
-        while True:
-            __chunk = m.read(self.buffer_size)
-            if not __chunk:
-                break
-            yield __chunk
-        m.close()
-
     def run(self):
         q = self.q
+        p = Player()
+        p.start()
         while True:
             it = q.get(1)
             if self.lp == 0:
@@ -520,8 +482,9 @@ class Station(Thread):
                 if not (self.jingles_mode == '1' and (self.counter % 2) == 1):
                     message = 'Now playing: %s #%s #%s' % (self.song.replace('_', ' '), self.artist.replace(' ', ''), self.short_name)
                     self.update_twitter(message)
-
-                stream = self.core_process_read(media)
+                
+                p.set_media(media)
+                stream = p.read_slow()
                 q.task_done()
 
                 for __chunk in stream:
@@ -540,6 +503,78 @@ class Station(Thread):
                 self.logger.write('Error : Station ' + self.short_name + ' : ' + media + 'not found !')
 
         self.channel.close()
+
+
+class Player(Thread):
+    """A file streaming iterator"""
+
+    def __init__(self):
+        Thread.__init__(self)
+        self.main_buffer_size = 0x200000
+        self.sub_buffer_size = 0x10000
+
+    def set_media(self, media):
+        self.media = media
+        
+    def stream(self, media):
+        """Read media and stream data through a generator.
+        Taken from Telemeta (see http://telemeta.org)"""
+
+        command = self.command + '"' + media + '"'
+
+        proc = subprocess.Popen(command,
+                    shell = True,
+                    bufsize = self.sub_buffer_size,
+                    stdin = subprocess.PIPE,
+                    stdout = subprocess.PIPE,
+                    close_fds = True)
+
+        # Core processing
+        while True:
+            __chunk = proc.stdout.read(self.sub_buffer_size)
+            status = proc.poll()
+            if status != None and status != 0:
+                raise DeeFuzzerStreamError('Command failure:', command, proc)
+            if not __chunk:
+                break
+            yield __chunk
+
+    def read_fast(self):
+        """Read media and stream data through a generator.
+        """
+
+        media = self.media
+        m = open(media, 'r')
+        while True:
+            __main_chunk = m.read(self.sub_buffer_size)
+            if not __main_chunk:
+                break
+            yield __main_chunk
+        m.close()
+
+    def read_slow(self):
+        """Read a bigger part of the media and stream the little parts of data through a generator
+        """
+
+        media = self.media
+        m = open(media, 'r')
+        while True:
+            __main_chunk = m.read(self.main_buffer_size)
+            if not __main_chunk:
+                break
+            i = 0
+            while True:
+                start = i * self.sub_buffer_size
+                end = self.sub_buffer_size + (i * self.sub_buffer_size)                
+                __sub_chunk = __main_chunk[start:end]
+                if not __sub_chunk:
+                    break
+                yield __sub_chunk
+                i += 1
+        m.close()
+
+    def run(self):
+        pass
 
 
 class Twitter:
