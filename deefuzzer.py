@@ -540,7 +540,7 @@ class Player(Thread):
 
     def __init__(self):
         Thread.__init__(self)
-        self.main_buffer_size = 0x200000
+        self.main_buffer_size = 0x100000
         self.sub_buffer_size = 0x10000
 
     def set_media(self, media):
@@ -602,14 +602,22 @@ class Player(Thread):
 
     def relay(self, url):
         """Read a distant media through its URL"""
-        media = urllib.urlopen(url)
+        m = urllib.urlopen(url)
         while True:
-            __chunk = media.read(self.sub_buffer_size)
-            if not __chunk:
+            __main_chunk = m.read(self.main_buffer_size)
+            if not __main_chunk:
                 break
-            yield __chunk
-        media.close()
-
+            i = 0
+            while True:
+                start = i * self.sub_buffer_size
+                end = self.sub_buffer_size + (i * self.sub_buffer_size)                
+                __sub_chunk = __main_chunk[start:end]
+                if not __sub_chunk:
+                    break
+                yield __sub_chunk
+                i += 1
+        m.close()
+        
     def run(self):
         pass
 
