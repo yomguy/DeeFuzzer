@@ -1,6 +1,6 @@
 <deefuzzer>
     <log>/tmp/deefuzz.log</log>
-    <m3u>/var/www/m3u/yomguy_playlist.m3u</m3u>
+    <m3u>/var/www/m3u/mystation.m3u</m3u>
     <station>
         <infos>
             <short_name>My_Station_1</short_name>
@@ -39,6 +39,10 @@
             <dir>/path/to/jingles</dir>
             <shuffle>1</shuffle>
         </jingles>
+        <control>
+            <mode>1</mode>
+            <port>1234</port>
+        </control>
     </station>
 </deefuzzer>
 

@@ -46,8 +46,6 @@ import Queue
 import shout
 import subprocess
 import platform
-import twitter
-import tinyurl
 from threading import Thread
 from tools import *
 
@@ -137,9 +135,6 @@ class DeeFuzzer(Thread):
         self.stations = []
         self.logger.write('Number of stations : ' + str(self.nb_stations))
 
-        # Create M3U playlist
-        self.logger.write('Writing M3U file to : ' + self.m3u)
-
     def get_conf_dict(self):
         confile = open(self.conf_file,'r')
         conf_xml = confile.read()
@@ -160,10 +155,11 @@ class DeeFuzzer(Thread):
             m3u.write(url)
             i += 1
         m3u.close()
+        self.logger.write('Writing M3U file to : ' + self.m3u)
+
 
     def run(self):
         # Create a Queue
-        # Not too much, otherwise, you will get memory leaks !
         q = Queue.Queue(1)
 
         for i in range(0,self.nb_stations):
@@ -273,6 +269,7 @@ class Station(Thread):
             if self.twitter_mode == '1':
                 self.twitter = Twitter(self.twitter_user, self.twitter_pass)
                 self.twitter_tags = self.station['twitter']['tags'].split(' ')
+                import tinyurl
                 self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
 
         self.jingles_mode = '0'
@@ -285,13 +282,28 @@ class Station(Thread):
                 self.jingles_length = len(self.jingles_list)
                 self.jingle_id = 0
 
+        self.osc_control = '0'
+        if 'control' in self.station:
+            self.osc_control_mode = self.station['control']['mode']
+            self.osc_port = self.station['control']['port']
+            if self.osc_control_mode =='1':
+                self.osc_controller = OSCController(self.osc_port)
+                self.osc_controller.add_method('/media/next', 'i', self.media_next_callback)
+                self.osc_controller.start()
+
+    def media_next_callback(self, path, value):
+        value = value[0]
+        self.osc_next_media = value
+        message = "Received OSC message '%s' with arguments '%d'" % (path, value)
+        self.logger.write(message)
+
     def get_playlist(self):
         file_list = []
         for root, dirs, files in os.walk(self.media_dir):
             for file in files:
                 s = file.split('.')
                 ext = s[len(s)-1]
-                if ext.lower() == self.channel.format and not '/.' in file:
+                if ext.lower() == self.channel.format and not os.sep+'.' in file:
                     file_list.append(root + os.sep + file)
         file_list.sort()
         return file_list
@@ -302,7 +314,7 @@ class Station(Thread):
             for file in files:
                 s = file.split('.')
                 ext = s[len(s)-1]
-                if ext.lower() == self.channel.format and not '/.' in file:
+                if ext.lower() == self.channel.format and not os.sep+'.' in file:
                     file_list.append(root + os.sep + file)
         file_list.sort()
         return file_list
@@ -457,6 +469,7 @@ class Station(Thread):
                 self.logger.write('Error : Station ' + self.short_name + ' have no media to stream !')
                 break
             media = self.get_next_media()
+            self.osc_next_media = 0
             self.counter += 1
             q.task_done()
 
@@ -492,6 +505,8 @@ class Station(Thread):
                     try:
                         self.channel.send(__chunk)
                         self.channel.sync()
+                        if self.osc_next_media != 0:
+                            break
                         # self.logger.write('Station delay (ms) ' + self.short_name + ' : '  + str(self.channel.delay()))
                     except:
                         self.logger.write('ERROR : Station ' + self.short_name + ' : could not send the buffer... ')
@@ -553,7 +568,7 @@ class Player(Thread):
         m.close()
 
     def read_slow(self):
-        """Read a bigger part of the media and stream the little parts of data through a generator
+        """Read a bigger part of the media and stream the little parts of the data through a generator
         """
 
         media = self.media
@@ -578,10 +593,9 @@ class Player(Thread):
 
 
 class Twitter:
-    """Post a message to Twitter"""
-
+    
     def __init__(self, username, password):
-        #Thread.__init__(self)
+        import twitter
         self.username = username
         self.password = password
         self.api = twitter.Api(username=self.username, password=self.password)
@@ -591,6 +605,28 @@ class Twitter:
             self.api.PostUpdate(message)
         except:
             pass
+
+
+class OSCController(Thread):
+
+    def __init__(self, port):
+        Thread.__init__(self)
+        import liblo
+        self.port = port
+        try:
+            self.server = liblo.Server(self.port)
+        except liblo.ServerError, err:
+            self.logger.write(str(err))
+
+    def add_method(self, path, type, method):
+        self.server.add_method(path, type, method)
+
+    def server(self):
+        return self.server
+
+    def run(self):
+        while True:
+            self.server.recv(1000)
 
 
 def main():
