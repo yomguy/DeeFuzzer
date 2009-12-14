@@ -46,6 +46,7 @@ import Queue
 import shout
 import subprocess
 import platform
+import urllib
 from threading import Thread
 from tools import *
 
@@ -282,7 +283,7 @@ class Station(Thread):
                 self.jingles_length = len(self.jingles_list)
                 self.jingle_id = 0
 
-        self.osc_control = '0'
+        self.osc_control_mode = '0'
         if 'control' in self.station:
             self.osc_control_mode = self.station['control']['mode']
             self.osc_port = self.station['control']['port']
@@ -290,10 +291,21 @@ class Station(Thread):
                 self.osc_controller = OSCController(self.osc_port)
                 self.osc_controller.add_method('/media/next', 'i', self.media_next_callback)
                 self.osc_controller.start()
+                
+        self.osc_relay = 0
+        if 'relay' in self.station:
+            self.relay_url = self.station['relay']['url']
+            self.osc_controller.add_method('/media/relay', 'i', self.relay_callback)
 
     def media_next_callback(self, path, value):
         value = value[0]
         self.osc_next_media = value
+        message = "Received OSC message '%s' with arguments '%d'" % (path, value)
+        self.logger.write(message)
+
+    def relay_callback(self, path, value):
+        value = value[0]
+        self.osc_relay = value
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.logger.write(message)
 
@@ -468,8 +480,8 @@ class Station(Thread):
             if self.lp == 0:
                 self.logger.write('Error : Station ' + self.short_name + ' have no media to stream !')
                 break
-            media = self.get_next_media()
             self.osc_next_media = 0
+            media = self.get_next_media()
             self.counter += 1
             q.task_done()
 
@@ -497,7 +509,10 @@ class Station(Thread):
                     self.update_twitter(message)
                 
                 p.set_media(media)
-                stream = p.read_slow()
+                if self.osc_relay != 0:
+                    stream = p.relay(self.relay_url)
+                else:
+                    stream = p.read_slow()
                 q.task_done()
 
                 for __chunk in stream:
@@ -505,7 +520,7 @@ class Station(Thread):
                     try:
                         self.channel.send(__chunk)
                         self.channel.sync()
-                        if self.osc_next_media != 0:
+                        if self.osc_next_media != 0 or self.osc_relay != 0:
                             break
                         # self.logger.write('Station delay (ms) ' + self.short_name + ' : '  + str(self.channel.delay()))
                     except:
@@ -555,9 +570,7 @@ class Player(Thread):
             yield __chunk
 
     def read_fast(self):
-        """Read media and stream data through a generator.
-        """
-
+        """Read media and stream data through a generator."""
         media = self.media
         m = open(media, 'r')
         while True:
@@ -568,9 +581,8 @@ class Player(Thread):
         m.close()
 
     def read_slow(self):
-        """Read a bigger part of the media and stream the little parts of the data through a generator
-        """
-
+        """Read a bigger part of the media and stream the little parts
+         of the data through a generator"""
         media = self.media
         m = open(media, 'r')
         while True:
@@ -587,6 +599,16 @@ class Player(Thread):
                 yield __sub_chunk
                 i += 1
         m.close()
+
+    def relay(self, url):
+        """Read a distant media through its URL"""
+        media = urllib.urlopen(url)
+        while True:
+            __chunk = media.read(self.sub_buffer_size)
+            if not __chunk:
+                break
+            yield __chunk
+        media.close()
 
     def run(self):
         pass
@@ -631,7 +653,7 @@ class OSCController(Thread):
 
 def main():
     if len(sys.argv) == 2:
-        d = DeeFuzzer(sys.argv[1])
+        d = DeeFuzzer(sys.argv[-1])
         d.start()
     else:
         text = prog_info()

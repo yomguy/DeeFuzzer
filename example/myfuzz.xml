@@ -43,6 +43,9 @@
             <mode>1</mode>
             <port>1234</port>
         </control>
+        <relay>
+            <url>http://parisson.com:8000/deefuzz_1.mp3</url>
+        </relay>
     </station>
 </deefuzzer>
 
