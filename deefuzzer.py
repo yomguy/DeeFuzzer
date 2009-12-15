@@ -43,6 +43,7 @@ import datetime
 import string
 import random
 import Queue
+import collections
 import shout
 import subprocess
 import platform
@@ -490,6 +491,8 @@ class Station(Thread):
                 self.current_media_obj = self.media_to_objs([media])
                 self.title = self.current_media_obj[0].metadata['title']
                 self.artist = self.current_media_obj[0].metadata['artist']
+                self.title = self.title.replace('_', ' ')
+                self.artist = self.artist('_', ' ')
                 if not (self.title or self.artist):
                     song = str(self.current_media_obj[0].file_name)
                 else:
@@ -542,7 +545,8 @@ class Player(Thread):
         Thread.__init__(self)
         self.main_buffer_size = 0x100000
         self.sub_buffer_size = 0x10000
-
+        self.q = collections.deque(self.sub_buffer_size)
+        
     def set_media(self, media):
         self.media = media
         
@@ -602,25 +606,36 @@ class Player(Thread):
 
     def relay(self, url):
         """Read a distant media through its URL"""
-        m = urllib.urlopen(url)
+        q = self.q
+        r = Relay(q, url)
+        r.start()
         while True:
-            __main_chunk = m.read(self.main_buffer_size)
-            if not __main_chunk:
+            __chunk = q.popleft(self.sub_buffer_size)
+            if not __chunk:
                 break
-            i = 0
-            while True:
-                start = i * self.sub_buffer_size
-                end = self.sub_buffer_size + (i * self.sub_buffer_size)                
-                __sub_chunk = __main_chunk[start:end]
-                if not __sub_chunk:
-                    break
-                yield __sub_chunk
-                i += 1
-        m.close()
-        
+            yield __chunk
+            
     def run(self):
         pass
 
+
+class Relay(Thread):
+    
+    def __init__(self, q, url):
+        Thread.__init__(self)
+        self.main_buffer_size = 0x100000
+        self.sub_buffer_size = 0x10000
+        self.url = url
+        self.u = urllib.urlopen(self.url)
+        self.q = q
+    
+    def run(self):
+        q = self.q
+        while True:
+            data = self.u.read(self.main_buffer_size)
+            q.put(data)
+        self.u.close()
+    
 
 class Twitter:
     
