@@ -292,7 +292,7 @@ class Station(Thread):
                 self.osc_controller = OSCController(self.osc_port)
                 self.osc_controller.add_method('/media/next', 'i', self.media_next_callback)
                 self.osc_controller.start()
-                
+
         self.osc_relay = 0
         if 'relay' in self.station:
             self.relay_url = self.station['relay']['url']
@@ -396,7 +396,7 @@ class Station(Thread):
             elif file_ext.lower() == 'ogg':
                 media_objs.append(Ogg(media))
         return media_objs
-    
+
     def update_rss(self, media_list, rss_file, sub_title):
         rss_item_list = []
         if not os.path.exists(self.rss_dir):
@@ -510,11 +510,11 @@ class Station(Thread):
                 if not (self.jingles_mode == '1' and (self.counter % 2) == 1):
                     message = 'Now playing: %s #%s #%s' % (self.song.replace('_', ' '), self.artist.replace(' ', ''), self.short_name)
                     self.update_twitter(message)
-                
-                p.set_media(media)
+
                 if self.osc_relay != 0:
                     stream = p.relay(self.relay_url)
                 else:
+                    p.set_media(media)
                     stream = p.read_slow()
                 q.task_done()
 
@@ -546,10 +546,10 @@ class Player(Thread):
         self.main_buffer_size = 0x100000
         self.sub_buffer_size = 0x10000
         self.q = collections.deque(self.sub_buffer_size)
-        
+
     def set_media(self, media):
         self.media = media
-        
+
     def stream(self, media):
         """Read media and stream data through a generator.
         Taken from Telemeta (see http://telemeta.org)"""
@@ -596,7 +596,7 @@ class Player(Thread):
             i = 0
             while True:
                 start = i * self.sub_buffer_size
-                end = self.sub_buffer_size + (i * self.sub_buffer_size)                
+                end = self.sub_buffer_size + (i * self.sub_buffer_size)
                 __sub_chunk = __main_chunk[start:end]
                 if not __sub_chunk:
                     break
@@ -614,13 +614,13 @@ class Player(Thread):
             if not __chunk:
                 break
             yield __chunk
-            
+
     def run(self):
         pass
 
 
 class Relay(Thread):
-    
+
     def __init__(self, q, url):
         Thread.__init__(self)
         self.main_buffer_size = 0x100000
@@ -628,17 +628,17 @@ class Relay(Thread):
         self.url = url
         self.u = urllib.urlopen(self.url)
         self.q = q
-    
+
     def run(self):
         q = self.q
         while True:
             data = self.u.read(self.main_buffer_size)
             q.put(data)
         self.u.close()
-    
+
 
 class Twitter:
-    
+
     def __init__(self, username, password):
         import twitter
         self.username = username
