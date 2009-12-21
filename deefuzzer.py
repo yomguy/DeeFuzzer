@@ -162,7 +162,6 @@ class DeeFuzzer(Thread):
 
 
     def run(self):
-        # Create a Queue
         q = Queue.Queue(1)
 
         for i in range(0,self.nb_stations):
@@ -170,12 +169,9 @@ class DeeFuzzer(Thread):
                 station = self.conf['deefuzzer']['station']
             else:
                 station = self.conf['deefuzzer']['station'][i]
-            # Create a Station
             self.stations.append(Station(station, q, self.logger, self.m3u))
 
         self.set_m3u_playlist()
-
-        # Create a Producer
         p = Producer(q)
         p.start()
 
@@ -263,6 +259,25 @@ class Station(Thread):
         if not os.path.exists(self.metadata_dir):
             os.makedirs(self.metadata_dir)
 
+        # OSC
+        self.osc_control_mode = '0'
+        if 'control' in self.station:
+            self.osc_control_mode = self.station['control']['mode']
+            self.osc_port = self.station['control']['port']
+            if self.osc_control_mode =='1':
+                self.osc_controller = OSCController(self.osc_port)
+                # OSC paths and callbacks
+                self.osc_controller.add_method('/media/next', 'i', self.media_next_callback)
+                self.osc_controller.add_method('/media/relay', 'i', self.relay_callback)
+                self.osc_controller.add_method('/mode/twitter', 'i', self.twitter_callback)
+                self.osc_controller.add_method('/mode/jingles', 'i', self.jingles_callback)
+                self.osc_controller.start()
+
+        # Relay
+        self.osc_relay = 0
+        if 'relay' in self.station:
+            self.relay_url = self.station['relay']['url']
+
         # Twitter
         self.twitter_mode = '0'
         if 'twitter' in self.station:
@@ -275,6 +290,7 @@ class Station(Thread):
                 import tinyurl
                 self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
 
+        # A jingle between each media
         self.jingles_mode = '0'
         if 'jingles' in self.station:
             self.jingles_mode =  self.station['jingles']['mode']
@@ -285,20 +301,6 @@ class Station(Thread):
                 self.jingles_length = len(self.jingles_list)
                 self.jingle_id = 0
 
-        self.osc_control_mode = '0'
-        if 'control' in self.station:
-            self.osc_control_mode = self.station['control']['mode']
-            self.osc_port = self.station['control']['port']
-            if self.osc_control_mode =='1':
-                self.osc_controller = OSCController(self.osc_port)
-                self.osc_controller.add_method('/media/next', 'i', self.media_next_callback)
-                self.osc_controller.start()
-
-        self.osc_relay = 0
-        if 'relay' in self.station:
-            self.relay_url = self.station['relay']['url']
-            self.osc_controller.add_method('/media/relay', 'i', self.relay_callback)
-
     def media_next_callback(self, path, value):
         value = value[0]
         self.osc_next_media = value
@@ -308,6 +310,18 @@ class Station(Thread):
     def relay_callback(self, path, value):
         value = value[0]
         self.osc_relay = value
+        message = "Received OSC message '%s' with arguments '%d'" % (path, value)
+        self.logger.write(message)
+
+    def twitter_callback(self, path, value):
+        value = value[0]
+        self.twitter_mode = value
+        message = "Received OSC message '%s' with arguments '%d'" % (path, value)
+        self.logger.write(message)
+
+    def jingles_callback(self, path, value):
+        value = value[0]
+        self.jingles_mode = value
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.logger.write(message)
 
