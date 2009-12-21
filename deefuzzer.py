@@ -51,7 +51,7 @@ import urllib
 from threading import Thread
 from tools import *
 
-version = '0.3.5'
+version = '0.3.6'
 year = datetime.datetime.now().strftime("%Y")
 platform_system = platform.system()
 
@@ -69,7 +69,8 @@ def prog_info():
  are also available at http://svn.parisson.org/deefuzzer/DeeFuzzerLicense
 
  depends :  python, python-xml, python-shout, libshout3, icecast2,
-            python-mutagen, python-twitter, python-tinyurl
+            python-mutagen, python-twitter, python-tinyurl,
+            python-liblo (pyliblo)
  provides : python-shout
 
  Usage : deefuzzer $1
@@ -545,7 +546,7 @@ class Player(Thread):
         Thread.__init__(self)
         self.main_buffer_size = 0x100000
         self.sub_buffer_size = 0x10000
-        self.q = collections.deque(self.sub_buffer_size)
+        self.q = collections.deque(4*self.sub_buffer_size)
 
     def set_media(self, media):
         self.media = media
