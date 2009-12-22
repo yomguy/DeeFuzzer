@@ -190,7 +190,7 @@ class Producer(Thread):
     def run(self):
         i=0
         q = self.q
-        while 1:
+        while True:
             q.put(i,1)
             i+=1
 
@@ -266,17 +266,12 @@ class Station(Thread):
             self.osc_port = self.station['control']['port']
             if self.osc_control_mode =='1':
                 self.osc_controller = OSCController(self.osc_port)
+                self.osc_controller.start()
                 # OSC paths and callbacks
                 self.osc_controller.add_method('/media/next', 'i', self.media_next_callback)
                 self.osc_controller.add_method('/media/relay', 'i', self.relay_callback)
                 self.osc_controller.add_method('/mode/twitter', 'i', self.twitter_callback)
                 self.osc_controller.add_method('/mode/jingles', 'i', self.jingles_callback)
-                self.osc_controller.start()
-
-        # Relay
-        self.osc_relay = 0
-        if 'relay' in self.station:
-            self.relay_url = self.station['relay']['url']
 
         # Twitter
         self.twitter_mode = '0'
@@ -301,27 +296,38 @@ class Station(Thread):
                 self.jingles_length = len(self.jingles_list)
                 self.jingle_id = 0
 
+        # The station's player
+        self.player = Player()
+        self.player.start()
+
+        # Relay
+        self.relay_mode = '0'
+        if 'relay' in self.station:
+            self.relay_mode = self.station['relay']['mode']
+            self.relay_url = self.station['relay']['url']
+            self.player.set_relay(self.relay_url)
+
     def media_next_callback(self, path, value):
         value = value[0]
-        self.osc_next_media = value
+        self.next_media = str(value)
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.logger.write(message)
 
     def relay_callback(self, path, value):
         value = value[0]
-        self.osc_relay = value
+        self.relay_mode = str(value)
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.logger.write(message)
 
     def twitter_callback(self, path, value):
         value = value[0]
-        self.twitter_mode = value
+        self.twitter_mode = str(value)
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.logger.write(message)
 
     def jingles_callback(self, path, value):
         value = value[0]
-        self.jingles_mode = value
+        self.jingles_mode = str(value)
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.logger.write(message)
 
@@ -488,26 +494,23 @@ class Station(Thread):
             self.twitter.post(message)
 
     def run(self):
-        q = self.q
-        p = Player()
-        p.start()
         while True:
-            it = q.get(1)
+            it = self.q.get(1)
             if self.lp == 0:
                 self.logger.write('Error : Station ' + self.short_name + ' have no media to stream !')
                 break
-            self.osc_next_media = 0
+            self.next_media = '0'
             media = self.get_next_media()
             self.counter += 1
-            q.task_done()
+            self.q.task_done()
 
             if os.path.exists(media) and not os.sep+'.' in media:
-                it = q.get(1)
+                self.q.get(1)
                 self.current_media_obj = self.media_to_objs([media])
                 self.title = self.current_media_obj[0].metadata['title']
                 self.artist = self.current_media_obj[0].metadata['artist']
                 self.title = self.title.replace('_', ' ')
-                self.artist = self.artist('_', ' ')
+                self.artist = self.artist.replace('_', ' ')
                 if not (self.title or self.artist):
                     song = str(self.current_media_obj[0].file_name)
                 else:
@@ -526,19 +529,20 @@ class Station(Thread):
                     message = 'Now playing: %s #%s #%s' % (self.song.replace('_', ' '), self.artist.replace(' ', ''), self.short_name)
                     self.update_twitter(message)
 
-                if self.osc_relay != 0:
-                    stream = p.relay(self.relay_url)
+                if self.relay_mode != '0':
+                    stream = self.player.relay()
+                    self.channel.set_metadata({'song': 'LIVE', 'charset': 'utf8',})
                 else:
-                    p.set_media(media)
-                    stream = p.read_slow()
-                q.task_done()
+                    self.player.set_media(media)
+                    stream = self.player.read_slow()
+                self.q.task_done()
 
                 for __chunk in stream:
-                    it = q.get(1)
+                    self.q.get(1)
                     try:
                         self.channel.send(__chunk)
                         self.channel.sync()
-                        if self.osc_next_media != 0 or self.osc_relay != 0:
+                        if self.next_media != '0':
                             break
                         # self.logger.write('Station delay (ms) ' + self.short_name + ' : '  + str(self.channel.delay()))
                     except:
@@ -546,7 +550,7 @@ class Station(Thread):
                         self.channel.close()
                         self.channel.open()
                         continue
-                    q.task_done()
+                    self.q.task_done()
             else:
                 self.logger.write('Error : Station ' + self.short_name + ' : ' + media + 'not found !')
 
@@ -560,33 +564,14 @@ class Player(Thread):
         Thread.__init__(self)
         self.main_buffer_size = 0x100000
         self.sub_buffer_size = 0x10000
-        self.q = collections.deque(4*self.sub_buffer_size)
+        self.q = Queue.Queue(self.main_buffer_size)
 
     def set_media(self, media):
         self.media = media
 
-    def stream(self, media):
-        """Read media and stream data through a generator.
-        Taken from Telemeta (see http://telemeta.org)"""
-
-        command = self.command + '"' + media + '"'
-
-        proc = subprocess.Popen(command,
-                    shell = True,
-                    bufsize = self.sub_buffer_size,
-                    stdin = subprocess.PIPE,
-                    stdout = subprocess.PIPE,
-                    close_fds = True)
-
-        # Core processing
-        while True:
-            __chunk = proc.stdout.read(self.sub_buffer_size)
-            status = proc.poll()
-            if status != None and status != 0:
-                raise DeeFuzzerStreamError('Command failure:', command, proc)
-            if not __chunk:
-                break
-            yield __chunk
+    def set_relay(self, url):
+        self.r = Relay(self.q, self.sub_buffer_size, url)
+        self.r.start()
 
     def read_fast(self):
         """Read media and stream data through a generator."""
@@ -619,16 +604,14 @@ class Player(Thread):
                 i += 1
         m.close()
 
-    def relay(self, url):
+    def relay(self):
         """Read a distant media through its URL"""
-        q = self.q
-        r = Relay(q, url)
-        r.start()
         while True:
-            __chunk = q.popleft(self.sub_buffer_size)
+            __chunk = self.q.get(self.sub_buffer_size)
             if not __chunk:
                 break
             yield __chunk
+            self.q.task_done()
 
     def run(self):
         pass
@@ -636,19 +619,17 @@ class Player(Thread):
 
 class Relay(Thread):
 
-    def __init__(self, q, url):
+    def __init__(self, q, buffer_size, url):
         Thread.__init__(self)
-        self.main_buffer_size = 0x100000
-        self.sub_buffer_size = 0x10000
+        self.q = q
+        self.buffer_size = buffer_size
         self.url = url
         self.u = urllib.urlopen(self.url)
-        self.q = q
 
     def run(self):
-        q = self.q
         while True:
-            data = self.u.read(self.main_buffer_size)
-            q.put(data)
+            data = self.u.read(self.buffer_size)
+            self.q.put_nowait(data)
         self.u.close()
 
 
@@ -676,7 +657,7 @@ class OSCController(Thread):
         try:
             self.server = liblo.Server(self.port)
         except liblo.ServerError, err:
-            self.logger.write(str(err))
+            print str(err)
 
     def add_method(self, path, type, method):
         self.server.add_method(path, type, method)

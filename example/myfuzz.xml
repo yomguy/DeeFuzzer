@@ -35,7 +35,7 @@
             <tags>bla bla</tags>
         </twitter>
         <jingles>
-            <mode>1</mode>
+            <mode>0</mode>
             <dir>/path/to/jingles</dir>
             <shuffle>1</shuffle>
         </jingles>
@@ -44,6 +44,7 @@
             <port>1234</port>
         </control>
         <relay>
+            <mode>0</mode>
             <url>http://parisson.com:8000/deefuzz_1.mp3</url>
         </relay>
     </station>
