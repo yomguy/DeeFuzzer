@@ -43,7 +43,6 @@ import datetime
 import string
 import random
 import Queue
-import collections
 import shout
 import subprocess
 import platform
@@ -298,7 +297,6 @@ class Station(Thread):
 
         # The station's player
         self.player = Player()
-        self.player.start()
 
         # Relay
         self.relay_mode = '0'
@@ -500,13 +498,13 @@ class Station(Thread):
                 self.logger.write('Error : Station ' + self.short_name + ' have no media to stream !')
                 break
             self.next_media = '0'
-            media = self.get_next_media()
+            self.media = self.get_next_media()
             self.counter += 1
             self.q.task_done()
 
-            if os.path.exists(media) and not os.sep+'.' in media:
+            if os.path.exists(self.media) and not os.sep+'.' in self.media:
                 self.q.get(1)
-                self.current_media_obj = self.media_to_objs([media])
+                self.current_media_obj = self.media_to_objs([self.media])
                 self.title = self.current_media_obj[0].metadata['title']
                 self.artist = self.current_media_obj[0].metadata['artist']
                 self.title = self.title.replace('_', ' ')
@@ -530,14 +528,14 @@ class Station(Thread):
                     self.update_twitter(message)
 
                 if self.relay_mode != '0':
-                    stream = self.player.relay()
+                    self.stream = self.player.relay()
                     self.channel.set_metadata({'song': 'LIVE', 'charset': 'utf8',})
                 else:
-                    self.player.set_media(media)
-                    stream = self.player.read_slow()
+                    self.player.set_media(self.media)
+                    self.stream = self.player.read_slow()
                 self.q.task_done()
 
-                for __chunk in stream:
+                for __chunk in self.stream:
                     self.q.get(1)
                     try:
                         self.channel.send(__chunk)
@@ -552,31 +550,29 @@ class Station(Thread):
                         continue
                     self.q.task_done()
             else:
-                self.logger.write('Error : Station ' + self.short_name + ' : ' + media + 'not found !')
+                self.logger.write('Error : Station ' + self.short_name + ' : ' + self.media + 'not found !')
 
         self.channel.close()
 
 
-class Player(Thread):
+class Player:
     """A file streaming iterator"""
 
     def __init__(self):
-        Thread.__init__(self)
         self.main_buffer_size = 0x100000
         self.sub_buffer_size = 0x10000
-        self.q = Queue.Queue(self.main_buffer_size)
 
     def set_media(self, media):
         self.media = media
 
     def set_relay(self, url):
+        self.q = Queue.Queue(self.main_buffer_size)
         self.r = Relay(self.q, self.sub_buffer_size, url)
         self.r.start()
 
     def read_fast(self):
         """Read media and stream data through a generator."""
-        media = self.media
-        m = open(media, 'r')
+        m = open(self.media, 'r')
         while True:
             __main_chunk = m.read(self.sub_buffer_size)
             if not __main_chunk:
@@ -587,8 +583,7 @@ class Player(Thread):
     def read_slow(self):
         """Read a bigger part of the media and stream the little parts
          of the data through a generator"""
-        media = self.media
-        m = open(media, 'r')
+        m = open(self.media, 'r')
         while True:
             __main_chunk = m.read(self.main_buffer_size)
             if not __main_chunk:
@@ -612,9 +607,6 @@ class Player(Thread):
                 break
             yield __chunk
             self.q.task_done()
-
-    def run(self):
-        pass
 
 
 class Relay(Thread):
