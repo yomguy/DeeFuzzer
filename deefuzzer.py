@@ -319,6 +319,8 @@ class Station(Thread):
         self.next_media = 1
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.logger.write(message)
+        message = "Relaying : %s" % self.relay_url
+        self.logger.write(message)
 
     def twitter_callback(self, path, value):
         value = value[0]
@@ -504,8 +506,13 @@ class Station(Thread):
 
             self.q.get(1)
             if self.relay_mode == 1:
-                self.channel.set_metadata({'song': 'LIVE', 'charset': 'utf8',})
+                song = 'LIVE relaying of : ' + self.relay_url
+                self.song = song.encode('utf-8')
+                self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
                 self.stream = self.player.relay_read()
+                if self.twitter_mode == 1:
+                    message = 'Now relaying *LIVE* : %s' % self.relay_url
+                    self.update_twitter(message)
 
             elif os.path.exists(self.media) and not os.sep+'.' in self.media:
                 if self.lp == 0:
