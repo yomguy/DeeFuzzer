@@ -544,7 +544,7 @@ class Station(Thread):
                 self.player.set_media(self.media)
                 self.stream = self.player.file_read_slow()
 
-            if (not (self.jingles_mode == 1 and (self.counter % 2) == 1)) and self.twitter_mode == 1:
+            if (not (self.jingles_mode == 1 and (self.counter % 2) == 1) or self.relay_mode == 1) and self.twitter_mode == 1:
                 message = '%s %s #%s #%s' % (self.prefix, self.song, self.artist, self.short_name)
                 self.update_twitter(message)
 
