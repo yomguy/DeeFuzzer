@@ -516,7 +516,7 @@ class Station(Thread):
                 song = self.relay_url
                 self.song = song.encode('utf-8')
                 self.artist = 'Various'
-                self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
+                self.channel.set_metadata({'song': self.short_name + ' relaying : ' + self.song, 'charset': 'utf8',})
                 self.stream = self.player.relay_read()
 
             elif os.path.exists(self.media) and not os.sep+'.' in self.media:
