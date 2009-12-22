@@ -258,6 +258,9 @@ class Station(Thread):
         if not os.path.exists(self.metadata_dir):
             os.makedirs(self.metadata_dir)
 
+        # The station's player
+        self.player = Player()
+
         # A jingle between each media
         self.jingles_mode = 0
         if 'jingles' in self.station:
@@ -265,15 +268,27 @@ class Station(Thread):
             self.jingles_shuffle = self.station['jingles']['shuffle']
             self.jingles_dir = self.station['jingles']['dir']
             if self.jingles_mode == 1:
-                self.jingles_list = self.get_jingles()
-                self.jingles_length = len(self.jingles_list)
-                self.jingle_id = 0
+                self.jingles_callback('/jingles', [1])
 
         # Relay
         self.relay_mode = 0
         if 'relay' in self.station:
             self.relay_mode = int(self.station['relay']['mode'])
             self.relay_url = self.station['relay']['url']
+            if self.relay_mode == 1:
+                self.relay_callback('/relay', [1])
+
+        # Twitter
+        self.twitter_mode = 0
+        self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
+        if 'twitter' in self.station:
+            self.twitter_mode = int(self.station['twitter']['mode'])
+            self.twitter_user = self.station['twitter']['user']
+            self.twitter_pass = self.station['twitter']['pass']
+            self.twitter_tags = self.station['twitter']['tags'].split(' ')
+            self.twitter = Twitter(self.twitter_user, self.twitter_pass)
+            if self.twitter_mode == 1:
+                self.twitter_callback('/twitter', [1])
 
         # OSC
         self.osc_control_mode = 0
@@ -288,19 +303,6 @@ class Station(Thread):
                 self.osc_controller.add_method('/media/relay', 'i', self.relay_callback)
                 self.osc_controller.add_method('/twitter', 'i', self.twitter_callback)
                 self.osc_controller.add_method('/jingles', 'i', self.jingles_callback)
-
-        # Twitter
-        self.twitter_mode = 0
-        self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
-        if 'twitter' in self.station:
-            self.twitter_mode = int(self.station['twitter']['mode'])
-            self.twitter_user = self.station['twitter']['user']
-            self.twitter_pass = self.station['twitter']['pass']
-            self.twitter_tags = self.station['twitter']['tags'].split(' ')
-            self.twitter = Twitter(self.twitter_user, self.twitter_pass)
-
-        # The station's player
-        self.player = Player()
 
     def media_next_callback(self, path, value):
         value = value[0]
@@ -330,6 +332,10 @@ class Station(Thread):
 
     def jingles_callback(self, path, value):
         value = value[0]
+        if value == 1:
+            self.jingles_list = self.get_jingles()
+            self.jingles_length = len(self.jingles_list)
+            self.jingle_id = 0
         self.jingles_mode = value
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.logger.write(message)
@@ -506,18 +512,18 @@ class Station(Thread):
 
             self.q.get(1)
             if self.relay_mode == 1:
-                song = 'LIVE relaying of : ' + self.relay_url
+                self.prefix = 'Now relaying *LIVE* :'
+                song = self.relay_url
                 self.song = song.encode('utf-8')
+                self.artist = 'Various'
                 self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
                 self.stream = self.player.relay_read()
-                if self.twitter_mode == 1:
-                    message = 'Now relaying *LIVE* : %s' % self.relay_url
-                    self.update_twitter(message)
 
             elif os.path.exists(self.media) and not os.sep+'.' in self.media:
                 if self.lp == 0:
                     self.logger.write('Error : Station ' + self.short_name + ' have no media to stream !')
                     break
+                self.prefix = 'Now playing :'
                 self.current_media_obj = self.media_to_objs([self.media])
                 self.title = self.current_media_obj[0].metadata['title']
                 self.artist = self.current_media_obj[0].metadata['artist']
@@ -529,7 +535,6 @@ class Station(Thread):
                     song = self.artist + ' : ' + self.title
                 self.song = song.encode('utf-8')
                 self.artist = self.artist.encode('utf-8')
-
                 self.metadata_file = self.metadata_dir + os.sep + self.current_media_obj[0].file_name + '.xml'
                 self.update_rss(self.current_media_obj, self.metadata_file, '')
                 self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
@@ -540,7 +545,7 @@ class Station(Thread):
                 self.stream = self.player.file_read_slow()
 
             if (not (self.jingles_mode == 1 and (self.counter % 2) == 1)) and self.twitter_mode == 1:
-                message = 'Now playing : %s #%s #%s' % (self.song.replace('_', ' '), self.artist.replace(' ', ''), self.short_name)
+                message = '%s %s #%s #%s' % (self.prefix, self.song, self.artist, self.short_name)
                 self.update_twitter(message)
 
             self.q.task_done()
