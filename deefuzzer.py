@@ -44,9 +44,7 @@ import string
 import random
 import Queue
 import shout
-import subprocess
 import platform
-import urllib
 from threading import Thread
 from tools import *
 
@@ -247,6 +245,7 @@ class Station(Thread):
         self.playlist = self.get_playlist()
         self.lp = len(self.playlist)
         self.channel.open()
+        self.channel_delay = self.channel.delay()
 
         # Logging
         self.logger.write('Opening ' + self.short_name + ' - ' + self.channel.name + \
@@ -259,11 +258,11 @@ class Station(Thread):
             os.makedirs(self.metadata_dir)
 
         # OSC
-        self.osc_control_mode = '0'
+        self.osc_control_mode = 0
         if 'control' in self.station:
-            self.osc_control_mode = self.station['control']['mode']
+            self.osc_control_mode = int(self.station['control']['mode'])
             self.osc_port = self.station['control']['port']
-            if self.osc_control_mode =='1':
+            if self.osc_control_mode == 1:
                 self.osc_controller = OSCController(self.osc_port)
                 self.osc_controller.start()
                 # OSC paths and callbacks
@@ -273,59 +272,64 @@ class Station(Thread):
                 self.osc_controller.add_method('/mode/jingles', 'i', self.jingles_callback)
 
         # Twitter
-        self.twitter_mode = '0'
+        self.twitter_mode = 0
         if 'twitter' in self.station:
-            self.twitter_mode = self.station['twitter']['mode']
+            self.twitter_mode = int(self.station['twitter']['mode'])
             self.twitter_user = self.station['twitter']['user']
             self.twitter_pass = self.station['twitter']['pass']
-            if self.twitter_mode == '1':
+            if self.twitter_mode == 1:
                 self.twitter = Twitter(self.twitter_user, self.twitter_pass)
                 self.twitter_tags = self.station['twitter']['tags'].split(' ')
                 import tinyurl
                 self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
 
         # A jingle between each media
-        self.jingles_mode = '0'
+        self.jingles_mode = 0
         if 'jingles' in self.station:
-            self.jingles_mode =  self.station['jingles']['mode']
+            self.jingles_mode =  int(self.station['jingles']['mode'])
             self.jingles_shuffle = self.station['jingles']['shuffle']
             self.jingles_dir = self.station['jingles']['dir']
-            if self.jingles_mode =='1':
+            if self.jingles_mode == 1:
                 self.jingles_list = self.get_jingles()
                 self.jingles_length = len(self.jingles_list)
                 self.jingle_id = 0
 
+        # Relay
+        self.relay_mode = 0
+        if 'relay' in self.station:
+            self.relay_mode = int(self.station['relay']['mode'])
+            self.relay_url = self.station['relay']['url']
+
         # The station's player
         self.player = Player()
 
-        # Relay
-        self.relay_mode = '0'
-        if 'relay' in self.station:
-            self.relay_mode = self.station['relay']['mode']
-            self.relay_url = self.station['relay']['url']
-            self.player.set_relay(self.relay_url)
-
     def media_next_callback(self, path, value):
         value = value[0]
-        self.next_media = str(value)
+        self.next_media = value
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.logger.write(message)
 
     def relay_callback(self, path, value):
         value = value[0]
-        self.relay_mode = str(value)
+        if value == 1:
+            self.relay_mode = 1
+            self.player.start_relay(self.relay_url)
+        elif value == 0:
+            self.relay_mode = 0
+            self.player.stop_relay()
+        self.next_media = 1
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.logger.write(message)
 
     def twitter_callback(self, path, value):
         value = value[0]
-        self.twitter_mode = str(value)
+        self.twitter_mode = value
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.logger.write(message)
 
     def jingles_callback(self, path, value):
         value = value[0]
-        self.jingles_mode = str(value)
+        self.jingles_mode = value
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.logger.write(message)
 
@@ -493,17 +497,21 @@ class Station(Thread):
 
     def run(self):
         while True:
-            it = self.q.get(1)
-            if self.lp == 0:
-                self.logger.write('Error : Station ' + self.short_name + ' have no media to stream !')
-                break
-            self.next_media = '0'
+            self.q.get(1)
+            self.next_media = 0
             self.media = self.get_next_media()
             self.counter += 1
             self.q.task_done()
 
-            if os.path.exists(self.media) and not os.sep+'.' in self.media:
-                self.q.get(1)
+            self.q.get(1)
+            if self.relay_mode == 1:
+                self.channel.set_metadata({'song': 'LIVE', 'charset': 'utf8',})
+                self.stream = self.player.relay_read()
+
+            elif os.path.exists(self.media) and not os.sep+'.' in self.media:
+                if self.lp == 0:
+                    self.logger.write('Error : Station ' + self.short_name + ' have no media to stream !')
+                    break
                 self.current_media_obj = self.media_to_objs([self.media])
                 self.title = self.current_media_obj[0].metadata['title']
                 self.artist = self.current_media_obj[0].metadata['artist']
@@ -522,144 +530,30 @@ class Station(Thread):
                 self.update_rss(self.current_media_obj, self.rss_current_file, '(currently playing)')
                 self.logger.write('DeeFuzzing this file on %s :  id = %s, name = %s' \
                     % (self.short_name, self.id, self.current_media_obj[0].file_name))
+                self.player.set_media(self.media)
+                self.stream = self.player.file_read_slow()
 
-                if not (self.jingles_mode == '1' and (self.counter % 2) == 1):
-                    message = 'Now playing: %s #%s #%s' % (self.song.replace('_', ' '), self.artist.replace(' ', ''), self.short_name)
-                    self.update_twitter(message)
+            if not (self.jingles_mode == 1 and (self.counter % 2) == 1):
+                message = 'Now playing: %s #%s #%s' % (self.song.replace('_', ' '), self.artist.replace(' ', ''), self.short_name)
+                self.update_twitter(message)
 
-                if self.relay_mode != '0':
-                    self.stream = self.player.relay()
-                    self.channel.set_metadata({'song': 'LIVE', 'charset': 'utf8',})
-                else:
-                    self.player.set_media(self.media)
-                    self.stream = self.player.read_slow()
-                self.q.task_done()
-
-                for __chunk in self.stream:
-                    self.q.get(1)
-                    try:
-                        self.channel.send(__chunk)
-                        self.channel.sync()
-                        if self.next_media != '0':
-                            break
-                        # self.logger.write('Station delay (ms) ' + self.short_name + ' : '  + str(self.channel.delay()))
-                    except:
-                        self.logger.write('ERROR : Station ' + self.short_name + ' : could not send the buffer... ')
-                        self.channel.close()
-                        self.channel.open()
-                        continue
-                    self.q.task_done()
-            else:
-                self.logger.write('Error : Station ' + self.short_name + ' : ' + self.media + 'not found !')
-
-        self.channel.close()
-
-
-class Player:
-    """A file streaming iterator"""
-
-    def __init__(self):
-        self.main_buffer_size = 0x100000
-        self.sub_buffer_size = 0x10000
-
-    def set_media(self, media):
-        self.media = media
-
-    def set_relay(self, url):
-        self.q = Queue.Queue(self.main_buffer_size)
-        self.r = Relay(self.q, self.sub_buffer_size, url)
-        self.r.start()
-
-    def read_fast(self):
-        """Read media and stream data through a generator."""
-        m = open(self.media, 'r')
-        while True:
-            __main_chunk = m.read(self.sub_buffer_size)
-            if not __main_chunk:
-                break
-            yield __main_chunk
-        m.close()
-
-    def read_slow(self):
-        """Read a bigger part of the media and stream the little parts
-         of the data through a generator"""
-        m = open(self.media, 'r')
-        while True:
-            __main_chunk = m.read(self.main_buffer_size)
-            if not __main_chunk:
-                break
-            i = 0
-            while True:
-                start = i * self.sub_buffer_size
-                end = self.sub_buffer_size + (i * self.sub_buffer_size)
-                __sub_chunk = __main_chunk[start:end]
-                if not __sub_chunk:
-                    break
-                yield __sub_chunk
-                i += 1
-        m.close()
-
-    def relay(self):
-        """Read a distant media through its URL"""
-        while True:
-            __chunk = self.q.get(self.sub_buffer_size)
-            if not __chunk:
-                break
-            yield __chunk
             self.q.task_done()
 
+            for self.chunk in self.stream:
+                self.q.get(1)
+                try:
+                    self.channel.send(self.chunk)
+                    self.channel.sync()
+                    if self.next_media == 1:
+                        break
+                except:
+                    self.logger.write('ERROR : Station ' + self.short_name + ' : could not send the buffer... ')
+                    self.channel.close()
+                    self.channel.open()
+                    continue
+                self.q.task_done()
 
-class Relay(Thread):
-
-    def __init__(self, q, buffer_size, url):
-        Thread.__init__(self)
-        self.q = q
-        self.buffer_size = buffer_size
-        self.url = url
-        self.u = urllib.urlopen(self.url)
-
-    def run(self):
-        while True:
-            data = self.u.read(self.buffer_size)
-            self.q.put_nowait(data)
-        self.u.close()
-
-
-class Twitter:
-
-    def __init__(self, username, password):
-        import twitter
-        self.username = username
-        self.password = password
-        self.api = twitter.Api(username=self.username, password=self.password)
-
-    def post(self, message):
-        try:
-            self.api.PostUpdate(message)
-        except:
-            pass
-
-
-class OSCController(Thread):
-
-    def __init__(self, port):
-        Thread.__init__(self)
-        import liblo
-        self.port = port
-        try:
-            self.server = liblo.Server(self.port)
-        except liblo.ServerError, err:
-            print str(err)
-
-    def add_method(self, path, type, method):
-        self.server.add_method(path, type, method)
-
-    def server(self):
-        return self.server
-
-    def run(self):
-        while True:
-            self.server.recv(1000)
+        self.channel.close()
 
 
 def main():

@@ -11,4 +11,4 @@ except liblo.AddressError, err:
     sys.exit()
 
 # send message "/foo/message1" with int, float and string arguments
-liblo.send(target, "/media/relay", 'stop')
+liblo.send(target, "/media/relay", 1)
