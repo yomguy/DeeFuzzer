@@ -6,5 +6,5 @@ from ogg import *
 from logger import *
 from player import *
 from osc import *
-from twitter import *
+from twitt import *
 from relay import *
