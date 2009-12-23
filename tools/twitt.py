@@ -45,6 +45,9 @@ class Twitter:
         self.api = twitter.Api(username=self.username, password=self.password)
 
     def post(self, message):
-        self.api.PostUpdate(message)
+        try:
+            self.api.PostUpdate(message)
+        except:
+            pass
 
 

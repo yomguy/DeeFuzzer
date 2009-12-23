@@ -3,6 +3,17 @@
 
 deefuzzer : an easy and light media streaming tools
 
+# 0. Aknowledgements
+# ==================
+
+This work is inspired by the great - C coded - Oddsock's streaming program : Ezstream.
+Since I needed to patch it in order to modify the playlist (randomize for example)
+and make external batch tools to create multiple channels, I decided to rewrite it
+from scratch in python.
+
+Some parts of this work are also taken from another Parisson's project : Telemeta
+(see http://telemeta.org).
+
 
 # 1. Introduction
 # ===============
@@ -11,17 +22,20 @@ DeeFuzzer Tools are new light and easy tools to stream audio and video over inte
 
 Here are the main features of the DeeFuzzer Tools:
 
- * MP3 and OGG (audio & video) file streaming over internet
+ * MP3 and OGG (audio & video) file streaming over internet (Icecast)
  * Full metadata encapsulation and management
  * RSS podcast generator (current tracks and playlists)
  * M3U playlist generator
  * Recursive, random (shuffled) or pre-defined playlists
- * Multi-threaded architecture (multiple stations now authorized !)
- * Auto TWITTER posting of the current playing track
- * VERY light and optimized streaming process !
+ * Multi-threaded architecture : multiple station streaming with one config file
+ * Auto Twitter posting of the current playing tracks
+ * Jingling between main tracks
+ * OSC controller : control the main functions from a distant terminal
+ * Station relay : stream other stations like *LIVE* sessions !
+ * Very light and optimized streaming process
 
 It is neccessary to provide a config file which sets all needed parameters
-(see example/myfuzz.xml for an example).
+Please see example/myfuzz.xml for an example.
 
 
 # 2. Installation
@@ -42,40 +56,50 @@ see INSTALL
 # =========
 
 Usage : deefuzzer CONFIGFILE
-  
+
   where CONFIGFILE is the path for a XML config file. For example:
 
     $ deefuzzer example/myfuzz.xml
 
-Note that you must edit the config file with right parameters before executing.
-You can find an example for the XML file in the directory "example/" of this
-application (maybe in /usr/share/deefuzzer if installed with the help of install.py)
+To make the deefuzzer act as a deamon, just play it in the background :
+
+    $ deefuzzer example/myfuzz.xml &
+
+Note that you must edit the config file with right parameters before playing.
+You can find an example for a draft XML file in the directory "example/" of this
+application (maybe in /usr/share/deefuzzer/example/ if installed with the help of install.py)
 
 Since 0.3, deefuzzer doesn't print anything into the shell, then a right <log> parameter
 is needed in the XML config file.
 
-BE CAREFULL : at the moment, the multi-threading implementation of deefuzzer instances
-avoids to shut down the streams with CTRL+C... You have to kill them manually,
+BE CAREFULL : at the moment, the multi-threaded implementation of deefuzzer instances
+avoids shutting down the streams with CTRL+C... You have to kill them manually,
 after a CTRL+Z, making this:
 
+    $ kill -9 PROCESS_ID
+or
     $ kill -9 `pgrep deefuzzer`
 
 
-# 5. Author
+# 5. OSC Control
+# ===============
+
+We can now control some functions of the deefuzzer with external commands
+coming from an OSC client. These are accessible only if the "control" tag is
+set up in the config file (see example/myfuzz.xml again...).
+
+* Next track (see tools/osc_next.py)
+* Start relaying (see tools/osc_relay_start.py)
+* Stop relaying (see tools/osc_relay_stop.py)
+* Start jingling (see tools/osc_jingles_start.py)
+* Stop jingling (see tools/osc_jingles_stop.py)
+
+
+# 6. Author
 # =========
 
 Guillaume Pellerin <yomguy@parisson.com>
 
-
-# 6. Aknowledgements
-# ==================
-
-This work is inspired by the great - C - Oddsock's streaming program : Ezstream.
-Since I needed to patch it in order to modify the playlist (randomize for example)
-and make external batch tools to create multiple channels, I decided to rewrite it
-from scratch in python.
-Some parts of this work are also taken from another Parisson's project : Telemeta
-(see http://svn.parisson.org/telemeta).
 
 # 7. Licence
 # ==========

@@ -14,14 +14,14 @@
 
  provides : shout-python
 
-python-shout is included in DeeFuzz but needs to be compiled and installed
+python-shout is included in the DeeFuzzer but needs to be compiled and installed
 if you don't install deefuzzer from its debian package with aptitude.
 As explained in shout-python/INSTALL, you just have to run this command :
 
   $ cd shout-python
   $ sudo python setup.py install
 
-To install deefuzzer (from the main deefuzzer directory) :
+To install the DeeFuzzer (from the main deefuzzer directory) :
 
   $ sudo python install.py
 

@@ -43,7 +43,7 @@ import os, sys
 if len(sys.argv) == 1:
     install_dir = '/usr/share/deefuzzer/'
 elif len(sys.argv) > 2:
-    sys.exit('Give just one directory to install Telemeta, or none.')
+    sys.exit('Give just one directory to install the DeeFuzzer, or none.')
 else:
     install_dir = sys.argv[1]
 
