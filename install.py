@@ -39,6 +39,7 @@
 # ONLY FOR LINUX / UNIX
 
 import os, sys
+import platform
 
 if len(sys.argv) == 1:
     install_dir = '/usr/share/deefuzzer/'

@@ -31,7 +31,7 @@ Here are the main features of the DeeFuzzer Tools:
  * Auto Twitter posting of the current playing tracks
  * Jingling between main tracks
  * OSC controller : control the main functions from a distant terminal
- * Station relay : stream other stations like *LIVE* sessions !
+ * Station relaying : stream other stations like *LIVE* sessions !
  * Very light and optimized streaming process
 
 It is neccessary to provide a config file which sets all needed parameters
