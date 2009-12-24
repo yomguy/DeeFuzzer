@@ -66,10 +66,12 @@ def prog_info():
  you should have received as part of this distribution. The terms
  are also available at http://svn.parisson.org/deefuzzer/DeeFuzzerLicense
 
- depends :  python, python-xml, python-shout, libshout3, icecast2,
-            python-mutagen, python-twitter, python-tinyurl,
-            python-liblo (pyliblo)
- provides : python-shout
+ depends:  python, python-dev, python-xml, python-shout | shout-python, libshout3,
+           libshout3-dev, icecast2, python-mutagen
+
+ recommends: python-twitter, python-tinyurl, python-liblo | pyliblo (>= 0.26)
+
+ provides:  shout-python
 
  Usage : deefuzzer $1
   where $1 is the path for a XML config file
