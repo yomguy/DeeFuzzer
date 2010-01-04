@@ -282,7 +282,6 @@ class Station(Thread):
 
         # Twitter
         self.twitter_mode = 0
-        self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
         if 'twitter' in self.station:
             self.twitter_mode = int(self.station['twitter']['mode'])
             self.twitter_user = self.station['twitter']['user']
@@ -290,6 +289,7 @@ class Station(Thread):
             self.twitter_tags = self.station['twitter']['tags'].split(' ')
             self.twitter = Twitter(self.twitter_user, self.twitter_pass)
             if self.twitter_mode == 1:
+                self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
                 self.twitter_callback('/twitter', [1])
 
         # OSC
