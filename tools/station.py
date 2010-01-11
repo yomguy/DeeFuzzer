@@ -359,7 +359,7 @@ class Station(Thread):
         self.twitter.post(message)
 
     def set_relay_mode(self):
-        self.prefix = '#NowPlaying (relaying *LIVE*) :'
+        self.prefix = '#nowplaying (relaying *LIVE*) :'
         song = self.relay_url
         self.song = song.encode('utf-8')
         self.artist = 'Various'
@@ -367,7 +367,7 @@ class Station(Thread):
         self.stream = self.player.relay_read()
 
     def set_read_mode(self):
-        self.prefix = '#NowPlaying :'
+        self.prefix = '#nowplaying :'
         self.current_media_obj = self.media_to_objs([self.media])
         self.title = self.current_media_obj[0].metadata['title']
         self.artist = self.current_media_obj[0].metadata['artist']
