@@ -496,13 +496,46 @@ class Station(Thread):
         rss.write_xml(f, 'utf-8')
         f.close()
 
-    def update_twitter(self, message):
+    def update_twitter(self):
+        artist_names = self.artist.split(' ')
+        artist_tags = ' #'.join(artist_names)
+        message = '♫ %s %s on #%s #%s' % (self.prefix, self.song, self.short_name, artist_tags)
         tags = '#' + ' #'.join(self.twitter_tags)
         message = message + ' ' + tags
         message = message[:113] + ' ' + self.tinyurl
         message = message.decode('utf8')
         self.logger.write('Twitting : "' + message + '"')
         self.twitter.post(message)
+
+    def set_relay_mode(self):
+        self.prefix = '#NowPlaying (relaying *LIVE*) :'
+        song = self.relay_url
+        self.song = song.encode('utf-8')
+        self.artist = 'Various'
+        self.channel.set_metadata({'song': self.short_name + ' relaying : ' + self.song, 'charset': 'utf8',})
+        self.stream = self.player.relay_read()
+
+    def set_read_mode(self):
+        self.prefix = '#NowPlaying :'
+        self.current_media_obj = self.media_to_objs([self.media])
+        self.title = self.current_media_obj[0].metadata['title']
+        self.artist = self.current_media_obj[0].metadata['artist']
+        self.title = self.title.replace('_', ' ')
+        self.artist = self.artist.replace('_', ' ')
+        if not (self.title or self.artist):
+            song = str(self.current_media_obj[0].file_name)
+        else:
+            song = self.artist + ' : ' + self.title
+        self.song = song.encode('utf-8')
+        self.artist = self.artist.encode('utf-8')
+        self.metadata_file = self.metadata_dir + os.sep + self.current_media_obj[0].file_name + '.xml'
+        self.update_rss(self.current_media_obj, self.metadata_file, '')
+        self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
+        self.update_rss(self.current_media_obj, self.rss_current_file, '(currently playing)')
+        self.logger.write('Deefuzzing this file on %s :  id = %s, name = %s' \
+            % (self.short_name, self.id, self.current_media_obj[0].file_name))
+        self.player.set_media(self.media)
+        self.stream = self.player.file_read_slow()
 
     def run(self):
         while True:
@@ -514,42 +547,14 @@ class Station(Thread):
 
             self.q.get(1)
             if self.relay_mode == 1:
-                self.prefix = 'Now relaying *LIVE* :'
-                song = self.relay_url
-                self.song = song.encode('utf-8')
-                self.artist = 'Various'
-                self.channel.set_metadata({'song': self.short_name + ' relaying : ' + self.song, 'charset': 'utf8',})
-                self.stream = self.player.relay_read()
-
+                self.set_relay_mode()
             elif os.path.exists(self.media) and not os.sep+'.' in self.media:
                 if self.lp == 0:
                     self.logger.write('Error : Station ' + self.short_name + ' have no media to stream !')
                     break
-                self.prefix = 'Now playing :'
-                self.current_media_obj = self.media_to_objs([self.media])
-                self.title = self.current_media_obj[0].metadata['title']
-                self.artist = self.current_media_obj[0].metadata['artist']
-                self.title = self.title.replace('_', ' ')
-                self.artist = self.artist.replace('_', ' ')
-                if not (self.title or self.artist):
-                    song = str(self.current_media_obj[0].file_name)
-                else:
-                    song = self.artist + ' : ' + self.title
-                self.song = song.encode('utf-8')
-                self.artist = self.artist.encode('utf-8')
-                self.metadata_file = self.metadata_dir + os.sep + self.current_media_obj[0].file_name + '.xml'
-                self.update_rss(self.current_media_obj, self.metadata_file, '')
-                self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
-                self.update_rss(self.current_media_obj, self.rss_current_file, '(currently playing)')
-                self.logger.write('Deefuzzing this file on %s :  id = %s, name = %s' \
-                    % (self.short_name, self.id, self.current_media_obj[0].file_name))
-                self.player.set_media(self.media)
-                self.stream = self.player.file_read_slow()
-
+                self.set_read_mode()
             if (not (self.jingles_mode == 1 and (self.counter % 2) == 1) or self.relay_mode == 1) and self.twitter_mode == 1:
-                message = '%s %s #%s #%s' % (self.prefix, self.song, self.artist, self.short_name)
-                self.update_twitter(message)
-
+                self.update_twitter()
             self.q.task_done()
 
             for self.chunk in self.stream:
