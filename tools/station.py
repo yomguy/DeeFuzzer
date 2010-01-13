@@ -401,7 +401,7 @@ class Station(Thread):
                 self.set_relay_mode()
             elif os.path.exists(self.media) and not os.sep+'.' in self.media:
                 if self.lp == 0:
-                    self.logger.write('Error : Station ' + self.short_name + ' have no media to stream !')
+                    self.logger.write('Error : Station ' + self.short_name + ' has no media to stream !')
                     break
                 self.set_read_mode()
             if (not (self.jingles_mode == 1 and (self.counter % 2) == 1) or self.relay_mode == 1) and self.twitter_mode == 1:
