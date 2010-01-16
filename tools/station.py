@@ -114,7 +114,8 @@ class Station(Thread):
         # The station's player
         self.player = Player()
 
-        # A jingle between each media
+        # Jingling between each media.
+        # mode = 0 means Off, mode = 1 means On
         self.jingles_mode = 0
         if 'jingles' in self.station:
             self.jingles_mode =  int(self.station['jingles']['mode'])
@@ -123,7 +124,8 @@ class Station(Thread):
             if self.jingles_mode == 1:
                 self.jingles_callback('/jingles', [1])
 
-        # Relay
+        # Relaying
+        # mode = 0 means Off, mode = 1 means On
         self.relay_mode = 0
         if 'relay' in self.station:
             self.relay_mode = int(self.station['relay']['mode'])
@@ -131,7 +133,8 @@ class Station(Thread):
             if self.relay_mode == 1:
                 self.relay_callback('/relay', [1])
 
-        # Twitter
+        # Twittering
+        # mode = 0 means Off, mode = 1 means On
         self.twitter_mode = 0
         if 'twitter' in self.station:
             self.twitter_mode = int(self.station['twitter']['mode'])
@@ -145,6 +148,7 @@ class Station(Thread):
 
         # OSC
         self.osc_control_mode = 0
+        # mode = 0 means Off, mode = 1 means On
         if 'control' in self.station:
             self.osc_control_mode = int(self.station['control']['mode'])
             self.osc_port = self.station['control']['port']
@@ -232,6 +236,7 @@ class Station(Thread):
                 new_playlist_set = set(self.playlist)
                 old_playlist_set = set(old_playlist)
                 new_tracks = new_playlist_set - old_playlist_set
+
                 if len(new_tracks) != 0:
                     self.new_tracks = list(new_tracks.copy())
                     new_tracks_objs = self.media_to_objs(self.new_tracks)
@@ -263,9 +268,7 @@ class Station(Thread):
             else:
                 media = self.playlist[self.id]
                 self.id = (self.id + 1) % self.lp
-
             return media
-
         else:
             mess = 'No media in media_dir !'
             self.logger.write(mess)
@@ -285,7 +288,6 @@ class Station(Thread):
         rss_item_list = []
         if not os.path.exists(self.rss_dir):
             os.makedirs(self.rss_dir)
-
         channel_subtitle = self.channel.name + ' ' + sub_title
         _date_now = datetime.datetime.now()
         date_now = str(_date_now)
@@ -342,14 +344,13 @@ class Station(Thread):
                             description = self.channel.description.decode('utf-8'),
                             lastBuildDate = date_now,
                             items = rss_item_list,)
-
         f = open(rss_file, 'w')
         rss.write_xml(f, 'utf-8')
         f.close()
 
     def update_twitter(self):
         artist_names = self.artist.split(' ')
-        artist_tags = ' #'.join(list(set(artist_names)-set(['&'])))
+        artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
         message = '♫ %s %s on #%s #%s' % (self.prefix, self.song, self.short_name, artist_tags)
         tags = '#' + ' #'.join(self.twitter_tags)
         message = message + ' ' + tags
@@ -421,5 +422,4 @@ class Station(Thread):
                     self.channel.open()
                     continue
                 self.q.task_done()
-
         self.channel.close()
