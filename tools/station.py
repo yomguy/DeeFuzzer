@@ -349,7 +349,7 @@ class Station(Thread):
 
     def update_twitter(self):
         artist_names = self.artist.split(' ')
-        artist_tags = ' #'.join(artist_names)
+        artist_tags = ' #'.join(list(set(artist_names)-set(['&'])))
         message = '♫ %s %s on #%s #%s' % (self.prefix, self.song, self.short_name, artist_tags)
         tags = '#' + ' #'.join(self.twitter_tags)
         message = message + ' ' + tags
