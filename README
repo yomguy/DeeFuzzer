@@ -1,10 +1,11 @@
-# README
-# ======
+================
+DEEFUZZER README
+================
 
 deefuzzer : an easy and light media streaming tools
 
-# 0. Aknowledgements
-# ==================
+0. Aknowledgements
+==================
 
 This work is inspired by the great - C coded - Oddsock's streaming program : Ezstream.
 Since I needed to patch it in order to modify the playlist (randomize for example)
@@ -15,8 +16,8 @@ Some parts of this work are also taken from another Parisson's project : Telemet
 (see http://telemeta.org).
 
 
-# 1. Introduction
-# ===============
+1. Introduction
+===============
 
 DeeFuzzer Tools are new light and easy tools to stream audio and video over internet. It is dedicated to people who wants to create playlisted webradios or webTVs with rich media contents. It depends on python, icecast2 server, libshout and some other tools.
 
@@ -38,30 +39,30 @@ It is neccessary to provide a config file which sets all needed parameters
 Please see example/myfuzz.xml for an example.
 
 
-# 2. Installation
-# ===============
+2. Installation
+===============
 
 see INSTALL
 
 
-# 3. License
-# ===============
+3. License
+==========
 
- This software is licensed as described in the file COPYING, which
- you should have received as part of this distribution. The terms
- are also available at http://svn.parisson.org/deefuzzer/DeeFuzzerLicense
+This software is licensed as described in the file COPYING, which
+you should have received as part of this distribution. The terms
+are also available at http://svn.parisson.org/deefuzzer/DeeFuzzerLicense
 
 
-# 4. Usage
-# =========
+4. Usage
+========
 
 Usage : deefuzzer CONFIGFILE
 
-  where CONFIGFILE is the path for a XML config file. For example:
+  where CONFIGFILE is the path for a XML config file. For example::
 
     $ deefuzzer example/myfuzz.xml
 
-To make the deefuzzer act as a deamon, just play it in the background :
+To make the deefuzzer act as a deamon, just play it in the background::
 
     $ deefuzzer example/myfuzz.xml &
 
@@ -74,15 +75,17 @@ is needed in the XML config file.
 
 BE CAREFULL : at the moment, the multi-threaded implementation of deefuzzer instances
 avoids shutting down the streams with CTRL+C... You have to kill them manually,
-after a CTRL+Z, making this:
+after a CTRL+Z, making this::
 
     $ kill -9 PROCESS_ID
-or
+
+or::
+
     $ kill -9 `pgrep deefuzzer`
 
 
-# 5. OSC Control
-# ===============
+5. OSC Control
+==============
 
 We can now control some functions of the deefuzzer with external commands
 coming from an OSC client. These are accessible only if the "control" tag is
@@ -95,20 +98,20 @@ set up in the config file (see example/myfuzz.xml again...).
 * Stop jingling (see tools/osc_jingles_stop.py)
 
 
-# 6. Author
-# =========
+6. Author
+=========
 
 Guillaume Pellerin <yomguy@parisson.com>
 
 
-# 7. Licence
-# ==========
+7. Licence
+==========
 
 See COPYING
 
 
-# 8. Contact / Infos
-# ==================
+8. Contact / Infos
+==================
 
 see http://svn.parisson.org/deefuzzer/ or http://parisson.com for more info.
 
