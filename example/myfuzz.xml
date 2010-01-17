@@ -1,52 +1,97 @@
 <deefuzzer>
+    <!-- A path to the log file (need write access rights to the directory) -->
     <log>/path/to/log/mystation.log</log>
+    <!-- A path to the M3U playlist file (need write access rights to the directory).
+         The file is preferably accessible behind an url,
+         for example, http://mydomain.com/m3u/mystation.m3u -->
     <m3u>/path/to/m3u/mystation.m3u</m3u>
+
     <station>
         <infos>
-            <short_name>My_Station_1</short_name>
+            <!-- The short name of the station. It will define the mount point,
+                 for example http://mydomain.com:8000/my_station.mp3 -->
+            <short_name>my_station</short_name>
+            <!-- The name (title) of the station -->
             <name>My best funky station</name>
+            <!-- The description of the station -->
             <description>My personal best funky playlist ever !</description>
+            <!-- The website of the station (for metadata) -->
             <url>http://mydomain.com</url>
-            <genre>Other</genre>
+            <!-- The genres of the audio streams -->
+            <genre>Various Funk Groove</genre>
         </infos>
         <server>
+            <!-- The host to send the stream (domain or IP) -->
             <host>mydomain.com</host>
+            <!-- The port of the Icecast2 server on the host -->
             <port>8000</port>
+            <!-- The source password of the Icecast2 server on the host -->
             <sourcepassword>icecast_source_password</sourcepassword>
+            <!-- If '1', the mount point will be publish on yp.icecast.org, '0' for private streams -->
             <public>1</public>
         </server>
         <media>
+            <!-- The path to the directory containing all the media. It will be analyse recursively. -->
             <dir>/path/to/mp3/</dir>
+            <!-- The audio format of the media. Can be 'mp3' or 'ogg' -->
             <format>mp3</format>
+            <!-- The mean bitrate of the media -->
             <bitrate>192</bitrate>
+            <!-- The ogg quality of the ogg vorbis media -->
             <ogg_quality>7</ogg_quality>
+            <!-- The samplerate of the media -->
             <samplerate>44100</samplerate>
+            <!-- The number of channels - or voices - of the media. '1' for mono, '2' for stereo. -->
             <voices>2</voices>
+            <!-- If '1', the playlist will be randomized. '0' for aphanumeric order -->
             <shuffle>1</shuffle>
         </media>
         <rss>
+            <!-- A path to the directory containing RSS (XML) files that is 'currently playing'
+                and 'playlist' feeds (need write access rights to the directory).
+                The file is preferably accessible behind an url,
+                for example, http://mydomain.com/rss/mystation.xml -->
             <dir>/path/to/rss/</dir>
+            <!-- If '1', the RSS feeds will contain an enclosure to become a podcast feed.
+                '0' for simple RSS feed without enclosure -->
             <enclosure>1</enclosure>
         </rss>
         <twitter>
+            <!-- If '1', deefuzzer will tweet #nowplaying, new tracks and other things to Twitter. 'O' does nothing. -->
             <mode>0</mode>
+            <!-- Your twitter username -->
             <user>my_twitter_user</user>
+            <!-- Your twitter password -->
             <pass>my_twitter_password</pass>
+            <!-- These tags will be added to each twitter message -->
             <tags>bla bla</tags>
         </twitter>
         <jingles>
+            <!-- If '1', some media will be played between each main track of the playlist. '0' does nothing. -->
             <mode>0</mode>
+            <!-- A path to the directory containing jingles media files.
+                The files have to be of the same type of the main media files. -->
             <dir>/path/to/jingles</dir>
+            <!-- If '1', the jingle playlist will be randomized. '0' for aphanumeric order -->
             <shuffle>1</shuffle>
         </jingles>
         <control>
+            <!-- If '1', an OSC controller thread is started to allow external commands
+                See README for more info -->
             <mode>0</mode>
+            <!-- The port of the OSC server -->
             <port>1234</port>
         </control>
         <relay>
+            <!-- If '1', the station will relay another _existing_ stream.
+            Wonderful for commuting to live sessions. '0' does nothing -->
             <mode>0</mode>
+            <!-- The URL of the station to relay -->
             <url>http://anotherdomain.com:8000/stream.mp3</url>
         </relay>
     </station>
+
+    <!-- Note that you can add many different stations in the same config file, thanks to the multi-threaded architecure ! -->
 </deefuzzer>
+
 
