@@ -1,27 +1,16 @@
 ================
-DEEFUZZER README
+DeeFuzzer README
 ================
 
-deefuzzer : an easy and light media streaming tools
-
-0. Aknowledgements
-==================
-
-This work is inspired by the great - C coded - Oddsock's streaming program : Ezstream.
-Since I needed to patch it in order to modify the playlist (randomize for example)
-and make external batch tools to create multiple channels, I decided to rewrite it
-from scratch in python.
-
-Some parts of this work are also taken from another Parisson's project : Telemeta
-(see http://telemeta.org).
+deefuzzer : an easy and instant media streaming tool
 
 
-1. Introduction
-===============
+Introduction
+============
 
-DeeFuzzer Tools are new light and easy tools to stream audio and video over internet. It is dedicated to people who wants to create playlisted webradios or webTVs with rich media contents. It depends on python, icecast2 server, libshout and some other tools.
+DeeFuzzer is a new light and instant software made for streaming audio and video over internet. It is dedicated to people who wants to create playlisted web radios or web TVs with rich media contents including some metadata.
 
-Here are the main features of the DeeFuzzer Tools:
+Here are the main features of the deefuzzer:
 
  * MP3 and OGG (audio & video) file streaming over internet (Icecast)
  * Full metadata encapsulation and management
@@ -39,26 +28,26 @@ It is neccessary to provide a config file which sets all needed parameters
 Please see example/myfuzz.xml for an example.
 
 
-2. Installation
-===============
+Installation
+============
 
 see INSTALL
 
 
-3. License
-==========
+License
+=======
 
 This software is licensed as described in the file COPYING, which
 you should have received as part of this distribution. The terms
 are also available at http://svn.parisson.org/deefuzzer/DeeFuzzerLicense
 
 
-4. Usage
-========
+Usage
+=====
 
 Usage : deefuzzer CONFIGFILE
 
-  where CONFIGFILE is the path for a XML config file. For example::
+where CONFIGFILE is the path for a XML config file. For example::
 
     $ deefuzzer example/myfuzz.xml
 
@@ -84,8 +73,8 @@ or::
     $ kill -9 `pgrep deefuzzer`
 
 
-5. OSC Control
-==============
+OSC Control
+===========
 
 We can now control some functions of the deefuzzer with external commands
 coming from an OSC client. These are accessible only if the "control" tag is
@@ -98,20 +87,32 @@ set up in the config file (see example/myfuzz.xml again...).
 * Stop jingling (see tools/osc_jingles_stop.py)
 
 
-6. Author
-=========
+Author
+======
 
 Guillaume Pellerin <yomguy@parisson.com>
 
 
-7. Licence
-==========
+Licence
+=======
 
 See COPYING
 
 
-8. Contact / Infos
-==================
+Aknowledgements
+===============
+
+This work is inspired by the great - C coded - Oddsock's streaming program : Ezstream.
+Since I needed to patch it in order to modify the playlist (randomize for example)
+and make external batch tools to create multiple channels, I decided to rewrite it
+from scratch in python.
+
+Some parts of this work are also taken from another Parisson's project : Telemeta
+(see http://telemeta.org).
+
+
+Contact / Infos
+===============
 
 see http://svn.parisson.org/deefuzzer/ or http://parisson.com for more info.
 
