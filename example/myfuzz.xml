@@ -1,6 +1,6 @@
 <deefuzzer>
-    <log>/tmp/deefuzz.log</log>
-    <m3u>/var/www/m3u/mystation.m3u</m3u>
+    <log>/path/to/log/mystation.log</log>
+    <m3u>/path/to/m3u/mystation.m3u</m3u>
     <station>
         <infos>
             <short_name>My_Station_1</short_name>
@@ -10,13 +10,13 @@
             <genre>Other</genre>
         </infos>
         <server>
-            <host>localhost</host>
+            <host>mydomain.com</host>
             <port>8000</port>
             <sourcepassword>icecast_source_password</sourcepassword>
             <public>1</public>
         </server>
         <media>
-            <dir>/path/to/my/mp3/</dir>
+            <dir>/path/to/mp3/</dir>
             <format>mp3</format>
             <bitrate>192</bitrate>
             <ogg_quality>7</ogg_quality>
@@ -25,13 +25,13 @@
             <shuffle>1</shuffle>
         </media>
         <rss>
-            <dir>/tmp/rss/</dir>
+            <dir>/path/to/rss/</dir>
             <enclosure>1</enclosure>
         </rss>
         <twitter>
             <mode>0</mode>
-            <user>xxxxxx</user>
-            <pass>xxxxxx</pass>
+            <user>my_twitter_user</user>
+            <pass>my_twitter_password</pass>
             <tags>bla bla</tags>
         </twitter>
         <jingles>
@@ -40,12 +40,12 @@
             <shuffle>1</shuffle>
         </jingles>
         <control>
-            <mode>1</mode>
+            <mode>0</mode>
             <port>1234</port>
         </control>
         <relay>
             <mode>0</mode>
-            <url>http://parisson.com:8000/deefuzz_1.mp3</url>
+            <url>http://anotherdomain.com:8000/stream.mp3</url>
         </relay>
     </station>
 </deefuzzer>
