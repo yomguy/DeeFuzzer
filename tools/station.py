@@ -251,7 +251,9 @@ class Station(Thread):
                         song = song.encode('utf-8')
                         artist = artist.encode('utf-8')
                         if self.twitter_mode == 1:
-                            message = 'New track ! %s #%s #%s' % (song.replace('_', ' '), artist.replace(' ', ''), self.short_name)
+                            artist_names = artist.split(' ')
+                            artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
+                            message = 'New track ! %s %s on #%s' % (song.replace('_', ' '), artist_tags, self.short_name)
                             self.update_twitter(message)
 
                 if self.mode_shuffle == 1:
@@ -348,10 +350,11 @@ class Station(Thread):
         rss.write_xml(f, 'utf-8')
         f.close()
 
-    def update_twitter(self):
-        artist_names = self.artist.split(' ')
-        artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
-        message = '♫ %s %s on #%s #%s' % (self.prefix, self.song, self.short_name, artist_tags)
+    def update_twitter(self, message=None):
+        if not message:
+            artist_names = self.artist.split(' ')
+            artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
+            message = '♫ %s %s on #%s #%s' % (self.prefix, self.song, self.short_name, artist_tags)
         tags = '#' + ' #'.join(self.twitter_tags)
         message = message + ' ' + tags
         message = message[:113] + ' ' + self.tinyurl
