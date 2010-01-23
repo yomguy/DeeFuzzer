@@ -133,7 +133,7 @@ class Station(Thread):
             if self.relay_mode == 1:
                 self.relay_callback('/relay', [1])
 
-        # Twittering
+        # Twitting
         # mode = 0 means Off, mode = 1 means On
         self.twitter_mode = 0
         if 'twitter' in self.station:
@@ -146,7 +146,16 @@ class Station(Thread):
                 self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
                 self.twitter_callback('/twitter', [1])
 
-        # OSC
+        # Recording
+        # mode = 0 means Off, mode = 1 means On
+        self.record_mode = 0
+        if 'record' in self.station:
+            self.record_mode = int(self.station['record']['mode'])
+            self.record_dir = self.station['record']['dir']
+            if self.record_mode == 1:
+                self.record_callback('/write', [1])
+
+        # OSCing
         self.osc_control_mode = 0
         # mode = 0 means Off, mode = 1 means On
         if 'control' in self.station:
@@ -160,6 +169,8 @@ class Station(Thread):
                 self.osc_controller.add_method('/media/relay', 'i', self.relay_callback)
                 self.osc_controller.add_method('/twitter', 'i', self.twitter_callback)
                 self.osc_controller.add_method('/jingles', 'i', self.jingles_callback)
+                self.osc_controller.add_method('/record', 'i', self.record_callback)
+
 
     def media_next_callback(self, path, value):
         value = value[0]
@@ -194,6 +205,25 @@ class Station(Thread):
             self.jingles_length = len(self.jingles_list)
             self.jingle_id = 0
         self.jingles_mode = value
+        message = "Received OSC message '%s' with arguments '%d'" % (path, value)
+        self.logger.write(message)
+
+    def record_callback(self, path, value):
+        value = value[0]
+        if value == 1:
+            self.rec_file = self.short_name + '-' + \
+              datetime.datetime.now().strftime("%x-%X").replace('/', '_') + '.' + self.channel.format
+            self.recorder = Recorder(self.record_dir)
+            self.recorder.open(self.rec_file)
+        elif value == 0:
+            self.recorder.close()
+            if self.channel.format == 'mp3':
+                media = Mp3(self.record_dir + os.sep + self.rec_file)
+            if self.channel.format == 'ogg':
+                media = Ogg(self.record_dir + os.sep + self.rec_file)
+            media.metadata = {'artist': self.artist, 'title': self.title, 'date': str(datetime.datetime.now().strftime("%Y"))}
+            media.write_tags()
+        self.record_mode = value
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.logger.write(message)
 
@@ -401,6 +431,7 @@ class Station(Thread):
             self.q.task_done()
 
             self.q.get(1)
+
             if self.relay_mode == 1:
                 self.set_relay_mode()
             elif os.path.exists(self.media) and not os.sep+'.' in self.media:
@@ -420,9 +451,16 @@ class Station(Thread):
                     if self.next_media == 1:
                         break
                 except:
-                    self.logger.write('ERROR : Station ' + self.short_name + ' : could not send the buffer... ')
+                    self.logger.write('ERROR : Station ' + self.short_name + ' : could not send the buffer to the server ')
                     self.channel.close()
                     self.channel.open()
                     continue
+                try:
+                    if self.record_mode == 1:
+                        self.recorder.write(self.chunk)
+                except:
+                    self.logger.write('ERROR : Station ' + self.short_name + ' : could not write the buffer to the file ')
+                    continue
                 self.q.task_done()
+
         self.channel.close()

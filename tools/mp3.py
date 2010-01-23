@@ -9,16 +9,16 @@
 # and video data through icecast2 servers.
 
 # This software is governed by the CeCILL  license under French law and
-# abiding by the rules of distribution of free software.  You can  use, 
+# abiding by the rules of distribution of free software.  You can  use,
 # modify and/ or redistribute the software under the terms of the CeCILL
 # license as circulated by CEA, CNRS and INRIA at the following URL
-# "http://www.cecill.info". 
+# "http://www.cecill.info".
 
 # As a counterpart to the access to the source code and  rights to copy,
 # modify and redistribute granted by the license, users are provided only
 # with a limited warranty  and the software's author,  the holder of the
 # economic rights,  and the successive licensors  have only  limited
-# liability. 
+# liability.
 
 # In this respect, the user's attention is drawn to the risks associated
 # with loading,  using,  modifying and/or developing or reproducing the
@@ -27,8 +27,8 @@
 # therefore means  that it is reserved for developers  and  experienced
 # professionals having in-depth computer knowledge. Users are therefore
 # encouraged to load and test the software's suitability as regards their
-# requirements in conditions enabling the security of their systems and/or 
-# data to be ensured and,  more generally, to use and operate it in the 
+# requirements in conditions enabling the security of their systems and/or
+# data to be ensured and,  more generally, to use and operate it in the
 # same conditions as regards security.
 
 # The fact that you are presently reading this means that you have had
@@ -48,7 +48,7 @@ EasyID3.valid_keys["copyright"]="TCOP::'XXX'"
 
 class Mp3:
     """A MP3 file object"""
-    
+
     def __init__(self, media):
         self.media = media
         self.item_id = ''
@@ -78,10 +78,10 @@ class Mp3:
         self.extension = self.get_file_extension()
         self.size = os.path.getsize(media)
         #self.args = self.get_args()
-                    
+
     def get_format(self):
         return 'MP3'
-    
+
     def get_file_extension(self):
         return 'mp3'
 
@@ -90,7 +90,7 @@ class Mp3:
 
     def get_description(self):
         return "MPEG audio Layer III"
-    
+
     def get_file_metadata(self):
         metadata = {}
         for key in self.keys2id3.keys():
@@ -111,25 +111,30 @@ class Mp3:
     def write_tags(self):
         """Write all ID3v2.4 tags by mapping dub2id3_dict dictionnary with the
             respect of mutagen classes and methods"""
-        id3 = id3.ID3(self.media)
+        from mutagen import id3
+        m = MP3(self.media)
+        m.add_tags()
+        m.tags['TIT2'] = id3.TIT2(encoding=2, text=u'text')
+        m.save()
+        media = id3.ID3(self.media)
         for tag in self.metadata.keys():
-            if tag in self.dub2id3_dict.keys():
-                frame_text = self.dub2id3_dict[tag]
+            if tag in self.keys2id3.keys():
+                frame_text = self.keys2id3[tag]
                 value = self.metadata[tag]
-                frame = mutagen.id3.Frames[frame_text](3,value)
+                frame = id3.Frames[frame_text](3,value)
                 try:
-                    id3.add(frame)
+                    media.add(frame)
                 except:
                     raise IOError('ExporterError: cannot tag "'+tag+'"')
         try:
-            id3.save()
+            media.save()
         except:
             raise IOError('ExporterError: cannot write tags')
 
     def get_args(self, options=None):
         """Get process options and return arguments for the encoder"""
         args = []
-        if not options is None: 
+        if not options is None:
             self.options = options
             if not ( 'verbose' in self.options and self.options['verbose'] != '0' ):
                 args.append('-S')

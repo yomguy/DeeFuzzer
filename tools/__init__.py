@@ -6,6 +6,7 @@ from mp3 import *
 from ogg import *
 from logger import *
 from player import *
+from recorder import *
 from osc import *
 from twitt import *
 from relay import *

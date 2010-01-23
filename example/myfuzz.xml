@@ -89,6 +89,12 @@
             <!-- The URL of the station to relay -->
             <url>http://anotherdomain.com:8000/stream.mp3</url>
         </relay>
+        <record>
+            <!-- If '1', the stream will be recorded, '0' does nothing -->
+            <mode>0</mode>
+            <!-- The directory where files will be recorded -->
+            <dir>/path/to/archives</dir>
+        </record>
     </station>
 
     <!-- Note that you can add many different stations in the same config file, thanks to the multi-threaded architecure ! -->
