@@ -143,7 +143,6 @@ class Station(Thread):
             self.twitter_tags = self.station['twitter']['tags'].split(' ')
             self.twitter = Twitter(self.twitter_user, self.twitter_pass)
             if self.twitter_mode == 1:
-                self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
                 self.twitter_callback('/twitter', [1])
 
         # Recording
@@ -195,6 +194,7 @@ class Station(Thread):
     def twitter_callback(self, path, value):
         value = value[0]
         self.twitter_mode = value
+        self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.logger.write(message)
 
