@@ -283,7 +283,7 @@ class Station(Thread):
                         if self.twitter_mode == 1:
                             artist_names = artist.split(' ')
                             artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
-                            message = 'New track ! %s %s on #%s' % (song.replace('_', ' '), artist_tags, self.short_name)
+                            message = '#newtrack ! %s #%s on #%s' % (song.replace('_', ' '), artist_tags, self.short_name)
                             self.update_twitter(message)
 
                 if self.mode_shuffle == 1:
