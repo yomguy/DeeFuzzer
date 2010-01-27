@@ -63,7 +63,7 @@ class Station(Thread):
        # Media
         self.media_dir = self.station['media']['dir']
         self.channel.format = self.station['media']['format']
-        self.mode_shuffle = int(self.station['media']['shuffle'])
+        self.shuffle_mode = int(self.station['media']['shuffle'])
         self.bitrate = self.station['media']['bitrate']
         self.ogg_quality = self.station['media']['ogg_quality']
         self.samplerate = self.station['media']['samplerate']
@@ -113,6 +113,7 @@ class Station(Thread):
 
         # The station's player
         self.player = Player()
+        self.player_mode = 0
 
         # Jingling between each media.
         # mode = 0 means Off, mode = 1 means On
@@ -169,6 +170,7 @@ class Station(Thread):
                 self.osc_controller.add_method('/twitter', 'i', self.twitter_callback)
                 self.osc_controller.add_method('/jingles', 'i', self.jingles_callback)
                 self.osc_controller.add_method('/record', 'i', self.record_callback)
+                self.osc_controller.add_method('/player', 'i', self.player_callback)
 
 
     def media_next_callback(self, path, value):
@@ -227,6 +229,12 @@ class Station(Thread):
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.logger.write(message)
 
+    def player_callback(self, path, value):
+        value = value[0]
+        self.player_mode = value
+        message = "Received OSC message '%s' with arguments '%d'" % (path, value)
+        self.logger.write(message)
+        
     def get_playlist(self):
         file_list = []
         for root, dirs, files in os.walk(self.media_dir):
@@ -286,7 +294,7 @@ class Station(Thread):
                             message = '#newtrack ! %s #%s on #%s' % (song.replace('_', ' '), artist_tags, self.short_name)
                             self.update_twitter(message)
 
-                if self.mode_shuffle == 1:
+                if self.shuffle_mode == 1:
                     # Shake it, Fuzz it !
                     random.shuffle(self.playlist)
 
@@ -420,7 +428,10 @@ class Station(Thread):
         self.logger.write('Deefuzzing this file on %s :  id = %s, name = %s' \
             % (self.short_name, self.id, self.current_media_obj[0].file_name))
         self.player.set_media(self.media)
-        self.stream = self.player.file_read_slow()
+        if self.player_mode == 0:
+            self.stream = self.player.file_read_slow()
+        elif self.player_mode == 1:
+            self.stream = self.player.file_read_fast()
 
     def run(self):
         while True:

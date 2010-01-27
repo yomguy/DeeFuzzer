@@ -58,4 +58,4 @@ class OSCController(Thread):
 
     def run(self):
         while True:
-            self.server.recv(1000)
+            self.server.recv(100)
