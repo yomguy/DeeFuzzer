@@ -120,14 +120,12 @@ class DeeFuzzer(Thread):
         if not os.path.exists(m3u_dir):
             os.makedirs(m3u_dir)
         m3u = open(self.m3u, 'w')
-        i = 1
         m3u.write('#EXTM3U\n')
         for s in self.stations:
-            info = '#EXTINF:%s,%s' % (str(i), s.channel.name + ' (' + s.short_name + ')\n')
+            info = '#EXTINF:%s,%s - %s\n' % ('-1',s.short_name, s.channel.name)
             url =  s.channel.protocol + '://' + s.channel.host + ':' + str(s.channel.port) + s.channel.mount + '\n'
             m3u.write(info)
             m3u.write(url)
-            i += 1
         m3u.close()
         self.logger.write('Writing M3U file to : ' + self.m3u)
 

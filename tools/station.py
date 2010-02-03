@@ -76,7 +76,7 @@ class Station(Thread):
         # Infos
         self.channel.url = self.station['infos']['url']
         self.short_name = self.station['infos']['short_name']
-        self.channel.name = self.station['infos']['name'] + ' ' + self.channel.url
+        self.channel.name = self.station['infos']['name'] + ' : ' + self.channel.url
         self.channel.genre = self.station['infos']['genre']
         self.channel.description = self.station['infos']['description']
         self.base_name = self.rss_dir + os.sep + self.short_name + '_' + self.channel.format
@@ -235,7 +235,7 @@ class Station(Thread):
         self.player_mode = value
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.logger.write(message)
-        
+
     def get_playlist(self):
         file_list = []
         for root, dirs, files in os.walk(self.media_dir):
@@ -449,7 +449,7 @@ class Station(Thread):
                     break
                 self.set_read_mode()
             self.q.task_done()
-            
+
             self.q.get(1)
             if (not (self.jingles_mode == 1 and (self.counter % 2) == 1) or self.relay_mode == 1) and self.twitter_mode == 1:
                 self.update_twitter()

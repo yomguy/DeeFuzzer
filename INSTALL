@@ -10,11 +10,13 @@
 # Author: Guillaume Pellerin <pellerin@parisson.com>
 
  depends:  python, python-dev, python-xml, python-shout | shout-python, libshout3,
-           libshout3-dev, icecast2, python-mutagen
-
- recommends: python-twitter, python-tinyurl, python-liblo | pyliblo (>= 0.26)
+           libshout3-dev, python-mutagen
 
  provides:  shout-python
+
+ optional: python-twitter, python-tinyurl, python-liblo | pyliblo (>= 0.26)
+
+ recommends: icecast2
 
 python-shout is included in the DeeFuzzer but needs to be compiled and installed
 if you don't install deefuzzer from its debian package with aptitude.
