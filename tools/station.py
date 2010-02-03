@@ -198,6 +198,7 @@ class Station(Thread):
         self.twitter_mode = value
         self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
+        self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
         self.logger.write(message)
 
     def jingles_callback(self, path, value):
@@ -439,9 +440,6 @@ class Station(Thread):
             self.next_media = 0
             self.media = self.get_next_media()
             self.counter += 1
-            self.q.task_done()
-
-            self.q.get(1)
 
             if self.relay_mode == 1:
                 self.set_relay_mode()
@@ -450,6 +448,9 @@ class Station(Thread):
                     self.logger.write('Error : Station ' + self.short_name + ' has no media to stream !')
                     break
                 self.set_read_mode()
+            self.q.task_done()
+            
+            self.q.get(1)
             if (not (self.jingles_mode == 1 and (self.counter % 2) == 1) or self.relay_mode == 1) and self.twitter_mode == 1:
                 self.update_twitter()
             self.q.task_done()

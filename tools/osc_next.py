@@ -7,8 +7,7 @@ import liblo, sys
 try:
     target = liblo.Address(1234)
 except liblo.AddressError, err:
-    print str(err)
-    sys.exit()
+    sys.exit(err)
 
 # send message "/foo/message1" with int, float and string arguments
 liblo.send(target, "/media/next", 1)
