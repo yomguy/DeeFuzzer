@@ -239,7 +239,7 @@ class Station(Thread):
 
     def get_playlist(self):
         file_list = []
-        for root, dirs, files in os.walk(self.media_dir, followlinks=True):
+        for root, dirs, files in os.walk(self.media_dir):
             for file in files:
                 s = file.split('.')
                 ext = s[len(s)-1]
