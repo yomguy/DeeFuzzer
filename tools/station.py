@@ -197,9 +197,9 @@ class Station(Thread):
     def twitter_callback(self, path, value):
         value = value[0]
         self.twitter_mode = value
-        self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
-        self.tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
+        self.m3u_tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
+        self.rss_tinyurl = tinyurl.create_one(self.channel.url + '/rss/' + self.rss_playlist_file.split(os.sep)[-1])
         self.logger.write(message)
 
     def jingles_callback(self, path, value):
@@ -293,7 +293,9 @@ class Station(Thread):
                         if self.twitter_mode == 1:
                             artist_names = artist.split(' ')
                             artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
-                            message = '#newtrack ! %s #%s on #%s' % (song.replace('_', ' '), artist_tags, self.short_name)
+                            message = '#newtrack ! %s #%s on #%s RSS : ' % (song.replace('_', ' '), artist_tags, self.short_name)
+                            message = message[:113] + self.rss_tinyurl
+                            message = message.decode('utf8')
                             self.update_twitter(message)
 
                 if self.shuffle_mode == 1:
@@ -395,12 +397,16 @@ class Station(Thread):
             artist_names = self.artist.split(' ')
             artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
             message = '♫ %s %s on #%s #%s' % (self.prefix, self.song, self.short_name, artist_tags)
-        tags = '#' + ' #'.join(self.twitter_tags)
-        message = message + ' ' + tags
-        message = message[:113] + ' ' + self.tinyurl
-        message = message.decode('utf8')
-        self.logger.write('Twitting : "' + message + '"')
-        self.twitter.post(message)
+            tags = '#' + ' #'.join(self.twitter_tags)
+            message = message + ' ' + tags
+            message = message[:107] + ' M3U : ' + self.m3u_tinyurl
+            message = message.decode('utf8')
+        try:
+            self.twitter.post(message)
+            self.logger.write('Twitting : "' + message + '"')
+        except:
+            self.logger.write('ERROR Twitting : "' + message + '"')
+            pass
 
     def set_relay_mode(self):
         self.prefix = '#nowplaying (relaying *LIVE*) :'
