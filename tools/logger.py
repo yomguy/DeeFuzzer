@@ -1,10 +1,11 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 import logging
 
 class Logger:
     """A logging object"""
-    
+
     def __init__(self, file):
         self.logger = logging.getLogger('myapp')
         self.hdlr = logging.FileHandler(file)
@@ -13,8 +14,9 @@ class Logger:
         self.logger.addHandler(self.hdlr)
         self.logger.setLevel(logging.INFO)
 
-    def write(self, message):
+    def write_info(self, message):
         self.logger.info(message)
 
+    def write_error(self, message):
+        self.logger.error(message)
 
-    

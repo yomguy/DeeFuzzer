@@ -102,12 +102,12 @@ class DeeFuzzer(Thread):
             self.nb_stations = len(self.conf['deefuzzer']['station'])
 
         # Set the deefuzzer logger
-        self.logger.write('Starting DeeFuzzer v' + version)
-        self.logger.write('Using libshout version %s' % shout.version())
+        self.logger.write_info('Starting DeeFuzzer v' + version)
+        self.logger.write_info('Using libshout version %s' % shout.version())
 
         # Init all Stations
         self.stations = []
-        self.logger.write('Number of stations : ' + str(self.nb_stations))
+        self.logger.write_info('Number of stations : ' + str(self.nb_stations))
 
     def get_conf_dict(self):
         confile = open(self.conf_file,'r')
@@ -127,7 +127,7 @@ class DeeFuzzer(Thread):
             m3u.write(info)
             m3u.write(url)
         m3u.close()
-        self.logger.write('Writing M3U file to : ' + self.m3u)
+        self.logger.write_info('Writing M3U file to : ' + self.m3u)
 
 
     def run(self):

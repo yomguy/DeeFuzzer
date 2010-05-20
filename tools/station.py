@@ -103,7 +103,7 @@ class Station(Thread):
         self.channel_delay = self.channel.delay()
 
         # Logging
-        self.logger.write('Opening ' + self.short_name + ' - ' + self.channel.name + \
+        self.logger.write_info('Opening ' + self.short_name + ' - ' + self.channel.name + \
                 ' (' + str(self.lp) + ' tracks)...')
 
         self.metadata_relative_dir = 'metadata'
@@ -178,7 +178,7 @@ class Station(Thread):
         value = value[0]
         self.next_media = value
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
-        self.logger.write(message)
+        self.logger.write_info(message)
 
     def relay_callback(self, path, value):
         value = value[0]
@@ -190,9 +190,9 @@ class Station(Thread):
             self.player.stop_relay()
         self.next_media = 1
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
-        self.logger.write(message)
+        self.logger.write_info(message)
         message = "Relaying : %s" % self.relay_url
-        self.logger.write(message)
+        self.logger.write_info(message)
 
     def twitter_callback(self, path, value):
         value = value[0]
@@ -200,7 +200,7 @@ class Station(Thread):
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.m3u_tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
         self.rss_tinyurl = tinyurl.create_one(self.channel.url + '/rss/' + self.rss_playlist_file.split(os.sep)[-1])
-        self.logger.write(message)
+        self.logger.write_info(message)
 
     def jingles_callback(self, path, value):
         value = value[0]
@@ -210,7 +210,7 @@ class Station(Thread):
             self.jingle_id = 0
         self.jingles_mode = value
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
-        self.logger.write(message)
+        self.logger.write_info(message)
 
     def record_callback(self, path, value):
         value = value[0]
@@ -229,13 +229,13 @@ class Station(Thread):
             media.write_tags()
         self.record_mode = value
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
-        self.logger.write(message)
+        self.logger.write_info(message)
 
     def player_callback(self, path, value):
         value = value[0]
         self.player_mode = value
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
-        self.logger.write(message)
+        self.logger.write_info(message)
 
     def get_playlist(self):
         file_list = []
@@ -293,16 +293,15 @@ class Station(Thread):
                         if self.twitter_mode == 1:
                             artist_names = artist.split(' ')
                             artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
-                            message = '#newtrack ! %s #%s on #%s RSS : ' % (song.replace('_', ' '), artist_tags, self.short_name)
+                            message = '#newtrack ! %s #%s on #%s RSS: ' % (song.replace('_', ' '), artist_tags, self.short_name)
                             message = message[:113] + self.rss_tinyurl
-                            message = message.decode('utf8')
                             self.update_twitter(message)
 
                 if self.shuffle_mode == 1:
                     # Shake it, Fuzz it !
                     random.shuffle(self.playlist)
 
-                self.logger.write('Station ' + self.short_name + \
+                self.logger.write_info('Station ' + self.short_name + \
                                  ' : generating new playlist (' + str(self.lp) + ' tracks)')
                 self.update_rss(self.media_to_objs(self.playlist), self.rss_playlist_file, '(playlist)')
 
@@ -315,7 +314,7 @@ class Station(Thread):
             return media
         else:
             mess = 'No media in media_dir !'
-            self.logger.write(mess)
+            self.logger.write_error(mess)
             sys.exit(mess)
 
     def media_to_objs(self, media_list):
@@ -392,20 +391,12 @@ class Station(Thread):
         rss.write_xml(f, 'utf-8')
         f.close()
 
-    def update_twitter(self, message=None):
-        if not message:
-            artist_names = self.artist.split(' ')
-            artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
-            message = '♫ %s %s on #%s #%s' % (self.prefix, self.song, self.short_name, artist_tags)
-            tags = '#' + ' #'.join(self.twitter_tags)
-            message = message + ' ' + tags
-            message = message[:107] + ' M3U : ' + self.m3u_tinyurl
-            message = message.decode('utf8')
+    def update_twitter(self, message):
         try:
-            self.twitter.post(message)
-            self.logger.write('Twitting : "' + message + '"')
+            self.twitter.post(message.decode('utf8'))
+            self.logger.write_info('Twitting : "' + message + '"')
         except:
-            self.logger.write('ERROR Twitting : "' + message + '"')
+            self.logger.write_error('Twitting : "' + message + '"')
             pass
 
     def set_relay_mode(self):
@@ -433,7 +424,7 @@ class Station(Thread):
         self.update_rss(self.current_media_obj, self.metadata_file, '')
         self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
         self.update_rss(self.current_media_obj, self.rss_current_file, '(currently playing)')
-        self.logger.write('Deefuzzing this file on %s :  id = %s, name = %s' \
+        self.logger.write_info('Deefuzzing on %s :  id = %s, name = %s' \
             % (self.short_name, self.id, self.current_media_obj[0].file_name))
         self.player.set_media(self.media)
         if self.player_mode == 0:
@@ -452,14 +443,20 @@ class Station(Thread):
                 self.set_relay_mode()
             elif os.path.exists(self.media) and not os.sep+'.' in self.media:
                 if self.lp == 0:
-                    self.logger.write('Error : Station ' + self.short_name + ' has no media to stream !')
+                    self.logger.write_error('Station ' + self.short_name + ' has no media to stream !')
                     break
                 self.set_read_mode()
             self.q.task_done()
 
             self.q.get(1)
             if (not (self.jingles_mode == 1 and (self.counter % 2) == 1) or self.relay_mode == 1) and self.twitter_mode == 1:
-                self.update_twitter()
+                artist_names = self.artist.split(' ')
+                artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
+                message = '♫ %s %s on #%s #%s' % (self.prefix, self.song, self.short_name, artist_tags)
+                tags = '#' + ' #'.join(self.twitter_tags)
+                message = message + ' ' + tags
+                message = message[:107] + ' M3U: ' + self.m3u_tinyurl
+                self.update_twitter(message)
             self.q.task_done()
 
             for self.chunk in self.stream:
@@ -470,7 +467,7 @@ class Station(Thread):
                     if self.next_media == 1:
                         break
                 except:
-                    self.logger.write('ERROR : Station ' + self.short_name + ' : could not send the buffer to the server ')
+                    self.logger.write_error('Station ' + self.short_name + ' : could not send the buffer to the server ')
                     self.channel.close()
                     self.channel.open()
                     continue
@@ -478,7 +475,7 @@ class Station(Thread):
                     if self.record_mode == 1:
                         self.recorder.write(self.chunk)
                 except:
-                    self.logger.write('ERROR : Station ' + self.short_name + ' : could not write the buffer to the file ')
+                    self.logger.write_error('Station ' + self.short_name + ' : could not write the buffer to the file ')
                     continue
                 self.q.task_done()
 
