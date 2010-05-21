@@ -293,7 +293,7 @@ class Station(Thread):
                         if self.twitter_mode == 1:
                             artist_names = artist.split(' ')
                             artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
-                            message = '#newtrack ! %s #%s on #%s RSS: ' % (song.replace('_', ' '), artist_tags, self.short_name)
+                            message = '#newtrack ! %s #%s on #%s RSS : ' % (song.replace('_', ' '), artist_tags, self.short_name)
                             message = message[:113] + self.rss_tinyurl
                             self.update_twitter(message)
 
@@ -400,7 +400,7 @@ class Station(Thread):
             pass
 
     def set_relay_mode(self):
-        self.prefix = '#nowplaying (relaying *LIVE*) :'
+        self.prefix = '#nowplaying (relaying #LIVE)'
         song = self.relay_url
         self.song = song.encode('utf-8')
         self.artist = 'Various'
@@ -408,7 +408,7 @@ class Station(Thread):
         self.stream = self.player.relay_read()
 
     def set_read_mode(self):
-        self.prefix = '#nowplaying :'
+        self.prefix = '#nowplaying'
         self.current_media_obj = self.media_to_objs([self.media])
         self.title = self.current_media_obj[0].metadata['title']
         self.artist = self.current_media_obj[0].metadata['artist']
@@ -455,7 +455,7 @@ class Station(Thread):
                 message = '♫ %s %s on #%s #%s' % (self.prefix, self.song, self.short_name, artist_tags)
                 tags = '#' + ' #'.join(self.twitter_tags)
                 message = message + ' ' + tags
-                message = message[:107] + ' M3U: ' + self.m3u_tinyurl
+                message = message[:107] + ' M3U : ' + self.m3u_tinyurl
                 self.update_twitter(message)
             self.q.task_done()
 
@@ -467,9 +467,13 @@ class Station(Thread):
                     if self.next_media == 1:
                         break
                 except:
-                    self.logger.write_error('Station ' + self.short_name + ' : could not send the buffer to the server ')
                     self.channel.close()
-                    self.channel.open()
+                    self.logger.write_error('Station ' + self.short_name + ' : could not send the buffer to the server ')
+                    try:
+                        self.channel.open()
+                    except:
+                        self.logger.write_error('Station ' + self.short_name + ' : could connect to the server ')
+                        continue
                     continue
                 try:
                     if self.record_mode == 1:
