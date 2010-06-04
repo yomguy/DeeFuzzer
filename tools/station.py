@@ -156,6 +156,10 @@ class Station(Thread):
             if self.record_mode == 1:
                 self.record_callback('/write', [1])
 
+        # Running
+        # mode = 0 means Off, mode = 1 means On
+        self.run_mode = 1
+
         # OSCing
         self.osc_control_mode = 0
         # mode = 0 means Off, mode = 1 means On
@@ -172,7 +176,13 @@ class Station(Thread):
                 self.osc_controller.add_method('/jingles', 'i', self.jingles_callback)
                 self.osc_controller.add_method('/record', 'i', self.record_callback)
                 self.osc_controller.add_method('/player', 'i', self.player_callback)
+                self.osc_controller.add_method('/run', 'i', self.run_callback)
 
+    def run_callback(self, path, value):
+        value = value[0]
+        self.run_mode = value
+        message = "Received OSC message '%s' with arguments '%d'" % (path, value)
+        self.logger.write_info(message)
 
     def media_next_callback(self, path, value):
         value = value[0]
@@ -433,13 +443,13 @@ class Station(Thread):
             self.stream = self.player.file_read_fast()
 
     def run(self):
-        while True:
+        while self.run_mode:
             self.q.get(1)
             self.next_media = 0
             self.media = self.get_next_media()
             self.counter += 1
 
-            if self.relay_mode == 1:
+            if self.relay_mode:
                 self.set_relay_mode()
             elif os.path.exists(self.media) and not os.sep+'.' in self.media:
                 if self.lp == 0:
@@ -449,7 +459,7 @@ class Station(Thread):
             self.q.task_done()
 
             self.q.get(1)
-            if (not (self.jingles_mode == 1 and (self.counter % 2) == 1) or self.relay_mode == 1) and self.twitter_mode == 1:
+            if (not (self.jingles_mode and (self.counter % 2)) or self.relay_mode) and self.twitter_mode:
                 artist_names = self.artist.split(' ')
                 artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
                 message = '♫ %s %s on #%s #%s' % (self.prefix, self.song, self.short_name, artist_tags)
@@ -461,11 +471,11 @@ class Station(Thread):
 
             for self.chunk in self.stream:
                 self.q.get(1)
+                if self.next_media or not self.run_mode:
+                    break
                 try:
                     self.channel.send(self.chunk)
                     self.channel.sync()
-                    if self.next_media == 1:
-                        break
                 except:
                     self.channel.close()
                     self.logger.write_error('Station ' + self.short_name + ' : could not send the buffer to the server ')
@@ -476,7 +486,7 @@ class Station(Thread):
                         continue
                     continue
                 try:
-                    if self.record_mode == 1:
+                    if self.record_mode:
                         self.recorder.write(self.chunk)
                 except:
                     self.logger.write_error('Station ' + self.short_name + ' : could not write the buffer to the file ')

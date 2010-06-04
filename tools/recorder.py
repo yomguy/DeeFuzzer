@@ -50,6 +50,7 @@ class Recorder:
 
     def write(self, chunk):
         self.media.write(chunk)
+        self.media.flush()
 
     def close(self):
         self.media.close()
