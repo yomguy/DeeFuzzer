@@ -171,7 +171,7 @@ class Station(Thread):
                 self.osc_controller.start()
                 # OSC paths and callbacks
                 self.osc_controller.add_method('/media/next', 'i', self.media_next_callback)
-                self.osc_controller.add_method('/media/relay', 'i', self.relay_callback)
+                self.osc_controller.add_method('/relay', 'i', self.relay_callback)
                 self.osc_controller.add_method('/twitter', 'i', self.twitter_callback)
                 self.osc_controller.add_method('/jingles', 'i', self.jingles_callback)
                 self.osc_controller.add_method('/record', 'i', self.record_callback)
