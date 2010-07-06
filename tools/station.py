@@ -154,7 +154,7 @@ class Station(Thread):
             self.record_mode = int(self.station['record']['mode'])
             self.record_dir = self.station['record']['dir']
             if self.record_mode == 1:
-                self.record_callback('/write', [1])
+                self.record_callback('/record', [1])
 
         # Running
         # mode = 0 means Off, mode = 1 means On
