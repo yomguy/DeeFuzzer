@@ -132,6 +132,7 @@ class Station(Thread):
         if 'relay' in self.station:
             self.relay_mode = int(self.station['relay']['mode'])
             self.relay_url = self.station['relay']['url']
+            self.relay_author = self.station['relay']['author']
             if self.relay_mode == 1:
                 self.relay_callback('/relay', [1])
 
@@ -235,10 +236,10 @@ class Station(Thread):
                 media = Mp3(self.record_dir + os.sep + self.rec_file)
             if self.channel.format == 'ogg':
                 media = Ogg(self.record_dir + os.sep + self.rec_file)
-            media.metadata = {'artist': self.artist, 'title': self.title, 'date': str(datetime.datetime.now().strftime("%Y"))}
+            media.metadata = {'artist': self.artist, 'title': self.title, 'album': self.short_name, 'genre': self.channel.genre}
             media.write_tags()
         self.record_mode = value
-        message = "Received OSC message '%s' with arguments '%d'" % (path, value)
+        message = "Received OSC message '%s' with arguments '%d' : Writing metatada to the file..." % (path, value)
         self.logger.write_info(message)
 
     def player_callback(self, path, value):
@@ -411,10 +412,12 @@ class Station(Thread):
 
     def set_relay_mode(self):
         self.prefix = '#nowplaying (relaying #LIVE)'
-        song = self.relay_url
-        self.song = song.encode('utf-8')
-        self.artist = 'Various'
-        self.channel.set_metadata({'song': self.short_name + ' relaying : ' + self.song, 'charset': 'utf8',})
+        self.title = self.channel.description.encode('utf-8')
+        self.artist = self.relay_author.encode('utf-8')
+        self.title = self.title.replace('_', ' ')
+        self.artist = self.artist.replace('_', ' ')
+        self.song = self.artist + ' : ' + self.title
+        self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
         self.stream = self.player.relay_read()
 
     def set_read_mode(self):

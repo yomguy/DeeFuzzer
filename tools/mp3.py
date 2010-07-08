@@ -41,6 +41,7 @@ import string
 import datetime
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3, MPEGInfo
+from mutagen import id3
 from tools import *
 
 EasyID3.valid_keys["comment"]="COMM::'XXX'"
@@ -68,7 +69,18 @@ class Mp3:
         self.info = self.mp3.info
         self.bitrate = int(str(self.info.bitrate)[:-3])
         self.length = datetime.timedelta(0,self.info.length)
-        self.metadata = self.get_file_metadata()
+        try:
+            self.metadata = self.get_file_metadata()
+        except:
+            self.metadata = {'title': '',
+                    'artist': '',
+                    'album': '',
+                    'date': '',
+                    'comment': '',
+                    'genre': '',
+                    'copyright': '',
+                    }
+        
         self.description = self.get_description()
         self.mime_type = self.get_mime_type()
         self.media_info = get_file_info(self.media)
@@ -98,60 +110,27 @@ class Mp3:
                 metadata[key] = self.mp3[key][0]
             except:
                 metadata[key] = ''
+        self.mp3.close()
         return metadata
-
-    def decode(self):
-        try:
-            os.system('sox "'+self.media+'" -s -q -r 44100 -t wav "' \
-                        +self.cache_dir+os.sep+self.item_id+'"')
-            return self.cache_dir+os.sep+self.metadata['title']+'.wav'
-        except:
-            raise IOError('ExporterError: decoder is not compatible.')
-
+            
     def write_tags(self):
         """Write all ID3v2.4 tags by mapping dub2id3_dict dictionnary with the
             respect of mutagen classes and methods"""
-        from mutagen import id3
+       
         m = MP3(self.media)
         m.add_tags()
         m.tags['TIT2'] = id3.TIT2(encoding=2, text=u'text')
         m.save()
+
         media = id3.ID3(self.media)
-        for tag in self.metadata.keys():
-            if tag in self.keys2id3.keys():
-                frame_text = self.keys2id3[tag]
-                value = self.metadata[tag]
-                frame = id3.Frames[frame_text](3,value)
-                try:
-                    media.add(frame)
-                except:
-                    raise IOError('ExporterError: cannot tag "'+tag+'"')
+        media.add(id3.TIT2(encoding=3, text=self.metadata['title'].decode('utf8')))
+        media.add(id3.TP1(encoding=3, text=self.metadata['artist'].decode('utf8')))
+        media.add(id3.TAL(encoding=3, text=self.metadata['album'].decode('utf8')))
+        media.add(id3.TDRC(encoding=3, text=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+        media.add(id3.TCO(encoding=3, text=self.metadata['genre'].decode('utf8')))
         try:
             media.save()
         except:
             raise IOError('ExporterError: cannot write tags')
 
-    def get_args(self, options=None):
-        """Get process options and return arguments for the encoder"""
-        args = []
-        if not options is None:
-            self.options = options
-            if not ( 'verbose' in self.options and self.options['verbose'] != '0' ):
-                args.append('-S')
-            if 'mp3_bitrate' in self.options:
-                args.append('-b ' + self.options['mp3_bitrate'])
-            else:
-                args.append('-b '+self.bitrate_default)
-            #Copyrights, etc..
-            args.append('-c -o')
-        else:
-            args.append('-S -c -o')
 
-        for tag in self.metadata.keys():
-            if tag in self.dub2args_dict.keys():
-                arg = self.dub2args_dict[tag]
-                value = self.metadata[tag]
-                args.append('--' + arg)
-                args.append('"' + value + '"')
-
-        return args
