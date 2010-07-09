@@ -69,7 +69,17 @@ class Mp3:
         self.info = self.mp3.info
         self.bitrate = int(str(self.info.bitrate)[:-3])
         self.length = datetime.timedelta(0,self.info.length)
-        self.metadata = self.get_file_metadata()
+        try:
+            self.metadata = self.get_file_metadata()
+        except:
+            self.metadata = {'title': '',
+                    'artist': '',
+                    'album': '',
+                    'date': '',
+                    'comment': '',
+                    'genre': '',
+                    'copyright': '',
+                    }
 
         self.description = self.get_description()
         self.mime_type = self.get_mime_type()
