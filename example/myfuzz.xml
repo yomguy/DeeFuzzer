@@ -88,6 +88,8 @@
             <mode>0</mode>
             <!-- The URL of the station to relay -->
             <url>http://anotherdomain.com:8000/stream.mp3</url>
+            <!-- The default author of the relay streams -->
+            <author>Me</author>
         </relay>
         <record>
             <!-- If '1', the stream will be recorded, '0' does nothing -->

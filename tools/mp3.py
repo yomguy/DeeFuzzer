@@ -69,18 +69,8 @@ class Mp3:
         self.info = self.mp3.info
         self.bitrate = int(str(self.info.bitrate)[:-3])
         self.length = datetime.timedelta(0,self.info.length)
-        try:
-            self.metadata = self.get_file_metadata()
-        except:
-            self.metadata = {'title': '',
-                    'artist': '',
-                    'album': '',
-                    'date': '',
-                    'comment': '',
-                    'genre': '',
-                    'copyright': '',
-                    }
-        
+        self.metadata = self.get_file_metadata()
+
         self.description = self.get_description()
         self.mime_type = self.get_mime_type()
         self.media_info = get_file_info(self.media)
@@ -110,13 +100,12 @@ class Mp3:
                 metadata[key] = self.mp3[key][0]
             except:
                 metadata[key] = ''
-        self.mp3.close()
         return metadata
-            
+
     def write_tags(self):
         """Write all ID3v2.4 tags by mapping dub2id3_dict dictionnary with the
             respect of mutagen classes and methods"""
-       
+
         m = MP3(self.media)
         m.add_tags()
         m.tags['TIT2'] = id3.TIT2(encoding=2, text=u'text')
