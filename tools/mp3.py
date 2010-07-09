@@ -106,10 +106,25 @@ class Mp3:
         """Write all ID3v2.4 tags by mapping dub2id3_dict dictionnary with the
             respect of mutagen classes and methods"""
 
-        m = MP3(self.media)
-        m.add_tags()
-        m.tags['TIT2'] = id3.TIT2(encoding=2, text=u'text')
-        m.save()
+        self.mp3.add_tags()
+        self.mp3.tags['TIT2'] = id3.TIT2(encoding=2, text=u'text')
+        self.mp3.save()
+
+        #media_id3 = id3.ID3(self.media)
+        #for tag in self.metadata.keys():
+            #if tag in self.dub2id3_dict.keys():
+                #frame_text = self.dub2id3_dict[tag]
+                #value = self.metadata[tag]
+                #frame = mutagen.id3.Frames[frame_text](3,value)
+            #try:
+                #media_id3.add(frame)
+            #except:
+                #raise IOError('ExporterError: cannot tag "'+tag+'"')
+
+        #try:
+            #media_id3.save()
+        #except:
+            #raise IOError('ExporterError: cannot write tags')
 
         media = id3.ID3(self.media)
         media.add(id3.TIT2(encoding=3, text=self.metadata['title'].decode('utf8')))
