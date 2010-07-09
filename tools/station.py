@@ -154,7 +154,7 @@ class Station(Thread):
         if 'record' in self.station:
             self.record_mode = int(self.station['record']['mode'])
             self.record_dir = self.station['record']['dir']
-            if not os.path.exists()self.record_dir):
+            if not os.path.exists(self.record_dir):
                 os.makedirs(self.record_dir)
             if self.record_mode == 1:
                 self.record_callback('/record', [1])
