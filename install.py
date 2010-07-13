@@ -52,7 +52,13 @@ if not os.path.exists(install_dir):
     os.mkdir(install_dir)
 
 os.system('cp -ra ./* '+install_dir+os.sep)
-os.system('rm -rf '+install_dir+os.sep+'debian')
+
+# Install shout-python
+os.chdir('shout-python')
+os.system('python setup.py install')
+os.chdir('..')
+
+os.system('easy_install tinyurl')
 
 if os.path.exists('/usr/bin/deefuzzer'):
     os.system('rm -r /usr/bin/deefuzzer')

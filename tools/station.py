@@ -43,7 +43,6 @@ import datetime
 import string
 import random
 import shout
-import tinyurl
 from threading import Thread
 from __init__ import *
 
@@ -144,7 +143,6 @@ class Station(Thread):
             self.twitter_user = self.station['twitter']['user']
             self.twitter_pass = self.station['twitter']['pass']
             self.twitter_tags = self.station['twitter']['tags'].split(' ')
-            self.twitter = Twitter(self.twitter_user, self.twitter_pass)
             if self.twitter_mode == 1:
                 self.twitter_callback('/twitter', [1])
 
@@ -209,6 +207,8 @@ class Station(Thread):
 
     def twitter_callback(self, path, value):
         value = value[0]
+        import tinyurl
+        self.twitter = Twitter(self.twitter_user, self.twitter_pass)
         self.twitter_mode = value
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.m3u_tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
