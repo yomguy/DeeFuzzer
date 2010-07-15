@@ -241,7 +241,7 @@ class Station(Thread):
             media.metadata = {'artist': self.artist, 'title': self.title, 'album': self.short_name, 'genre': self.channel.genre}
             media.write_tags()
         self.record_mode = value
-        message = "Received OSC message '%s' with arguments '%d' : Writing metatada to the file..." % (path, value)
+        message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.logger.write_info(message)
 
     def player_callback(self, path, value):
@@ -486,6 +486,7 @@ class Station(Thread):
                     self.logger.write_error('Station ' + self.short_name + ' : could not send the buffer to the server ')
                     try:
                         self.channel.open()
+                        self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
                     except:
                         self.logger.write_error('Station ' + self.short_name + ' : could connect to the server ')
                         continue
