@@ -43,6 +43,7 @@ import datetime
 import string
 import random
 import shout
+import shutil
 from threading import Thread
 from __init__ import *
 
@@ -230,10 +231,14 @@ class Station(Thread):
         if value == 1:
             self.rec_file = self.short_name + '-' + \
               datetime.datetime.now().strftime("%x-%X").replace('/', '_') + '.' + self.channel.format
-            self.recorder = Recorder(self.record_dir)
+            self.rec_tmp_dir = self.record_dir + os.sep + 'incomplete'
+            if not os.path.exists(self.rec_tmp_dir):
+                os.mkdir(self.rec_tmp_dir)
+            self.recorder = Recorder(self.rec_tmp_dir)
             self.recorder.open(self.rec_file)
         elif value == 0:
             self.recorder.close()
+            shutil.move(self.rec_tmp_dir + os.sep + self.rec_file, self.record_dir)
             if self.channel.format == 'mp3':
                 media = Mp3(self.record_dir + os.sep + self.rec_file)
             if self.channel.format == 'ogg':
