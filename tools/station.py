@@ -43,7 +43,6 @@ import datetime
 import string
 import random
 import shout
-import shutil
 from threading import Thread
 from __init__ import *
 
@@ -231,14 +230,10 @@ class Station(Thread):
         if value == 1:
             self.rec_file = self.short_name + '-' + \
               datetime.datetime.now().strftime("%x-%X").replace('/', '_') + '.' + self.channel.format
-            self.rec_tmp_dir = self.record_dir + os.sep + 'incomplete'
-            if not os.path.exists(self.rec_tmp_dir):
-                os.mkdir(self.rec_tmp_dir)
-            self.recorder = Recorder(self.rec_tmp_dir)
+            self.recorder = Recorder(self.record_dir)
             self.recorder.open(self.rec_file)
         elif value == 0:
             self.recorder.close()
-            shutil.move(self.rec_tmp_dir + os.sep + self.rec_file, self.record_dir)
             if self.channel.format == 'mp3':
                 media = Mp3(self.record_dir + os.sep + self.rec_file)
             if self.channel.format == 'ogg':
@@ -424,7 +419,7 @@ class Station(Thread):
         self.title = self.title.replace('_', ' ')
         self.artist = self.artist.replace('_', ' ')
         self.song = self.artist + ' : ' + self.title
-        self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
+        #self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
         self.stream = self.player.relay_read()
 
     def set_read_mode(self):
@@ -442,7 +437,7 @@ class Station(Thread):
         self.artist = self.artist.encode('utf-8')
         self.metadata_file = self.metadata_dir + os.sep + self.current_media_obj[0].file_name + '.xml'
         self.update_rss(self.current_media_obj, self.metadata_file, '')
-        self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
+        #self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
         self.update_rss(self.current_media_obj, self.rss_current_file, '(currently playing)')
         self.logger.write_info('Deefuzzing on %s :  id = %s, name = %s' \
             % (self.short_name, self.id, self.current_media_obj[0].file_name))
@@ -477,31 +472,43 @@ class Station(Thread):
                 message = message + ' ' + tags
                 message = message[:107] + ' M3U : ' + self.m3u_tinyurl
                 self.update_twitter(message)
+                self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
             self.q.task_done()
 
             for self.chunk in self.stream:
                 self.q.get(1)
+
                 if self.next_media or not self.run_mode:
                     break
-                try:
-                    self.channel.send(self.chunk)
-                    self.channel.sync()
-                except:
-                    self.channel.close()
-                    self.logger.write_error('Station ' + self.short_name + ' : could not send the buffer to the server ')
-                    try:
-                        self.channel.open()
-                        self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
-                    except:
-                        self.logger.write_error('Station ' + self.short_name + ' : could connect to the server ')
-                        continue
-                    continue
+
                 try:
                     if self.record_mode:
                         self.recorder.write(self.chunk)
                 except:
-                    self.logger.write_error('Station ' + self.short_name + ' : could not write the buffer to the file ')
+                    self.logger.write_error('Station ' + self.short_name + ' : could not write the buffer to the file')
                     continue
+
+                try:
+                    self.channel.send(self.chunk)
+                    self.channel.sync()
+                except:
+                    self.logger.write_error('Station ' + self.short_name + ' : could not send the buffer')
+                    try:
+                        self.channel.close()
+                    except:
+                        self.logger.write_error('Station ' + self.short_name + ' : could not close the channel')
+                        try:
+                            self.channel.open()
+                            self.channel.send(self.chunk)
+                            self.channel.sync()
+                            self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
+                            self.channel.sync()
+                        except:
+                            self.logger.write_error('Station ' + self.short_name + ' : could not restart the channel')
+                            continue
+                        continue
+                    continue
+
                 self.q.task_done()
 
         if self.record_mode:
