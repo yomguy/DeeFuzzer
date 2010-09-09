@@ -46,6 +46,12 @@ import shout
 from threading import Thread
 from __init__ import *
 
+
+# Twitter DeeFuzzer keys
+TWITTER_CONSUMER_KEY = 'ozs9cPS2ci6eYQzzMSTb4g'
+TWITTER_CONSUMER_SECRET_KEY = '1kNEffHgGSXO2gMNTr8HRum5s2ofx3VQnJyfd0es'
+
+
 class Station(Thread):
     """a DeeFuzzer shouting station thread"""
 
@@ -447,13 +453,21 @@ class Station(Thread):
         elif self.player_mode == 1:
             self.stream = self.player.file_read_fast()
 
+    def update_twitter_current(self):
+        artist_names = self.artist.split(' ')
+        artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
+        message = '♫ %s %s on #%s #%s' % (self.prefix, self.song, self.short_name, artist_tags)
+        tags = '#' + ' #'.join(self.twitter_tags)
+        message = message + ' ' + tags
+        message = message[:107] + ' M3U : ' + self.m3u_tinyurl
+        self.update_twitter(message)
+
     def run(self):
         while self.run_mode:
             self.q.get(1)
             self.next_media = 0
             self.media = self.get_next_media()
             self.counter += 1
-
             if self.relay_mode:
                 self.set_relay_mode()
             elif os.path.exists(self.media) and not os.sep+'.' in self.media:
@@ -465,14 +479,8 @@ class Station(Thread):
 
             self.q.get(1)
             if (not (self.jingles_mode and (self.counter % 2)) or self.relay_mode) and self.twitter_mode:
-                artist_names = self.artist.split(' ')
-                artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
-                message = '♫ %s %s on #%s #%s' % (self.prefix, self.song, self.short_name, artist_tags)
-                tags = '#' + ' #'.join(self.twitter_tags)
-                message = message + ' ' + tags
-                message = message[:107] + ' M3U : ' + self.m3u_tinyurl
-                self.update_twitter(message)
-                self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
+                self.update_twitter_current()
+            self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
             self.q.task_done()
 
             for self.chunk in self.stream:
