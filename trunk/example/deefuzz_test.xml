@@ -1,0 +1,303 @@
+<deefuzzer>
+    <log>/var/log/deefuzzer/deefuzz_test.log</log>
+    <m3u>/var/www/m3u/deefuzz_test.m3u</m3u>
+
+    <station>
+        <infos>
+            <short_name>deefuzz_test</short_name>
+            <name>DeeFuzz Radio 100% Mix #TEST by http://deefuzz.parisson.com</name>
+            <description>DeeFuzz Radio 100% Mix #TEST - The Finest Techno House Electronic and Groovy Music Mixes fuzzed by YomGuy and JanoB (Cellar) from Paris 18e Chateau Rouge !</description>
+            <url>http://deefuzz.parisson.com</url>
+            <genre>House Techno Mix Mixed</genre>
+        </infos>
+        <server>
+            <host>parisson.com</host>
+            <port>8000</port>
+            <sourcepassword>source2parisson</sourcepassword>
+            <public>0</public>
+        </server>
+        <media>
+            <dir>/home/deefuzz/cellar/mix</dir>
+            <format>mp3</format>
+            <bitrate>192</bitrate>
+            <ogg_quality>7</ogg_quality>
+            <samplerate>44100</samplerate>
+            <voices>2</voices>
+            <shuffle>1</shuffle>
+        </media>
+        <rss>
+            <dir>/var/www/rss</dir>
+            <enclosure>1</enclosure>
+        </rss>
+        <twitter>
+            <mode>1</mode>
+            <user>deefuzz_test3</user>
+            <pass>z3fgvf12</pass>
+            <tags>house mix</tags>
+        </twitter>
+        <jingles>
+            <mode>1</mode>
+            <dir>/home/deefuzz/cellar/jingles</dir>
+            <shuffle>1</shuffle>
+        </jingles>
+        <control>
+            <mode>1</mode>
+            <port>1234</port>
+        </control>
+        <relay>
+            <mode>0</mode>
+            <url>http://parisson.com:8000/deefuzz_live.mp3</url>
+        </relay>
+    </station>
+
+        <station>
+        <infos>
+            <short_name>deefuzz_test2</short_name>
+            <name>DeeFuzz Radio 100% Mix #TEST by http://deefuzz.parisson.com</name>
+            <description>DeeFuzz Radio 100% Mix #TEST - The Finest Techno House Electronic and Groovy Music Mixes fuzzed by YomGuy and JanoB (Cellar) from Paris 18e Chateau Rouge !</description>
+            <url>http://deefuzz.parisson.com</url>
+            <genre>House Techno Mix Mixed</genre>
+        </infos>
+        <server>
+            <host>parisson.com</host>
+            <port>8000</port>
+            <sourcepassword>source2parisson</sourcepassword>
+            <public>0</public>
+        </server>
+        <media>
+            <dir>/home/deefuzz/cellar/mix</dir>
+            <format>mp3</format>
+            <bitrate>192</bitrate>
+            <ogg_quality>7</ogg_quality>
+            <samplerate>44100</samplerate>
+            <voices>2</voices>
+            <shuffle>1</shuffle>
+        </media>
+        <rss>
+            <dir>/var/www/rss</dir>
+            <enclosure>1</enclosure>
+        </rss>
+        <twitter>
+            <mode>0</mode>
+            <user>deefuzz_test3</user>
+            <pass>z3fgvf12</pass>
+            <tags>house mix</tags>
+        </twitter>
+        <jingles>
+            <mode>1</mode>
+            <dir>/home/deefuzz/cellar/jingles</dir>
+            <shuffle>1</shuffle>
+        </jingles>
+        <control>
+            <mode>0</mode>
+            <port>1234</port>
+        </control>
+        <relay>
+            <mode>0</mode>
+            <url>http://parisson.com:8000/deefuzz_live.mp3</url>
+        </relay>
+    </station>
+
+
+
+
+        <station>
+        <infos>
+            <short_name>deefuzz_test5</short_name>
+            <name>DeeFuzz Radio 100% Mix #TEST by http://deefuzz.parisson.com</name>
+            <description>DeeFuzz Radio 100% Mix #TEST - The Finest Techno House Electronic and Groovy Music Mixes fuzzed by YomGuy and JanoB (Cellar) from Paris 18e Chateau Rouge !</description>
+            <url>http://deefuzz.parisson.com</url>
+            <genre>House Techno Mix Mixed</genre>
+        </infos>
+        <server>
+            <host>localhost</host>
+            <port>8000</port>
+            <sourcepassword>source2parisson</sourcepassword>
+            <public>0</public>
+        </server>
+        <media>
+            <dir>/home/deefuzz/cellar/mix</dir>
+            <format>mp3</format>
+            <bitrate>192</bitrate>
+            <ogg_quality>7</ogg_quality>
+            <samplerate>44100</samplerate>
+            <voices>2</voices>
+            <shuffle>1</shuffle>
+        </media>
+        <rss>
+            <dir>/var/www/rss</dir>
+            <enclosure>1</enclosure>
+        </rss>
+        <twitter>
+            <mode>0</mode>
+            <user>deefuzz_test3</user>
+            <pass>z3fgvf12</pass>
+            <tags>house mix</tags>
+        </twitter>
+        <jingles>
+            <mode>1</mode>
+            <dir>/home/deefuzz/cellar/jingles</dir>
+            <shuffle>1</shuffle>
+        </jingles>
+        <control>
+            <mode>0</mode>
+            <port>1234</port>
+        </control>
+        <relay>
+            <mode>0</mode>
+            <url>http://parisson.com:8000/deefuzz_live.mp3</url>
+        </relay>
+    </station>
+
+
+
+        <station>
+        <infos>
+            <short_name>deefuzz_test6</short_name>
+            <name>DeeFuzz Radio 100% Mix #TEST by http://deefuzz.parisson.com</name>
+            <description>DeeFuzz Radio 100% Mix #TEST - The Finest Techno House Electronic and Groovy Music Mixes fuzzed by YomGuy and JanoB (Cellar) from Paris 18e Chateau Rouge !</description>
+            <url>http://deefuzz.parisson.com</url>
+            <genre>House Techno Mix Mixed</genre>
+        </infos>
+        <server>
+            <host>localhost</host>
+            <port>8000</port>
+            <sourcepassword>source2parisson</sourcepassword>
+            <public>0</public>
+        </server>
+        <media>
+            <dir>/home/deefuzz/cellar/mix</dir>
+            <format>mp3</format>
+            <bitrate>192</bitrate>
+            <ogg_quality>7</ogg_quality>
+            <samplerate>44100</samplerate>
+            <voices>2</voices>
+            <shuffle>1</shuffle>
+        </media>
+        <rss>
+            <dir>/var/www/rss</dir>
+            <enclosure>1</enclosure>
+        </rss>
+        <twitter>
+            <mode>1</mode>
+            <user>deefuzz_test3</user>
+            <pass>z3fgvf12</pass>
+            <tags>house mix</tags>
+        </twitter>
+        <jingles>
+            <mode>1</mode>
+            <dir>/home/deefuzz/cellar/jingles</dir>
+            <shuffle>1</shuffle>
+        </jingles>
+        <control>
+            <mode>0</mode>
+            <port>1234</port>
+        </control>
+        <relay>
+            <mode>0</mode>
+            <url>http://parisson.com:8000/deefuzz_live.mp3</url>
+        </relay>
+    </station>
+
+
+
+        <station>
+        <infos>
+            <short_name>deefuzz_test7</short_name>
+            <name>DeeFuzz Radio 100% Mix #TEST by http://deefuzz.parisson.com</name>
+            <description>DeeFuzz Radio 100% Mix #TEST - The Finest Techno House Electronic and Groovy Music Mixes fuzzed by YomGuy and JanoB (Cellar) from Paris 18e Chateau Rouge !</description>
+            <url>http://deefuzz.parisson.com</url>
+            <genre>House Techno Mix Mixed</genre>
+        </infos>
+        <server>
+            <host>localhost</host>
+            <port>8000</port>
+            <sourcepassword>source2parisson</sourcepassword>
+            <public>0</public>
+        </server>
+        <media>
+            <dir>/home/deefuzz/cellar/mix</dir>
+            <format>mp3</format>
+            <bitrate>192</bitrate>
+            <ogg_quality>7</ogg_quality>
+            <samplerate>44100</samplerate>
+            <voices>2</voices>
+            <shuffle>1</shuffle>
+        </media>
+        <rss>
+            <dir>/var/www/rss</dir>
+            <enclosure>1</enclosure>
+        </rss>
+        <twitter>
+            <mode>0</mode>
+            <user>deefuzz_test3</user>
+            <pass>z3fgvf12</pass>
+            <tags>house mix</tags>
+        </twitter>
+        <jingles>
+            <mode>1</mode>
+            <dir>/home/deefuzz/cellar/jingles</dir>
+            <shuffle>1</shuffle>
+        </jingles>
+        <control>
+            <mode>0</mode>
+            <port>1234</port>
+        </control>
+        <relay>
+            <mode>0</mode>
+            <url>http://parisson.com:8000/deefuzz_live.mp3</url>
+        </relay>
+    </station>
+
+
+
+            <station>
+        <infos>
+            <short_name>deefuzz_test8</short_name>
+            <name>DeeFuzz Radio 100% Mix #TEST by http://deefuzz.parisson.com</name>
+            <description>DeeFuzz Radio 100% Mix #TEST - The Finest Techno House Electronic and Groovy Music Mixes fuzzed by YomGuy and JanoB (Cellar) from Paris 18e Chateau Rouge !</description>
+            <url>http://deefuzz.parisson.com</url>
+            <genre>House Techno Mix Mixed</genre>
+        </infos>
+        <server>
+            <host>localhost</host>
+            <port>8000</port>
+            <sourcepassword>source2parisson</sourcepassword>
+            <public>0</public>
+        </server>
+        <media>
+            <dir>/home/deefuzz/cellar/mix</dir>
+            <format>mp3</format>
+            <bitrate>192</bitrate>
+            <ogg_quality>7</ogg_quality>
+            <samplerate>44100</samplerate>
+            <voices>2</voices>
+            <shuffle>1</shuffle>
+        </media>
+        <rss>
+            <dir>/var/www/rss</dir>
+            <enclosure>1</enclosure>
+        </rss>
+        <twitter>
+            <mode>0</mode>
+            <user>deefuzz_test3</user>
+            <pass>z3fgvf12</pass>
+            <tags>house mix</tags>
+        </twitter>
+        <jingles>
+            <mode>1</mode>
+            <dir>/home/deefuzz/cellar/jingles</dir>
+            <shuffle>1</shuffle>
+        </jingles>
+        <control>
+            <mode>0</mode>
+            <port>1234</port>
+        </control>
+        <relay>
+            <mode>0</mode>
+            <url>http://parisson.com:8000/deefuzz_live.mp3</url>
+        </relay>
+    </station>
+
+</deefuzzer>
+

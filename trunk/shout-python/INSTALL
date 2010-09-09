@@ -1,0 +1,11 @@
+Prerequisites
+-------------
+
+You need to have libshout 2 installed. If you have pkg-config installed,
+make sure it can find shout (you may need to adjust PKG_CONFIG_PATH to
+contain $shout_prefix/lib/pkgcofig). Otherwise, shout-config must appear in
+your path.
+
+Installation
+------------
+run 'python setup.py install'

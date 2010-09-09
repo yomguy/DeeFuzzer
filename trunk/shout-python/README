@@ -1,0 +1,7 @@
+This is shout-python, a set of bindings for libshout 2.
+
+shout-python allows you to act as a source for icecast 1 and 2, and
+shoutcast. This module includes inline documentation, or see
+the included example.py for a demonstration of its usage.
+
+shout-python is licensed under the GNU LGPL. See COPYING for details.

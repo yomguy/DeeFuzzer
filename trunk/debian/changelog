@@ -1,0 +1,19 @@
+d-fuzz (0.3.3-1) unstable; urgency=low
+
+  * add twitter api
+  * cleanup RSS and song metadata
+
+ -- momo <momo@wm16.parisson.org>  Tue, 27 Oct 2009 13:44:06 +0100
+
+d-fuzz (0.3.0-1) unstable; urgency=low
+
+  * new and much upgraded DeeFuzz
+
+ -- Guillaume Pellerin <yomguy@>  Fri, 17 Apr 2009 09:48:25 +0200
+
+d-fuzz (0.2-1) unstable; urgency=low
+
+  * Initial release
+
+ -- G. Pellerin <yomguy@altern.org>  Sun, 09 Dec 2007 21:50:43 +0100
+
