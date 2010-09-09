@@ -244,7 +244,10 @@ class Station(Thread):
                 media = Mp3(self.record_dir + os.sep + self.rec_file)
             if self.channel.format == 'ogg':
                 media = Ogg(self.record_dir + os.sep + self.rec_file)
-            media.metadata = {'artist': self.artist, 'title': self.title, 'album': self.short_name, 'genre': self.channel.genre}
+            media.metadata = {'artist': self.artist.encode('utf-8'),
+                                'title': self.title.encode('utf-8'),
+                                'album': self.short_name.encode('utf-8'),
+                                'genre': self.channel.genre.encode('utf-8')}
             media.write_tags()
         self.record_mode = value
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
@@ -480,7 +483,7 @@ class Station(Thread):
             self.q.get(1)
             if (not (self.jingles_mode and (self.counter % 2)) or self.relay_mode) and self.twitter_mode:
                 self.update_twitter_current()
-            self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
+            self.channel.set_metadata({'song': self.song, 'charset': 'utf-8',})
             self.q.task_done()
 
             for self.chunk in self.stream:
