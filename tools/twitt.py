@@ -36,18 +36,27 @@
 
 # Author: Guillaume Pellerin <yomguy@parisson.com>
 
+# Twitter DeeFuzzer keys
+TWITTER_CONSUMER_KEY = 'ozs9cPS2ci6eYQzzMSTb4g'
+TWITTER_CONSUMER_SECRET = '1kNEffHgGSXO2gMNTr8HRum5s2ofx3VQnJyfd0es'
+
+
 class Twitter:
 
-    def __init__(self, username, password):
+    def __init__(self, access_token_key, access_token_secret):
         import twitter
-        self.username = username
-        self.password = password
-        self.api = twitter.Api(username=self.username, password=self.password)
+        self.username = TWITTER_CONSUMER_KEY
+        self.password = TWITTER_CONSUMER_SECRET
+        self.access_token_key = access_token_key
+        self.access_token_secret = access_token_secret
+        self.api = twitter.Api(username=self.username,
+                               password=self.password,
+                               access_token_key=self.access_token_key,
+                               access_token_secret=self.access_token_secret)
 
     def post(self, message):
         try:
             self.api.PostUpdate(message)
         except:
             pass
-
 
