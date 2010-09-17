@@ -43,6 +43,7 @@ class Player:
 
     def __init__(self):
         self.main_buffer_size = 0x100000
+        self.relay_buffer_size = 0x40000
         self.sub_buffer_size = 0x10000
 
     def set_media(self, media):
@@ -50,7 +51,7 @@ class Player:
 
     def start_relay(self, url):
         self.url = url
-        self.relay = Relay(self.sub_buffer_size, self.main_buffer_size)
+        self.relay = Relay(self.sub_buffer_size, self.relay_buffer_size)
         self.relay.set_url(self.url)
         self.relay.open()
         self.relay.start()

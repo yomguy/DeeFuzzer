@@ -104,8 +104,6 @@ class Station(Thread):
                                     'channels': self.voices,}
         self.playlist = self.get_playlist()
         self.lp = len(self.playlist)
-        self.channel.open()
-        self.channel_delay = self.channel.delay()
 
         # Logging
         self.logger.write_info('Opening ' + self.short_name + ' - ' + self.channel.name + \
@@ -465,7 +463,16 @@ class Station(Thread):
         message = message[:107] + ' M3U : ' + self.m3u_tinyurl
         self.update_twitter(message)
 
+    def channel_open(self):
+        self.channel.open()
+        self.channel_delay = self.channel.delay()
+    
     def run(self):
+        try:
+            self.channel_open()
+        except:
+            pass
+            
         while self.run_mode:
             self.q.get(1)
             self.next_media = 0
@@ -482,23 +489,26 @@ class Station(Thread):
 
             self.q.get(1)
             if (not (self.jingles_mode and (self.counter % 2)) or self.relay_mode) and self.twitter_mode:
-                self.update_twitter_current()
-            self.channel.set_metadata({'song': self.song, 'charset': 'utf-8',})
+                try:
+                    self.update_twitter_current()
+                except:
+                    continue
+            try:
+                self.channel.set_metadata({'song': self.song, 'charset': 'utf-8',})
+            except:
+                continue
             self.q.task_done()
 
             for self.chunk in self.stream:
                 self.q.get(1)
-
                 if self.next_media or not self.run_mode:
                     break
-
                 try:
                     if self.record_mode:
                         self.recorder.write(self.chunk)
                 except:
                     self.logger.write_error('Station ' + self.short_name + ' : could not write the buffer to the file')
                     continue
-
                 try:
                     self.channel.send(self.chunk)
                     self.channel.sync()
@@ -519,7 +529,6 @@ class Station(Thread):
                             continue
                         continue
                     continue
-
                 self.q.task_done()
 
         if self.record_mode:
