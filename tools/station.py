@@ -530,6 +530,9 @@ class Station(Thread):
                         continue
                     continue
                 self.q.task_done()
+        
+        if not self.run_mode:
+            self.q.task_done()
 
         if self.record_mode:
             self.recorder.close()
