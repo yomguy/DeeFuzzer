@@ -49,8 +49,11 @@ class Recorder:
         self.media = open(self.path + os.sep + self.filename, 'w')
 
     def write(self, chunk):
-        self.media.write(chunk)
-        self.media.flush()
+        try:
+            self.media.write(chunk)
+            self.media.flush()
+        except:
+            pass
 
     def close(self):
         self.media.close()
