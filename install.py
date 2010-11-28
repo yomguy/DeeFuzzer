@@ -66,7 +66,6 @@ if os.path.exists('/usr/bin/deefuzzer'):
 os.system('ln -s '+install_dir+os.sep+'deefuzzer.py '+'/usr/bin/deefuzzer')
 
 print """
-   Installation successfull !
-   Type 'deefuzzer' now...
+   DeeFuzzer installation successfull !
    """
 
