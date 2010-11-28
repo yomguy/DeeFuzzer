@@ -520,9 +520,8 @@ class Station(Thread):
                         self.logger.write_error('Station ' + self.short_name + ' : could not close the channel')
                         try:
                             self.channel.open()
-                            self.channel.send(self.chunk)
-                            self.channel.sync()
                             self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
+                            self.channel.send(self.chunk)
                             self.channel.sync()
                         except:
                             self.logger.write_error('Station ' + self.short_name + ' : could not restart the channel')
