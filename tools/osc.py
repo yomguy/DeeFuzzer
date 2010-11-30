@@ -53,9 +53,6 @@ class OSCController(Thread):
     def add_method(self, path, type, method):
         self.server.add_method(path, type, method)
 
-    def server(self):
-        return self.server
-
     def run(self):
         while True:
             self.server.recv(100)

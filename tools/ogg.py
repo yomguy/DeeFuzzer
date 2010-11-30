@@ -120,8 +120,7 @@ class Ogg:
             raise IOError('ExporterError: decoder is not compatible.')
 
     def write_tags(self):
-        self.ogg.add_tags()
-        self.ogg.save()
+        #self.ogg.add_tags()
         for tag in self.metadata.keys():
             self.ogg[tag] = str(self.metadata[tag])
         self.ogg.save()

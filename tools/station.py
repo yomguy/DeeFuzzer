@@ -238,6 +238,7 @@ class Station(Thread):
             self.recorder.open(self.rec_file)
         elif value == 0:
             self.recorder.close()
+            date = datetime.datetime.now().strftime("%Y")
             if self.channel.format == 'mp3':
                 media = Mp3(self.record_dir + os.sep + self.rec_file)
             if self.channel.format == 'ogg':
@@ -245,7 +246,8 @@ class Station(Thread):
             media.metadata = {'artist': self.artist.encode('utf-8'),
                                 'title': self.title.encode('utf-8'),
                                 'album': self.short_name.encode('utf-8'),
-                                'genre': self.channel.genre.encode('utf-8')}
+                                'genre': self.channel.genre.encode('utf-8'),
+                                'date' : date.encode('utf-8'),}
             media.write_tags()
         self.record_mode = value
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
