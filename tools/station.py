@@ -459,10 +459,10 @@ class Station(Thread):
     def update_twitter_current(self):
         artist_names = self.artist.split(' ')
         artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
-        message = '%s %s on #%s #%s' % (self.prefix, self.song, self.short_name, artist_tags)
+        message = '%s %s on #%s' % (self.prefix, self.song, self.short_name)
         tags = '#' + ' #'.join(self.twitter_tags)
         message = message + ' ' + tags
-        message = message[:107] + ' M3U : ' + self.m3u_tinyurl
+        message = message[:108] + ' M3U: ' + self.m3u_tinyurl
         self.update_twitter(message)
 
     def channel_open(self):
