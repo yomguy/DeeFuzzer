@@ -37,20 +37,20 @@
 # Author: Guillaume Pellerin <yomguy@parisson.com>
 
 # Twitter DeeFuzzer keys
-TWITTER_CONSUMER_KEY = 'ozs9cPS2ci6eYQzzMSTb4g'
-TWITTER_CONSUMER_SECRET = '1kNEffHgGSXO2gMNTr8HRum5s2ofx3VQnJyfd0es'
+DEEFUZZER_CONSUMER_KEY = 'ozs9cPS2ci6eYQzzMSTb4g'
+DEEFUZZER_CONSUMER_SECRET = '1kNEffHgGSXO2gMNTr8HRum5s2ofx3VQnJyfd0es'
 
 
 class Twitter:
 
     def __init__(self, access_token_key, access_token_secret):
         import twitter
-        self.username = TWITTER_CONSUMER_KEY
-        self.password = TWITTER_CONSUMER_SECRET
+        self.consumer_key = DEEFUZZER_CONSUMER_KEY
+        self.consumer_secret = DEEFUZZER_CONSUMER_SECRET
         self.access_token_key = access_token_key
         self.access_token_secret = access_token_secret
-        self.api = twitter.Api(username=self.username,
-                               password=self.password,
+        self.api = twitter.Api(consumer_key=self.consumer_key,
+                               consumer_secret=self.consumer_secret,
                                access_token_key=self.access_token_key,
                                access_token_secret=self.access_token_secret)
 

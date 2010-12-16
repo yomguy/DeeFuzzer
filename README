@@ -49,11 +49,11 @@ Usage : deefuzzer CONFIGFILE
 
 where CONFIGFILE is the path for a XML config file. For example::
 
-$ deefuzzer example/myfuzz.xml
+    deefuzzer example/myfuzz.xml
 
 To make the deefuzzer act as a deamon, just play it in the background::
 
-$ deefuzzer example/myfuzz.xml &
+    deefuzzer example/myfuzz.xml &
 
 Note that you must edit the config file with right parameters before playing.
 You can find an example for a draft XML file in the directory "example/" of this
@@ -66,11 +66,11 @@ BE CAREFULL : at the moment, the multi-threaded implementation of deefuzzer inst
 avoids shutting down the streams with CTRL+C... You have to kill them manually,
 after a CTRL+Z, making this::
 
-$ kill -9 PROCESS_ID
+    kill -9 PROCESS_ID
 
 or::
 
-$ kill -9 `pgrep deefuzzer`
+    pkill -9 deefuzzer
 
 
 XML Configuration
@@ -89,31 +89,31 @@ set up in the config file (see example/myfuzz.xml again...).
 
 Next track::
 
-$ python tools/osc_next.py
+    python tools/osc_next.py
 
 Start twitting::
 
-$ python tools/osc_twitter_start.py
+    python tools/osc_twitter_start.py
 
 Stop twitting::
 
-$ python see tools/osc_twitter_stop.py
+    python see tools/osc_twitter_stop.py
 
 Start relaying::
 
-$ python tools/osc_relay_start.py
+    python tools/osc_relay_start.py
 
 Stop relaying::
 
-$ python see tools/osc_relay_stop.py
+    python see tools/osc_relay_stop.py
 
 Start jingling::
 
-$ python see tools/osc_jingles_start.py
+    python see tools/osc_jingles_start.py
 
 Stop jingling::
 
-$ python see tools/osc_jingles_stop.py
+    python see tools/osc_jingles_stop.py
 
 
 Author

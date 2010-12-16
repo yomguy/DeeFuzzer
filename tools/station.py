@@ -144,8 +144,8 @@ class Station(Thread):
         self.twitter_mode = 0
         if 'twitter' in self.station:
             self.twitter_mode = int(self.station['twitter']['mode'])
-            self.twitter_user = self.station['twitter']['user']
-            self.twitter_pass = self.station['twitter']['pass']
+            self.twitter_key = self.station['twitter']['key']
+            self.twitter_secret = self.station['twitter']['secret']
             self.twitter_tags = self.station['twitter']['tags'].split(' ')
             if self.twitter_mode == 1:
                 self.twitter_callback('/twitter', [1])
@@ -212,7 +212,7 @@ class Station(Thread):
     def twitter_callback(self, path, value):
         value = value[0]
         import tinyurl
-        self.twitter = Twitter(self.twitter_user, self.twitter_pass)
+        self.twitter = Twitter(self.twitter_key, self.twitter_secret)
         self.twitter_mode = value
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.m3u_tinyurl = tinyurl.create_one(self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
@@ -448,7 +448,7 @@ class Station(Thread):
         self.update_rss(self.current_media_obj, self.metadata_file, '')
         #self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
         self.update_rss(self.current_media_obj, self.rss_current_file, '(currently playing)')
-        self.logger.write_info('Deefuzzing on %s :  id = %s, name = %s' \
+        self.logger.write_info('DeeFuzzing on %s :  id = %s, name = %s' \
             % (self.short_name, self.id, self.current_media_obj[0].file_name))
         self.player.set_media(self.media)
         if self.player_mode == 0:
@@ -459,7 +459,7 @@ class Station(Thread):
     def update_twitter_current(self):
         artist_names = self.artist.split(' ')
         artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
-        message = '♫ %s %s on #%s #%s' % (self.prefix, self.song, self.short_name, artist_tags)
+        message = '%s %s on #%s #%s' % (self.prefix, self.song, self.short_name, artist_tags)
         tags = '#' + ' #'.join(self.twitter_tags)
         message = message + ' ' + tags
         message = message[:107] + ' M3U : ' + self.m3u_tinyurl

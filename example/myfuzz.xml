@@ -60,9 +60,9 @@
             <!-- If '1', deefuzzer will tweet #nowplaying, new tracks and other things to Twitter. 'O' does nothing. -->
             <mode>0</mode>
             <!-- Your twitter username -->
-            <user>my_twitter_user</user>
+            <key>your access token key</key>
             <!-- Your twitter password -->
-            <pass>my_twitter_password</pass>
+            <secret>your access token secret key</secret>
             <!-- These tags will be added to each twitter message -->
             <tags>bla bla</tags>
         </twitter>
