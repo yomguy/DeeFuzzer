@@ -47,11 +47,6 @@ from threading import Thread
 from __init__ import *
 
 
-# Twitter DeeFuzzer keys
-TWITTER_CONSUMER_KEY = 'ozs9cPS2ci6eYQzzMSTb4g'
-TWITTER_CONSUMER_SECRET_KEY = '1kNEffHgGSXO2gMNTr8HRum5s2ofx3VQnJyfd0es'
-
-
 class Station(Thread):
     """a DeeFuzzer shouting station thread"""
 
@@ -428,7 +423,6 @@ class Station(Thread):
         self.title = self.title.replace('_', ' ')
         self.artist = self.artist.replace('_', ' ')
         self.song = self.artist + ' : ' + self.title
-        #self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
         self.stream = self.player.relay_read()
 
     def set_read_mode(self):
@@ -446,7 +440,6 @@ class Station(Thread):
         self.artist = self.artist.encode('utf-8')
         self.metadata_file = self.metadata_dir + os.sep + self.current_media_obj[0].file_name + '.xml'
         self.update_rss(self.current_media_obj, self.metadata_file, '')
-        #self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
         self.update_rss(self.current_media_obj, self.rss_current_file, '(currently playing)')
         self.logger.write_info('DeeFuzzing on %s :  id = %s, name = %s' \
             % (self.short_name, self.id, self.current_media_obj[0].file_name))
