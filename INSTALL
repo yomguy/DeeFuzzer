@@ -28,7 +28,7 @@ Install
 
 To install the DeeFuzzer, go to the main deefuzzer app directory, for example::
     
-    cd deefuzzer-0.4.3
+    cd deefuzzer-0.5.0
     
 and run the python installer::
     
@@ -54,7 +54,7 @@ Get and install python-twitter (>= 0.9dev)::
     sudo python setup.py install
 
 As Twitter access requires oauth keys since 07/2010, you need to get your own access token key pair.
-Please run the dedicated script to do this::
+Please run the dedicated script to do this from the main deefuzzer app directory::
     
     python tools/get_access_token.py
     

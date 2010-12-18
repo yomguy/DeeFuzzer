@@ -18,7 +18,7 @@ Here are the main features of the deefuzzer:
  * M3U playlist generator
  * Recursive, random (shuffled) or pre-defined playlists
  * Multi-threaded architecture : multiple station streaming with one config file
- * Auto Twitter posting of the current playing tracks
+ * Auto Twitter posting of the current playing and new tracks
  * Jingling between main tracks
  * OSC controller : control the main functions from a distant terminal
  * Station relaying : stream other stations like *LIVE* sessions !
@@ -49,11 +49,11 @@ Usage : deefuzzer CONFIGFILE
 
 where CONFIGFILE is the path for a XML config file. For example::
 
-    deefuzzer example/myfuzz.xml
+    deefuzzer example/deefuzzer.xml
 
 To make the deefuzzer act as a deamon, just play it in the background::
 
-    deefuzzer example/myfuzz.xml &
+    deefuzzer example/deefuzzer.xml &
 
 Note that you must edit the config file with right parameters before playing.
 You can find an example for a draft XML file in the directory "example/" of this
@@ -66,17 +66,13 @@ BE CAREFULL : at the moment, the multi-threaded implementation of deefuzzer inst
 avoids shutting down the streams with CTRL+C... You have to kill them manually,
 after a CTRL+Z, making this::
 
-    kill -9 PROCESS_ID
-
-or::
-
     pkill -9 deefuzzer
 
 
 XML Configuration
 =================
 
-See example/myfuzz.xml in a text editor.
+See example/deefuzz_doc.xml in a text editor.
 The inline comments should help you to configure your stations.
 
 
