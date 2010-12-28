@@ -14,13 +14,13 @@ Dependencies
 =============
 
 depends:  python, python-dev, python-xml, python-shout | shout-python, libshout3,
-           libshout3-dev, python-mutagen
+	  libshout3-dev, python-mutagen
 
-provides:  shout-python | python-shout, python-tinyurl
+provides: shout-python | python-shout, python-tinyurl
 
 optional: python-twitter, python-liblo | pyliblo (>= 0.26)
 
-recommends: icecast2
+recommends: icecast2, python-setuptools
 
 
 Install
@@ -46,11 +46,11 @@ Install python-oauth2::
     
     sudo easy_install oauth2
 
-Get and install python-twitter (>= 0.9dev)::
+Get and install python-twitter (>= 0.8.1)::
     
-    sudo aptitude install mercurial
-    hg clone https://python-twitter.googlecode.com/hg/ python-twitter
-    cd python-twitter
+    wget http://python-twitter.googlecode.com/files/python-twitter-0.8.1.tar.gz
+    tar xzf python-twitter-0.8.1.tar.gz
+    cd python-twitter-0.8.1
     sudo python setup.py install
 
 As Twitter access requires oauth keys since 07/2010, you need to get your own access token key pair.
