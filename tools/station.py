@@ -284,13 +284,11 @@ class Station(Thread):
             lp_new = len(new_playlist)
 
             if lp_new != self.lp or self.counter == 0:
-                # Init playlists
-                self.playlist = new_playlist
                 self.id = 0
                 self.lp = lp_new
 
                 # Twitting new tracks
-                new_playlist_set = set(self.playlist)
+                new_playlist_set = set(new_playlist)
                 old_playlist_set = set(old_playlist)
                 new_tracks = new_playlist_set - old_playlist_set
 
@@ -310,14 +308,19 @@ class Station(Thread):
                         if self.twitter_mode == 1:
                             artist_names = artist.split(' ')
                             artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
-                            message = '#newtrack ! %s #%s on #%s RSS : ' % (song.replace('_', ' '), artist_tags, self.short_name)
-                            message = message[:113] + self.rss_tinyurl
+                            message = '#newtrack ! %s #%s on #%s M3U: ' % (song.replace('_', ' '), artist_tags, self.short_name)
+                            message = message[:113] + self.m3u_tinyurl
                             self.update_twitter(message)
-
+                
+                # Shake it, Fuzz it !
                 if self.shuffle_mode == 1:
-                    # Shake it, Fuzz it !
-                    random.shuffle(self.playlist)
-
+                    random.shuffle(old_playlist)
+                    
+                # Play new tracks first
+                for track in self.new_tracks:
+                    old_playlist.insert(0, track)
+                self.playlist = old_playlist
+                
                 self.logger.write_info('Station ' + self.short_name + \
                                  ' : generating new playlist (' + str(self.lp) + ' tracks)')
                 self.update_rss(self.media_to_objs(self.playlist), self.rss_playlist_file, '(playlist)')
