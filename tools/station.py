@@ -279,7 +279,7 @@ class Station(Thread):
     def get_next_media(self):
         # Init playlist
         if self.lp != 0:
-            old_playlist = self.playlist
+            playlist = self.playlist
             new_playlist = self.get_playlist()
             lp_new = len(new_playlist)
 
@@ -289,13 +289,12 @@ class Station(Thread):
 
                 # Twitting new tracks
                 new_playlist_set = set(new_playlist)
-                old_playlist_set = set(old_playlist)
-                new_tracks = new_playlist_set - old_playlist_set
-
+                playlist_set = set(playlist)
+                new_tracks = new_playlist_set - playlist_set
+                self.new_tracks = list(new_tracks.copy())
+                
                 if len(new_tracks) != 0:
-                    self.new_tracks = list(new_tracks.copy())
                     new_tracks_objs = self.media_to_objs(self.new_tracks)
-
                     for media_obj in new_tracks_objs:
                         title = media_obj.metadata['title']
                         artist = media_obj.metadata['artist']
@@ -314,12 +313,12 @@ class Station(Thread):
                 
                 # Shake it, Fuzz it !
                 if self.shuffle_mode == 1:
-                    random.shuffle(old_playlist)
+                    random.shuffle(playlist)
                     
                 # Play new tracks first
                 for track in self.new_tracks:
-                    old_playlist.insert(0, track)
-                self.playlist = old_playlist
+                    playlist.insert(0, track)
+                self.playlist = playlist
                 
                 self.logger.write_info('Station ' + self.short_name + \
                                  ' : generating new playlist (' + str(self.lp) + ' tracks)')
