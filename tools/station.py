@@ -307,8 +307,8 @@ class Station(Thread):
                         if self.twitter_mode == 1:
                             artist_names = artist.split(' ')
                             artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
-                            message = '#newtrack ! %s #%s on #%s M3U: ' % (song.replace('_', ' '), artist_tags, self.short_name)
-                            message = message[:113] + self.m3u_tinyurl
+                            message = '#newtrack ! %s #%s on #%s RSS: ' % (song.replace('_', ' '), artist_tags, self.short_name)
+                            message = message[:113] + self.rss_tinyurl
                             self.update_twitter(message)
                 
                 # Shake it, Fuzz it !
