@@ -45,7 +45,7 @@ import platform
 from threading import Thread
 from tools import *
 
-version = '0.5.0'
+version = '0.5.1'
 year = datetime.datetime.now().strftime("%Y")
 platform_system = platform.system()
 

@@ -151,8 +151,6 @@ class Station(Thread):
         if 'record' in self.station:
             self.record_mode = int(self.station['record']['mode'])
             self.record_dir = self.station['record']['dir']
-            if not os.path.exists(self.record_dir):
-                os.makedirs(self.record_dir)
             if self.record_mode == 1:
                 self.record_callback('/record', [1])
 
@@ -227,6 +225,8 @@ class Station(Thread):
     def record_callback(self, path, value):
         value = value[0]
         if value == 1:
+            if not os.path.exists(self.record_dir):
+                os.makedirs(self.record_dir)
             self.rec_file = self.short_name + '-' + \
               datetime.datetime.now().strftime("%x-%X").replace('/', '_') + '.' + self.channel.format
             self.recorder = Recorder(self.record_dir)
