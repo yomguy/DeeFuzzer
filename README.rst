@@ -38,7 +38,7 @@ see INSTALL
 License
 =======
 
-This software is licensed as described in the file COPYING, which
+This software is licensed as described in the file LICENSE, which
 you should have received as part of this distribution. The terms
 are also available at http://svn.parisson.org/deefuzzer/DeeFuzzerLicense
 
