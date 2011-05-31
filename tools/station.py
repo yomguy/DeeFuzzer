@@ -196,6 +196,7 @@ class Station(Thread):
         elif value == 0:
             self.relay_mode = 0
             self.player.stop_relay()
+        self.id = 0
         self.next_media = 1
         message = "Received OSC message '%s' with arguments '%d'" % (path, value)
         self.logger.write_info(message)
