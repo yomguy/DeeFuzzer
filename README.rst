@@ -1,9 +1,3 @@
-================
-DeeFuzzer README
-================
-
-deefuzzer : an easy and instant media streaming tool
-
 
 Introduction
 ============
