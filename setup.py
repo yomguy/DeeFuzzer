@@ -21,7 +21,7 @@ METADATA = dict(
   url='http://svn.parisson.org/deefuzzer',
   keywords='audio video streaming broadcast shout',
   install_requires = ['setuptools','tinyurl'],
-  packages=['deefuzzer'], 
+  packages=['deefuzzer', 'shout'], 
   include_package_data = True,
   scripts=['scripts/deefuzzer'], 
   classifiers = ['Programming Language :: Python', 'Topic :: Internet :: WWW/HTTP :: Dynamic Content', 'Topic :: Multimedia :: Sound/Audio', 'Topic :: Multimedia :: Sound/Audio :: Players',],
@@ -39,7 +39,7 @@ def Main():
 
 
 if __name__ == '__main__':
-    os.chdir('shout-python')
+    os.chdir('shout')
     os.system('python setup.py install')
     os.chdir('..')
     Main()
