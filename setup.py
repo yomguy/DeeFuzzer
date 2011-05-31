@@ -6,7 +6,7 @@
 import os
 
 __author__ = 'yomguy@parisson.com'
-__version__ = '0.5.3'
+__version__ = '0.5.4'
 
 
 # The base package metadata to be used by both distutils and setuptools
@@ -20,8 +20,8 @@ METADATA = dict(
   license='Gnu Public License V2',
   url='http://svn.parisson.org/deefuzzer',
   keywords='audio video streaming broadcast shout',
-  install_requires = ['setuptools','tinyurl', 'python-shout', 'python-twitter'],
-  packages=['deefuzzer'], 
+  install_requires = ['setuptools', 'tinyurl', 'python-shout', 'python-twitter'],
+  packages=['deefuzzer', 'deefuzzer.tools'], 
   include_package_data = True,
   scripts=['scripts/deefuzzer'], 
   classifiers = ['Programming Language :: Python', 'Topic :: Internet :: WWW/HTTP :: Dynamic Content', 'Topic :: Multimedia :: Sound/Audio', 'Topic :: Multimedia :: Sound/Audio :: Players',],

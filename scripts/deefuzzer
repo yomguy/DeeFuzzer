@@ -46,7 +46,7 @@ from threading import Thread
 import deefuzzer
 from deefuzzer import *
 
-version = '0.5.3'
+version = '0.5.4'
 year = datetime.datetime.now().strftime("%Y")
 platform_system = platform.system()
 
