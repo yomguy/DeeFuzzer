@@ -43,9 +43,10 @@ import Queue
 import datetime
 import platform
 from threading import Thread
-from tools import *
+import deefuzzer
+from deefuzzer import *
 
-version = '0.5.1'
+version = '0.5.2'
 year = datetime.datetime.now().strftime("%Y")
 platform_system = platform.system()
 
