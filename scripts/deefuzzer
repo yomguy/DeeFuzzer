@@ -46,7 +46,7 @@ from threading import Thread
 import deefuzzer
 from deefuzzer import *
 
-version = deefuzzer.version()
+version = '0.5.3'
 year = datetime.datetime.now().strftime("%Y")
 platform_system = platform.system()
 
@@ -67,8 +67,6 @@ def prog_info():
            libshout3-dev, icecast2, python-mutagen
 
  recommends: python-twitter, python-tinyurl, python-liblo | pyliblo (>= 0.26)
-
- provides:  shout-python
 
  Usage : deefuzzer $1
   where $1 is the path for a XML config file
