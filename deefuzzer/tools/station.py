@@ -442,7 +442,7 @@ class Station(Thread):
         self.song = song.encode('utf-8')
         self.artist = self.artist.encode('utf-8')
         self.metadata_file = self.metadata_dir + os.sep + self.current_media_obj[0].file_name + '.xml'
-        self.update_rss(self.current_media_obj, self.metadata_file, '')
+        #self.update_rss(self.current_media_obj, self.metadata_file, '')
         self.update_rss(self.current_media_obj, self.rss_current_file, '(currently playing)')
         self.logger.write_info('DeeFuzzing on %s :  id = %s, name = %s' \
             % (self.short_name, self.id, self.current_media_obj[0].file_name))
