@@ -42,11 +42,11 @@ import urllib
 
 class Relay(Thread):
 
-    def __init__(self, sub_buffer_size, main_buffer_size):
+    def __init__(self, sub_buffer_size, queue_size):
         Thread.__init__(self)
         self.sub_buffer_size = sub_buffer_size
-        self.main_buffer_size = main_buffer_size
-        self.queue = Queue.Queue(self.main_buffer_size)
+        self.queue_size = queue_size
+        self.queue = Queue.Queue(self.queue_size)
 
     def set_url(self, url):
         self.url = url
@@ -67,6 +67,7 @@ class Relay(Thread):
             if self.isopen:
                 self.chunk = self.stream.read(self.sub_buffer_size)
                 self.queue.put_nowait(self.chunk)
+#                print self.queue.qsize()
             else:
                 self.stream.close()
                 break
