@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2006-2009 Guillaume Pellerin
+# Copyright (C) 2006-2011 Guillaume Pellerin
 
 # <yomguy@parisson.com>
 
