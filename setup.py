@@ -4,10 +4,9 @@
 '''The setup and build script for the python-twitter library.'''
 
 import os
+from deefuzzer import __version__
 
 __author__ = 'yomguy@parisson.com'
-__version__ = '0.5.5'
-
 
 # The base package metadata to be used by both distutils and setuptools
 METADATA = dict(
