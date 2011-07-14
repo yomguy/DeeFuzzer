@@ -76,35 +76,35 @@ OSC Control
 
 We can now control some functions of the deefuzzer with external commands
 coming from an OSC client. These are accessible only if the "control" tag is
-set up in the config file (see example/myfuzz.xml again...).
+set up in the config file (see example/deefuzzer.xml again...).
 
 Next track::
 
-    python tools/osc_next.py
+    python deefuzzer/scripts/osc_next.py
 
 Start twitting::
 
-    python tools/osc_twitter_start.py
+    python deefuzzer/scripts/osc_twitter_start.py
 
 Stop twitting::
 
-    python see tools/osc_twitter_stop.py
+    python deefuzzer/scripts/osc_twitter_stop.py
 
 Start relaying::
 
-    python tools/osc_relay_start.py
+    python deefuzzer/scripts/osc_relay_start.py
 
 Stop relaying::
 
-    python see tools/osc_relay_stop.py
+    python deefuzzer/scripts/osc_relay_stop.py
 
 Start jingling::
 
-    python see tools/osc_jingles_start.py
+    python deefuzzer/scripts/osc_jingles_start.py
 
 Stop jingling::
 
-    python see tools/osc_jingles_stop.py
+    python deefuzzer/scripts/osc_jingles_stop.py
 
 
 Author
@@ -113,7 +113,7 @@ Author
 Guillaume Pellerin <yomguy@parisson.com>
 
 
-Licence
+License
 =======
 
 See COPYING
