@@ -29,9 +29,14 @@ def prog_info():
 
  recommends: python-twitter, python-tinyurl, python-liblo | pyliblo (>= 0.26)
 
- Usage : deefuzzer $1
-  where $1 is the path for a XML config file
-  ex: deefuzzer example/myfuzz.xml
+ Usage : deefuzzer [file]
+
+  where [file] is the path for a XML config file. 
+  
+  Edit an example in example/deefuzzer.xml
+  and then start one or more stations: 
+ 
+  $ deefuzzer example/deefuzzer.xml
 
  see http://svn.parisson.org/deefuzzer/ for more details
         """
