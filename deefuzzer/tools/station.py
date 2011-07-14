@@ -522,22 +522,25 @@ class Station(Thread):
             self.q.task_done()
 
             for self.chunk in self.stream:
-                self.q.get(1)
                 if self.next_media or not self.run_mode:
                     break
-                try:
-                    if self.record_mode:
+                if self.record_mode:
+                    try:
+                        self.q.get(1)
                         self.recorder.write(self.chunk)
-                except:
-                    self.logger.write_error('Station ' + self.channel_url + ' : could not write the buffer to the file')
-                    continue
+                        self.q.task_done()
+                    except:
+                        self.logger.write_error('Station ' + self.channel_url + ' : could not write the buffer to the file')
+                        self.q.task_done()
+                        continue
                 try:
+                    self.q.get(1)
                     self.channel.send(self.chunk)
                     self.channel.sync()
+                    self.q.task_done()
                 except:
                     self.logger.write_error('Station ' + self.channel_url + ' : could not send the buffer')
                     self.q.task_done()
-                    self.ping_server()
                     try:
                         self.q.get(1)
                         self.channel.close()
@@ -548,20 +551,17 @@ class Station(Thread):
                         self.q.task_done()
                         continue
                     try:
+                        self.ping_server()
                         self.q.get(1)
                         self.channel_open()
                         self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
-                        self.channel.send(self.chunk)
-                        self.channel.sync()
                         self.logger.write_info('Station ' + self.channel_url + ' : channel restarted')
+                        self.q.task_done()
                     except:
                         self.logger.write_error('Station ' + self.channel_url + ' : could not restart the channel')
+                        self.q.task_done()
                         continue
                     continue
-                self.q.task_done()
-        
-        if not self.run_mode:
-            self.q.task_done()
 
         if self.record_mode:
             self.recorder.close()
