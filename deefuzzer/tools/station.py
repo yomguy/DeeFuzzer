@@ -414,7 +414,10 @@ class Station(Thread):
                     )
             else:
                 media_link = self.metadata_url + '/' + media.file_name + '.xml'
-                media_link = media_link.decode('utf-8')
+                try:
+                    media_link = media_link.decode('utf-8')
+                except:
+                    continue
                 rss_item_list.append(RSSItem(
                     title = song,
                     link = media_link,
