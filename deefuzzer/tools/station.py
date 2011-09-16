@@ -357,9 +357,15 @@ class Station(Thread):
         for media in media_list:
             file_name, file_title, file_ext = get_file_info(media)
             if file_ext.lower() == 'mp3' and mimetypes.guess_type(media)[0] == 'audio/mpeg':
-                media_objs.append(Mp3(media))
+                try:
+                    media_objs.append(Mp3(media))
+                except:
+                    continue
             elif file_ext.lower() == 'ogg' and mimetypes.guess_type(media)[0] == 'audio/ogg':
-                media_objs.append(Ogg(media))
+                try:
+                    media_objs.append(Ogg(media))
+                except:
+                    continue
         return media_objs
 
     def update_rss(self, media_list, rss_file, sub_title):
