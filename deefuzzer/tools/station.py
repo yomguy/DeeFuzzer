@@ -44,6 +44,7 @@ import string
 import random
 import shout
 import urllib
+import mimetypes
 from threading import Thread
 from __init__ import *
 
@@ -61,6 +62,7 @@ class Station(Thread):
         self.counter = 0
         self.command = 'cat '
         self.delay = 0
+        self.start_time = time.time()
 
        # Media
         self.media_dir = self.station['media']['dir']
@@ -148,6 +150,13 @@ class Station(Thread):
             self.twitter_key = self.station['twitter']['key']
             self.twitter_secret = self.station['twitter']['secret']
             self.twitter_tags = self.station['twitter']['tags'].split(' ')
+            try:
+                self.twitter_messages = self.station['twitter']['message']
+                if isinstance(self.twitter_messages,  dict):
+                    self.twitter_messages = list(self.twitter_messages)
+            except:
+                pass
+                    
             if self.twitter_mode == 1:
                 self.twitter_callback('/twitter', [1])
 
@@ -347,9 +356,9 @@ class Station(Thread):
         media_objs = []
         for media in media_list:
             file_name, file_title, file_ext = get_file_info(media)
-            if file_ext.lower() == 'mp3':
+            if file_ext.lower() == 'mp3' and mimetypes.guess_type(media)[0] == 'audio/mpeg':
                 media_objs.append(Mp3(media))
-            elif file_ext.lower() == 'ogg':
+            elif file_ext.lower() == 'ogg' and mimetypes.guess_type(media)[0] == 'audio/ogg':
                 media_objs.append(Ogg(media))
         return media_objs
 

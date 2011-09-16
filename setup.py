@@ -4,10 +4,14 @@
 '''The setup and build script for the python-twitter library.'''
 
 import os
+from distutils.core import setup
 from deefuzzer import __version__
 
 __author__ = 'yomguy@parisson.com'
 
+with open('README.rst') as file:
+    long_description = file.read()
+    
 # The base package metadata to be used by both distutils and setuptools
 METADATA = dict(
   name = "DeeFuzzer",
@@ -24,8 +28,8 @@ METADATA = dict(
   include_package_data = True,
   scripts=['scripts/deefuzzer'], 
   classifiers = ['Programming Language :: Python', 'Topic :: Internet :: WWW/HTTP :: Dynamic Content', 'Topic :: Multimedia :: Sound/Audio', 'Topic :: Multimedia :: Sound/Audio :: Players',],
+  long_description=long_description, 
 )
-
 
 def Main():
   # Use setuptools if available, otherwise fallback and use distutils
@@ -35,7 +39,6 @@ def Main():
   except ImportError:
     import distutils.core
     distutils.core.setup(**METADATA)
-
-
+    
 if __name__ == '__main__':
     Main()
