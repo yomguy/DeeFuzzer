@@ -34,10 +34,6 @@
             <key>your access token key</key>
             <secret>your access token secret key</secret>
             <tags>bla bla</tags>
-            <message>
-              <text>hello world !</text>
-              <period>30</period>
-            </message>
         </twitter>
         <jingles>
             <mode>0</mode>

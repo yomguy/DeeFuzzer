@@ -8,9 +8,6 @@ from distutils.core import setup
 from deefuzzer import __version__
 
 __author__ = 'yomguy@parisson.com'
-
-with open('README.rst') as file:
-    long_description = file.read()
     
 # The base package metadata to be used by both distutils and setuptools
 METADATA = dict(
@@ -20,7 +17,7 @@ METADATA = dict(
   description='an easy and instant media streaming tool',
   author='Guillaume Pellerin', 
   author_email='yomguy@parisson.com',
-  license='Gnu Public License V2',
+  license='License.txt',
   url='http://svn.parisson.org/deefuzzer',
   keywords='audio video streaming broadcast shout',
   install_requires = ['setuptools', 'tinyurl', 'python-shout', 'python-twitter'],
@@ -28,7 +25,7 @@ METADATA = dict(
   include_package_data = True,
   scripts=['scripts/deefuzzer'], 
   classifiers = ['Programming Language :: Python', 'Topic :: Internet :: WWW/HTTP :: Dynamic Content', 'Topic :: Multimedia :: Sound/Audio', 'Topic :: Multimedia :: Sound/Audio :: Players',],
-  long_description=long_description, 
+  long_description=open('README.txt').read(),
 )
 
 def Main():
