@@ -26,13 +26,23 @@ recommends: icecast2, python-setuptools
 Install
 =========
 
-To install the DeeFuzzer, go to the main deefuzzer app directory, for example::
+Please first install libshout3 and liblo from source OR libshout3-dev and liblo-dev from your own distribution package manager.
+
+Now, the easiest way to install the DeeFuzzer from a shell::
+
+	sudo pip install deefuzzer
+
+or::
+
+	sudo easy_install install deefuzzer
+
+To install the DeeFuzzer from sources, go to the main deefuzzer app directory, for example::
     
     cd deefuzzer-0.5.0
     
-and run the python installer::
+and run::
     
-    sudo python install.py
+    sudo python setup.py install
 
 For more informations, see http://svn.parisson.org/deefuzzer/
 

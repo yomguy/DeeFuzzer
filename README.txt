@@ -26,7 +26,25 @@ Please see example/myfuzz.xml for an example.
 Installation
 ============
 
-see INSTALL
+Please first install libshout3 and liblo from source OR libshout3-dev and liblo-dev from your own distribution package manager.
+
+Now, the easiest way to install the DeeFuzzer from a shell::
+
+	sudo pip install deefuzzer
+
+or::
+
+	sudo easy_install deefuzzer
+
+To install the DeeFuzzer from sources, go to the main deefuzzer app directory, for example::
+
+    cd deefuzzer-0.5.0
+
+and run::
+
+    sudo python setup.py install
+
+For more informations, see http://svn.parisson.org/deefuzzer/
 
 
 License
