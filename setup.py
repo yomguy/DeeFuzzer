@@ -5,7 +5,7 @@
 
 import os
 
-__version__ = '0.6'
+__version__ = '0.6.1'
 __author__ = 'yomguy@parisson.com'
     
 # The base package metadata to be used by both distutils and setuptools

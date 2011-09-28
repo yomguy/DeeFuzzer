@@ -2,7 +2,7 @@
 Introduction
 ============
 
-DeeFuzzer is a new light and instant software made for streaming audio and video over internet. 
+DeeFuzzer is a free, light and instant software made for streaming audio and video over internet.
 It is dedicated to people who wants to create playlisted web radios or web TVs with rich media contents including some metadata.
 
 Here are the main features of the deefuzzer:
@@ -19,9 +19,10 @@ Here are the main features of the deefuzzer:
  * Station relaying : stream other stations like *LIVE* sessions !
  * Very light and optimized streaming process
 
-It is neccessary to provide a config file which sets all needed parameters
-Please see example/myfuzz.xml for an example.
+It is onlu neccessary to provide a config file which sets all needed parameters.
+Please see example/deefuzzer.xml for an example.
 
+Because our aim is to get DeeFuzzer as light as possible it is NOT capable of re-encoding or transcoding media files.
 
 Installation
 ============
@@ -38,7 +39,8 @@ or::
 
 To install the DeeFuzzer from sources, go to the main deefuzzer app directory, for example::
 
-    cd deefuzzer-0.5.0
+	tar xzf deefuzzer-0.6.tar.gz
+    cd deefuzzer-0.6
 
 and run::
 
@@ -50,9 +52,9 @@ For more informations, see http://svn.parisson.org/deefuzzer/
 License
 =======
 
-This software is licensed as described in the file LICENSE, which
+This software is licensed as described in the file LICENSE.txt, which
 you should have received as part of this distribution. The terms
-are also available at http://svn.parisson.org/deefuzzer/DeeFuzzerLicense
+are also available at http://svn.parisson.org/deefuzzer/wiki/DeeFuzzerLicense
 
 
 Usage
@@ -76,7 +78,7 @@ Since 0.3, deefuzzer doesn't print anything into the shell, then a right <log> p
 is needed in the XML config file.
 
 BE CAREFULL : at the moment, the multi-threaded implementation of deefuzzer instances
-avoids shutting down the streams with CTRL+C... You have to kill them manually,
+avoids shutting down the process with a CTRL+C. You have to kill them manually,
 after a CTRL+Z, making this::
 
     pkill -9 deefuzzer
@@ -88,13 +90,16 @@ XML Configuration
 See example/deefuzz_doc.xml in a text editor.
 The inline comments should help you to configure your stations.
 
+For a short MP3 example, see example/deefuzzer.xml.
+For a mixed MP3 + OGG example, see example/deefuzzer_mp3_ogg.xml.
+
 
 OSC Control
 ===========
 
 We can now control some functions of the deefuzzer with external commands
-coming from an OSC client. These are accessible only if the "control" tag is
-set up in the config file (see example/deefuzzer.xml again...).
+coming from an OSC client. These are accessible only if the <control><mode> tag is
+set up to "1" in the config file (see example/deefuzzer.xml again...).
 
 Next track::
 
@@ -129,12 +134,6 @@ Author
 ======
 
 Guillaume Pellerin <yomguy@parisson.com>
-
-
-License
-=======
-
-See COPYING
 
 
 Aknowledgements
