@@ -73,14 +73,6 @@ class Station(Thread):
         self.samplerate = self.station['media']['samplerate']
         self.voices = self.station['media']['voices']
 
-        # RSS
-        self.rss_dir = self.station['rss']['dir']
-        self.rss_enclosure = self.station['rss']['enclosure']
-        if 'media_url' in self.station['rss']:
-            self.rss_media_url = self.station['rss']['media_url']
-            if self.rss_media_url[-1] != '/':
-                self.rss_media_url = self.rss_media_url + '/'
-
         # Infos
         self.channel.url = self.station['infos']['url']
         self.short_name = self.station['infos']['short_name']
@@ -92,6 +84,16 @@ class Station(Thread):
         self.rss_playlist_file = self.base_name + '_playlist.xml'
         self.m3u = m3u
 
+        # RSS
+        self.rss_dir = self.station['rss']['dir']
+        self.rss_enclosure = self.station['rss']['enclosure']
+        if 'media_url' in self.station['rss']:
+            self.rss_media_url = self.station['rss']['media_url']
+            if self.rss_media_url[-1] != '/':
+                self.rss_media_url = self.rss_media_url + '/'
+        else:
+            self.rss_media_url = self.channel.url + '/media/'
+        
         # Server
         self.channel.protocol = 'http'     # | 'xaudiocast' | 'icy'
         self.channel.host = self.station['server']['host']
@@ -406,10 +408,7 @@ class Station(Thread):
             media_absolute_playtime += media.length
 
             if self.rss_enclosure == '1':
-                if self.rss_media_url:
-                    media_link = self.rss_media_url + media.file_name
-                else:
-                    media_link = self.channel.url + '/media/' + media.file_name
+                media_link = self.rss_media_url + media.file_name
                 media_link = media_link.decode('utf-8')
                 rss_item_list.append(RSSItem(
                     title = song,
