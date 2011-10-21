@@ -55,6 +55,9 @@
             <!-- If '1', the RSS feeds will contain an enclosure to become a podcast feed.
                 '0' for simple RSS feed without enclosure -->
             <enclosure>1</enclosure>
+            <!-- the base URL of all media items (optional).
+                 Default is station url /media -->
+            <media_url>http://my.domain.com/media/</media_url>
         </rss>
         <twitter>
             <!-- If '1', deefuzzer will tweet #nowplaying, new tracks and other things to Twitter. 'O' does nothing. -->

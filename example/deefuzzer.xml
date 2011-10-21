@@ -28,6 +28,7 @@
         <rss>
             <dir>/path/to/rss/</dir>
             <enclosure>1</enclosure>
+            <media_url>http://my.domain.com/media/</media_url>
         </rss>
         <twitter>
             <mode>0</mode>

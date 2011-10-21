@@ -76,6 +76,10 @@ class Station(Thread):
         # RSS
         self.rss_dir = self.station['rss']['dir']
         self.rss_enclosure = self.station['rss']['enclosure']
+        if self.station['rss']['media_url']:
+            self.rss_media_url = self.station['rss']['media_url']
+            if self.rss_media_url[-1] != '/':
+                self.rss_media_url = self.rss_media_url + '/'
 
         # Infos
         self.channel.url = self.station['infos']['url']
@@ -402,7 +406,10 @@ class Station(Thread):
             media_absolute_playtime += media.length
 
             if self.rss_enclosure == '1':
-                media_link = self.channel.url + '/media/' + media.file_name
+                if self.rss_media_url:
+                    media_link = self.rss_media_url + media.file_name
+                else:
+                    media_link = self.channel.url + '/media/' + media.file_name
                 media_link = media_link.decode('utf-8')
                 rss_item_list.append(RSSItem(
                     title = song,
