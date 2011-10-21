@@ -76,7 +76,7 @@ class Station(Thread):
         # RSS
         self.rss_dir = self.station['rss']['dir']
         self.rss_enclosure = self.station['rss']['enclosure']
-        if self.station['rss']['media_url']:
+        if 'media_url' in self.station['rss']:
             self.rss_media_url = self.station['rss']['media_url']
             if self.rss_media_url[-1] != '/':
                 self.rss_media_url = self.rss_media_url + '/'
