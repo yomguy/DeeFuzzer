@@ -64,7 +64,7 @@ class Station(Thread):
         self.delay = 0
         self.start_time = time.time()
 
-       # Media
+        # Media
         self.media_dir = self.station['media']['dir']
         self.channel.format = self.station['media']['format']
         self.shuffle_mode = int(self.station['media']['shuffle'])
@@ -79,9 +79,6 @@ class Station(Thread):
         self.channel.name = self.station['infos']['name'] + ' : ' + self.channel.url
         self.channel.genre = self.station['infos']['genre']
         self.channel.description = self.station['infos']['description']
-        self.base_name = self.rss_dir + os.sep + self.short_name + '_' + self.channel.format
-        self.rss_current_file = self.base_name + '_current.xml'
-        self.rss_playlist_file = self.base_name + '_playlist.xml'
         self.m3u = m3u
 
         # RSS
@@ -93,6 +90,9 @@ class Station(Thread):
                 self.rss_media_url = self.rss_media_url + '/'
         else:
             self.rss_media_url = self.channel.url + '/media/'
+        self.base_name = self.rss_dir + os.sep + self.short_name + '_' + self.channel.format
+        self.rss_current_file = self.base_name + '_current.xml'
+        self.rss_playlist_file = self.base_name + '_playlist.xml'
         
         # Server
         self.channel.protocol = 'http'     # | 'xaudiocast' | 'icy'
