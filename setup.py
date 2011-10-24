@@ -24,7 +24,7 @@ METADATA = dict(
   include_package_data = True,
   scripts=['scripts/deefuzzer'], 
   classifiers = ['Programming Language :: Python', 'Topic :: Internet :: WWW/HTTP :: Dynamic Content', 'Topic :: Multimedia :: Sound/Audio', 'Topic :: Multimedia :: Sound/Audio :: Players',],
-  long_description=open('README.txt').read(),
+  long_description=open('README.rst').read(),
 )
 
 def Main():
