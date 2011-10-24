@@ -25,9 +25,9 @@ def prog_info():
  are also available at http://svn.parisson.org/deefuzzer/DeeFuzzerLicense
 
  depends:  python, python-dev, python-xml, python-shout | shout-python, libshout3,
-           libshout3-dev, icecast2, python-mutagen
+           libshout3-dev, python-mutagen
 
- recommends: python-twitter, python-tinyurl, python-liblo | pyliblo (>= 0.26)
+ recommends: icecast2, python-twitter, python-tinyurl, python-liblo | pyliblo (>= 0.26)
 
  Usage : deefuzzer [file]
 
