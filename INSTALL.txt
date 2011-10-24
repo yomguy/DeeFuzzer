@@ -47,8 +47,8 @@ and run::
 For more informations, see http://svn.parisson.org/deefuzzer/
 
 
-Twitter (optional)
-=====================
+Twitter (manual and optional)
+================================
 
 To get track twitting, please install python-twitter, python-oauth2 and all their dependencies.
 

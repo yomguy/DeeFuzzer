@@ -591,3 +591,4 @@ class Station(Thread):
             self.recorder.close()
 
         self.channel.close()
+        
