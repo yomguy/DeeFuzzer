@@ -39,7 +39,7 @@ or::
 
 To install the DeeFuzzer from sources, go to the main deefuzzer app directory, for example::
 
-	tar xzf deefuzzer-0.6.tar.gz
+    tar xzf deefuzzer-0.6.tar.gz
     cd deefuzzer-0.6
 
 and run::
