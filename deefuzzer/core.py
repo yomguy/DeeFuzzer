@@ -41,6 +41,7 @@ import shout
 import Queue
 import datetime
 from threading import Thread
+from deefuzzer.station import *
 from deefuzzer.tools import *
 
 class DeeFuzzer(Thread):
