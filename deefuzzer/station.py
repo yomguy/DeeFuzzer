@@ -500,6 +500,9 @@ class Station(Thread):
         elif self.player_mode == 1:
             self.stream = self.player.file_read_fast()
 
+    def set_webm_read_mode(self):
+        self.channel.set_callback(FileReader(self.media).read_callback)
+
     def update_twitter_current(self):
         artist_names = self.artist.split(' ')
         artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
@@ -539,6 +542,9 @@ class Station(Thread):
             self.q.get(1)
             if self.relay_mode:
                 self.set_relay_mode()
+            else:
+                self.media = self.get_next_media()
+                self.set_webm_read_mode()
             self.channel_open()
             self.channel.start()
             self.q.task_done()

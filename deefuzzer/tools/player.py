@@ -104,7 +104,7 @@ class Player:
 
 class FileReader:
     def __init__(self, fp):
-        self.fp = fp
+        self.fp = open(fp, 'r')
 
     def read_callback(self, size):
         return self.fp.read(size)
