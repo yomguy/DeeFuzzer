@@ -264,11 +264,11 @@ class Station(Thread):
         if value == 1:
             if not os.path.exists(self.record_dir):
                 os.makedirs(self.record_dir)
-            self.rec_file = self.short_name + '-' + \
+            self.rec_file = self.short_name.replace('/', '_') + '-' + \
               datetime.datetime.now().strftime("%x-%X").replace('/', '_') + '.' + self.channel.format
             self.recorder = Recorder(self.record_dir)
             self.recorder.open(self.rec_file)
-        elif value == 0:
+        elif value == 0 and not self.type == 'stream-m':
             self.recorder.close()
             date = datetime.datetime.now().strftime("%Y")
             if self.channel.format == 'mp3':
@@ -472,7 +472,10 @@ class Station(Thread):
         self.artist = self.artist.replace('_', ' ')
         self.song = self.artist + ' : ' + self.title
         if self.type == 'stream-m':
-            self.channel.set_callback(RelayReader(self.relay_url).read_callback)
+            relay = RelayReader(self.relay_url)
+            self.channel.set_callback(relay.read_callback)
+            if self.record_mode:
+             relay.set_recorder(self.recorder)
         else:
             self.stream = self.player.relay_read()
 

@@ -113,6 +113,14 @@ class FileReader:
 class RelayReader:
     def __init__(self, relay):
         self.relay = urllib.urlopen(relay)
+        self.rec_mode = 0
+
+    def set_recorder(self, recorder, mode=1):
+        self.rec_mode = mode
+        self.recorder = recorder
 
     def read_callback(self, size):
-        return self.relay.read(size)
+        chunk = self.relay.read(size)
+        if self.rec_mode == 1 and chunk:
+            self.recorder.write(chunk)
+        return chunk
