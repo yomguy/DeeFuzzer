@@ -100,3 +100,19 @@ class Player:
             yield self.sub_chunk
             self.queue.task_done()
         self.sub_chunk = 0
+
+
+class FileReader:
+    def __init__(self, fp):
+        self.fp = fp
+
+    def read_callback(self, size):
+        return self.fp.read(size)
+
+
+class RelayReader:
+    def __init__(self, relay):
+        self.relay = urllib.urlopen(relay)
+
+    def read_callback(self, size):
+        return self.relay.read(size)

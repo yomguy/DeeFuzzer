@@ -37,39 +37,44 @@
 # Author: Guillaume Pellerin <yomguy@parisson.com>
 
 from threading import Thread
-import Queue
-import urllib
+import pycurl
 
-class Relay(Thread):
+class HTTPStreamer(Thread):
 
-    def __init__(self, sub_buffer_size, queue_size):
+    protocol = 'http'
+    host = str
+    port = str
+    mount = str
+    user = str
+    password = str
+    public = str
+    audio_info = dict
+    name = str
+    genre = str
+    decription = str
+    format = str
+    url = str
+    delay = 0
+
+    def __init__(self):
         Thread.__init__(self)
-        self.sub_buffer_size = sub_buffer_size
-        self.queue_size = queue_size
-        self.queue = Queue.Queue(self.queue_size)
+        self.curl = pycurl.Curl()
 
-    def set_url(self, url):
-        self.url = url
+    def set_callback(self, read_callback):
+        self.read_callback = read_callback
+
+    def delay(self):
+        return self.delay
 
     def open(self):
-        try:
-            self.stream = urllib.urlopen(self.url)
-            self.isopen = True
-        except:
-            self.isopen = False
+        self.uri = self.protocol + '://' + self.host + ':' + str(self.port) + self.mount + '?' + 'password=' + self.password
 
-    def close(self):
-        if self.stream:
-            self.isopen = False
+        self.curl.setopt(pycurl.URL, self.uri)
+        self.curl.setopt(pycurl.UPLOAD, 1)
+        self.curl.setopt(pycurl.READFUNCTION, self.read_callback)
 
     def run(self):
-        while True:
-            if self.isopen:
-                self.chunk = self.stream.read(self.sub_buffer_size)
-                self.queue.put_nowait(self.chunk)
-#                print self.queue.qsize()
-            else:
-                self.stream.close()
-                break
+        self.curl.perform()
 
-
+    def close(self):
+        self.curl.close()

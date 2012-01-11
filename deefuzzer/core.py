@@ -88,7 +88,7 @@ class DeeFuzzer(Thread):
         m3u.write('#EXTM3U\n')
         for s in self.stations:
             info = '#EXTINF:%s,%s - %s\n' % ('-1',s.short_name, s.channel.name)
-            url =  s.channel.protocol + '://' + s.channel.host + ':' + str(s.channel.port) + s.channel.mount + '\n'
+            url =  'http://' + s.channel.host + ':' + str(s.channel.port) + s.channel.mount + '\n'
             m3u.write(info)
             m3u.write(url)
         m3u.close()

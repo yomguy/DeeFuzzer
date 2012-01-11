@@ -46,40 +46,69 @@ import shout
 import urllib
 import mimetypes
 from threading import Thread
-from __init__ import *
+from tools import *
 
 
 class Station(Thread):
     """a DeeFuzzer shouting station thread"""
+
+    id = 999999
+    counter = 0
+    command = 'cat '
+    delay = 0
+    start_time = time.time()
 
     def __init__(self, station, q, logger, m3u):
         Thread.__init__(self)
         self.station = station
         self.q = q
         self.logger = logger
-        self.channel = shout.Shout()
-        self.id = 999999
-        self.counter = 0
-        self.command = 'cat '
-        self.delay = 0
-        self.start_time = time.time()
+        self.m3u = m3u
+        self.server_ping = False
 
         # Media
         self.media_dir = self.station['media']['dir']
-        self.channel.format = self.station['media']['format']
+        self.media_format = self.station['media']['format']
         self.shuffle_mode = int(self.station['media']['shuffle'])
         self.bitrate = self.station['media']['bitrate']
         self.ogg_quality = self.station['media']['ogg_quality']
         self.samplerate = self.station['media']['samplerate']
         self.voices = self.station['media']['voices']
 
-        # Infos
-        self.channel.url = self.station['infos']['url']
+        # Server
         self.short_name = self.station['infos']['short_name']
+        self.mount = '/' + self.short_name
+
+        if 'type' in self.station['server']:
+            self.type = self.station['server']['type'] #  'icecast' | 'stream-m'
+        else:
+            self.type = 'icecast'
+
+        if 'stream-m' in self.type:
+            self.channel = HTTPStreamer()
+            self.channel.mount = self.mount
+        else:
+            self.channel = shout.Shout()
+            self.channel.mount = self.mount + '.' + self.media_format
+
+        self.channel.url = self.station['infos']['url']
         self.channel.name = self.station['infos']['name'] + ' : ' + self.channel.url
         self.channel.genre = self.station['infos']['genre']
         self.channel.description = self.station['infos']['description']
-        self.m3u = m3u
+        self.channel.format = self.media_format
+        self.channel.host = self.station['server']['host']
+        self.channel.port = int(self.station['server']['port'])
+        self.channel.user = 'source'
+        self.channel.password = self.station['server']['sourcepassword']
+        self.channel.public = int(self.station['server']['public'])
+        self.channel.genre = self.station['infos']['genre']
+        self.channel.description = self.station['infos']['description']
+        self.channel.audio_info = { 'bitrate': self.bitrate,
+                                    'samplerate': self.samplerate,
+                                    'quality': self.ogg_quality,
+                                    'channels': self.voices,}
+        self.server_url = 'http://' + self.channel.host + ':' + str(self.channel.port)
+        self.channel_url = self.server_url + self.channel.mount
 
         # RSS
         self.rss_dir = self.station['rss']['dir']
@@ -93,23 +122,7 @@ class Station(Thread):
         self.base_name = self.rss_dir + os.sep + self.short_name + '_' + self.channel.format
         self.rss_current_file = self.base_name + '_current.xml'
         self.rss_playlist_file = self.base_name + '_playlist.xml'
-        
-        # Server
-        self.channel.protocol = 'http'     # | 'xaudiocast' | 'icy'
-        self.channel.host = self.station['server']['host']
-        self.channel.port = int(self.station['server']['port'])
-        self.channel.user = 'source'
-        self.channel.password = self.station['server']['sourcepassword']
-        self.channel.mount = '/' + self.short_name + '.' + self.channel.format
-        self.channel.public = int(self.station['server']['public'])
-        self.channel.audio_info = { 'bitrate': self.bitrate,
-                                    'samplerate': self.samplerate,
-                                    'quality': self.ogg_quality,
-                                    'channels': self.voices,}
-        self.server_url = 'http://' + self.channel.host + ':' + str(self.channel.port)
-        self.channel_url = self.server_url + self.channel.mount 
-        self.server_ping = False
-        
+
         # Playlist
         self.playlist = self.get_playlist()
         self.lp = len(self.playlist)
@@ -162,7 +175,7 @@ class Station(Thread):
                     self.twitter_messages = list(self.twitter_messages)
             except:
                 pass
-                    
+
             if self.twitter_mode == 1:
                 self.twitter_callback('/twitter', [1])
 
@@ -213,10 +226,12 @@ class Station(Thread):
         value = value[0]
         if value == 1:
             self.relay_mode = 1
-            self.player.start_relay(self.relay_url)
+            if self.type == 'icecast':
+                self.player.start_relay(self.relay_url)
         elif value == 0:
             self.relay_mode = 0
-            self.player.stop_relay()
+            if self.type == 'icecast':
+                self.player.stop_relay()
         self.id = 0
         self.next_media = 1
         message = "Station " + self.channel_url + " : received OSC message '%s' with arguments '%d'" % (path, value)
@@ -314,7 +329,7 @@ class Station(Thread):
                 playlist_set = set(playlist)
                 new_tracks = new_playlist_set - playlist_set
                 self.new_tracks = list(new_tracks.copy())
-                
+
                 if len(new_tracks) != 0:
                     new_tracks_objs = self.media_to_objs(self.new_tracks)
                     for media_obj in new_tracks_objs:
@@ -332,16 +347,16 @@ class Station(Thread):
                             message = '#NEWTRACK ! %s #%s on #%s RSS: ' % (song.replace('_', ' '), artist_tags, self.short_name)
                             message = message[:113] + self.rss_tinyurl
                             self.update_twitter(message)
-                
+
                 # Shake it, Fuzz it !
                 if self.shuffle_mode == 1:
                     random.shuffle(playlist)
-                    
+
                 # Play new tracks first
                 for track in self.new_tracks:
                     playlist.insert(0, track)
                 self.playlist = playlist
-                
+
                 self.logger.write_info('Station ' + self.channel_url + \
                                  ' : generating new playlist (' + str(self.lp) + ' tracks)')
                 self.update_rss(self.media_to_objs(self.playlist), self.rss_playlist_file, '(playlist)')
@@ -456,7 +471,10 @@ class Station(Thread):
         self.title = self.title.replace('_', ' ')
         self.artist = self.artist.replace('_', ' ')
         self.song = self.artist + ' : ' + self.title
-        self.stream = self.player.relay_read()
+        if self.type == 'stream-m':
+            self.channel.set_callback(RelayReader(self.relay_url).read_callback)
+        else:
+            self.stream = self.player.relay_read()
 
     def set_read_mode(self):
         self.prefix = '#nowplaying'
@@ -494,7 +512,7 @@ class Station(Thread):
     def channel_open(self):
         self.channel.open()
         self.channel_delay = self.channel.delay()
-    
+
     def ping_server(self):
         log = True
         while not self.server_ping:
@@ -511,84 +529,102 @@ class Station(Thread):
                     log = False
                 self.q.task_done()
                 pass
-        
+
     def run(self):
-        self.ping_server()
         self.q.get(1)
-        self.channel_open()
-        self.logger.write_info('Station ' + self.channel_url + ' : channel connected')
+        self.ping_server()
         self.q.task_done()
-        
-        while self.run_mode:
+
+        if self.type == 'stream-m':
             self.q.get(1)
-            self.next_media = 0
-            self.media = self.get_next_media()
-            self.counter += 1
             if self.relay_mode:
                 self.set_relay_mode()
-            elif os.path.exists(self.media) and not os.sep+'.' in self.media:
-                if self.lp == 0:
-                    self.logger.write_error('Station ' + self.channel_url + ' : has no media to stream !')
-                    break
-                self.set_read_mode()
+            self.channel_open()
+            self.channel.start()
             self.q.task_done()
 
+        if self.type == 'icecast':
             self.q.get(1)
-            if (not (self.jingles_mode and (self.counter % 2)) or self.relay_mode) and self.twitter_mode:
-                try:
-                    self.update_twitter_current()
-                except:
-                    continue
-            try:
-                self.channel.set_metadata({'song': self.song, 'charset': 'utf-8',})
-            except:
-                continue
+            self.channel_open()
+            self.logger.write_info('Station ' + self.channel_url + ' : channel connected')
             self.q.task_done()
 
-            for self.chunk in self.stream:
-                if self.next_media or not self.run_mode:
-                    break
-                if self.record_mode:
+            while self.run_mode:
+                self.q.get(1)
+                self.next_media = 0
+                self.media = self.get_next_media()
+                self.counter += 1
+                if self.relay_mode:
+                    self.set_relay_mode()
+                elif os.path.exists(self.media) and not os.sep+'.' in self.media:
+                    if self.lp == 0:
+                        self.logger.write_error('Station ' + self.channel_url + ' : has no media to stream !')
+                        break
+                    self.set_read_mode()
+                self.q.task_done()
+
+                self.q.get(1)
+                if (not (self.jingles_mode and (self.counter % 2)) or self.relay_mode) and self.twitter_mode:
                     try:
-                        self.q.get(1)
-                        self.recorder.write(self.chunk)
-                        self.q.task_done()
+                        self.update_twitter_current()
                     except:
-                        self.logger.write_error('Station ' + self.channel_url + ' : could not write the buffer to the file')
-                        self.q.task_done()
                         continue
                 try:
-                    self.q.get(1)
-                    self.channel.send(self.chunk)
-                    self.channel.sync()
-                    self.q.task_done()
+                    self.channel.set_metadata({'song': self.song, 'charset': 'utf-8',})
                 except:
-                    self.logger.write_error('Station ' + self.channel_url + ' : could not send the buffer')
-                    self.q.task_done()
-                    try:
-                        self.q.get(1)
-                        self.channel.close()
-                        self.logger.write_info('Station ' + self.channel_url + ' : channel closed')
-                        self.q.task_done()
-                    except:
-                        self.logger.write_error('Station ' + self.channel_url + ' : could not close the channel')
-                        self.q.task_done()
-                        continue
-                    try:
-                        self.ping_server()
-                        self.q.get(1)
-                        self.channel_open()
-                        self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
-                        self.logger.write_info('Station ' + self.channel_url + ' : channel restarted')
-                        self.q.task_done()
-                    except:
-                        self.logger.write_error('Station ' + self.channel_url + ' : could not restart the channel')
-                        self.q.task_done()
-                        continue
                     continue
+                self.q.task_done()
 
-        if self.record_mode:
-            self.recorder.close()
 
-        self.channel.close()
-        
+                for self.chunk in self.stream:
+                    if self.next_media or not self.run_mode:
+                        break
+                    if self.record_mode:
+                        try:
+                            self.q.get(1)
+                            self.recorder.write(self.chunk)
+                            self.q.task_done()
+                        except:
+                            self.logger.write_error('Station ' + self.channel_url + ' : could not write the buffer to the file')
+                            self.q.task_done()
+                            continue
+                    try:
+                        self.q.get(1)
+                        self.channel.send(self.chunk)
+                        self.channel.sync()
+                        self.q.task_done()
+                    except:
+                        self.logger.write_error('Station ' + self.channel_url + ' : could not send the buffer')
+                        self.q.task_done()
+                        try:
+                            self.q.get(1)
+                            self.channel.close()
+                            self.logger.write_info('Station ' + self.channel_url + ' : channel closed')
+                            self.q.task_done()
+                        except:
+                            self.logger.write_error('Station ' + self.channel_url + ' : could not close the channel')
+                            self.q.task_done()
+                            continue
+                        try:
+                            self.ping_server()
+                            self.q.get(1)
+                            self.channel_open()
+                            self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
+                            self.logger.write_info('Station ' + self.channel_url + ' : channel restarted')
+                            self.q.task_done()
+                        except:
+                            self.logger.write_error('Station ' + self.channel_url + ' : could not restart the channel')
+                            self.q.task_done()
+                            continue
+                        continue
+
+            if self.record_mode:
+                self.recorder.close()
+
+            self.channel.close()
+
+
+
+
+
+

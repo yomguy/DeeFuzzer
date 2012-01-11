@@ -21,6 +21,8 @@
             <genre>Various Funk Groove</genre>
         </infos>
         <server>
+            <!-- The type of the server (icecast or stream-m) -->
+            <type>icecast</type>
             <!-- The host to send the stream (domain or IP) -->
             <host>mydomain.com</host>
             <!-- The port of the Icecast2 server on the host -->
