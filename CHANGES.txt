@@ -1,2 +1,0 @@
-v0.5.7, 09/26/2011 -- Initial changelog
-

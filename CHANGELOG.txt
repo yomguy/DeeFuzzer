@@ -1,0 +1,10 @@
+deefuzzer (0.6.2-1beta) unstable; urgency=low
+
+* new HTTP steamer based on pycurl to handle stream-m servers (webm streaming)
+* live webm relaying works good, webm playlist reading NEED testing
+* new <station><server><type> parameter ('icecast or 'stream-m')
+
+-- Guillaume Pellerin <yomguy@parisson.com>  Thu, 12 Jan 2012 13:22:22 +0100
+
+
+
