@@ -7,4 +7,5 @@ deefuzzer (0.6.2-1beta) unstable; urgency=low
 -- Guillaume Pellerin <yomguy@parisson.com>  Thu, 12 Jan 2012 13:22:22 +0100
 
 
+For older changes, please see http://svn.parisson.org/deefuzzer
 

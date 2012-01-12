@@ -130,6 +130,12 @@ Stop jingling::
     python deefuzzer/scripts/osc_jingles_stop.py
 
 
+CHANGELOG
+==========
+
+See CHANGELOG.txt
+
+
 Author
 ======
 
