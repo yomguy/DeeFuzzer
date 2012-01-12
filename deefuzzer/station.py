@@ -472,7 +472,7 @@ class Station(Thread):
         self.artist = self.artist.replace('_', ' ')
         self.song = self.artist + ' : ' + self.title
         if self.type == 'stream-m':
-            relay = RelayReader(self.relay_url)
+            relay = URLReader(self.relay_url)
             self.channel.set_callback(relay.read_callback)
             if self.record_mode:
              relay.set_recorder(self.recorder)
