@@ -77,12 +77,13 @@ class Station(Thread):
 
         # Server
         self.short_name = self.station['infos']['short_name']
-        self.mount = '/' + self.short_name
 
         if 'type' in self.station['server']:
             self.type = self.station['server']['type'] #  'icecast' | 'stream-m'
+            self.mount = '/publish/' + self.short_name
         else:
             self.type = 'icecast'
+            self.mount = '/' + self.short_name
 
         if 'stream-m' in self.type:
             self.channel = HTTPStreamer()
