@@ -80,9 +80,12 @@ class Station(Thread):
 
         if 'type' in self.station['server']:
             self.type = self.station['server']['type'] #  'icecast' | 'stream-m'
+
+        if self.type == 'stream-m':
             self.mount = '/publish/' + self.short_name
+        elif self.type == 'icecast':
+            self.mount = '/' + self.short_name
         else:
-            self.type = 'icecast'
             self.mount = '/' + self.short_name
 
         if 'stream-m' in self.type:
