@@ -8,6 +8,8 @@ import os
 __version__ = '0.6.1'
 __author__ = 'yomguy@parisson.com'
 
+README = os.path.join(os.path.dirname(__file__), 'README.rst')
+
 # The base package metadata to be used by both distutils and setuptools
 METADATA = dict(
   name = "DeeFuzzer",
@@ -24,7 +26,7 @@ METADATA = dict(
   include_package_data = True,
   scripts=['scripts/deefuzzer'],
   classifiers = ['Programming Language :: Python', 'Topic :: Internet :: WWW/HTTP :: Dynamic Content', 'Topic :: Multimedia :: Sound/Audio', 'Topic :: Multimedia :: Sound/Audio :: Players',],
-  long_description=open('README.rst').read(),
+  long_description=open(README).read(),
 )
 
 def Main():
