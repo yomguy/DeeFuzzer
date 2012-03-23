@@ -32,6 +32,13 @@ Because our aim is to get DeeFuzzer as light as possible it is NOT capable of re
 News
 =====
 
+0.6.2 has been released !
+
+ * No new functions but bugfixes (including a serious one during install from pypi)
+ * Definitely moved the project to `GitHub <https://github.com/yomguy/DeeFuzzer>`_
+ * Update various README details
+ * update API doc: http://files.parisson.com/doc/deefuzzer/
+
 0.6.1 is out !
 
  * new HTTP steamer based on pycurl to handle streaming over stream-m servers (WebM streaming)
@@ -179,8 +186,11 @@ Join us!
 Author
 ======
 
-Guillaume Pellerin <yomguy@parisson.com>
-Twitter: @yomguy
+YomguY aka Guillaume Pellerin:
+
+ * twitter   @yomguy @parisson_studio
+ * g+        +Guillaume Pellerin
+ * email     <yomguy@parisson.com>
 
 License
 =======

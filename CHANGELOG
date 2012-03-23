@@ -7,4 +7,90 @@ deefuzzer (0.6.1-1) unstable; urgency=low
 
 -- Guillaume Pellerin <yomguy@parisson.com>  Thu, 12 Jan 2012 13:22:22 +0100
 
-For older changes, please see http://svn.parisson.org/deefuzzer
+For older changes::
+
+ * 10/24/2011:
+   
+   Follow now the !DeeFuzzer news from the blog, right on this page.[[BR]]
+   Checkout the [http://svn.parisson.org/deefuzzer/blog?format=rss RSS feed] !
+
+ * 09/27/2011:
+
+   Sorry the 0.5.8 install procedure was just wrong !
+   Now fixed in [http://pypi.python.org/packages/source/D/DeeFuzzer/DeeFuzzer-0.6.tar.gz DeeFuzzer 0.6]
+
+ * 09/26/2011:
+
+   [http://debian.parisson.org/DeeFuzzer-0.5.8.tar.gz DeeFuzzer 0.5.8] has been released ! [[BR]]
+   [http://svn.parisson.org/deefuzzer/log/?action=stop_on_copy&mode=stop_on_copy&rev=285&stop_rev=277&limit=100 Changelog].[[BR]]
+   
+ * 05/30/2011:
+
+   [http://debian.parisson.org/deefuzzer-0.5.4.tar.gz DeeFuzzer 0.5.4] has been released ! [[BR]]
+   bugfixes and minor changes. [[BR]]
+   DeeFuzzer is now is real module and [http://pypi.python.org/pypi?:action=display&name=DeeFuzzer&version=0.5.4 part of Python Package Index] [[BR]]
+   [http://svn.parisson.org/deefuzzer/log/?action=stop_on_copy&mode=stop_on_copy&rev=266&stop_rev=256&limit=100 Changelog].[[BR]]
+
+ * December 18th 2010 Merry Xmas !:
+
+   [http://debian.parisson.org/deefuzzer-0.5.0.tar.gz DeeFuzzer 0.5.0] has been released ! [[BR]]
+
+   Fix the twitting module against twitter oauth API ! [[BR]]
+   You'll need your own token keys now. See INSTALL. [[BR]]
+   Be careful, XML tags have changed for twitter keys. [[BR]]
+   Please update you XML config file if you use the twitter module.[[BR]]
+   [http://svn.parisson.org/deefuzzer/log/?action=stop_on_copy&mode=stop_on_copy&rev=256&stop_rev=250&limit=100 Changelog].[[BR]]
+
+ * December 6th 2010:
+
+   [http://debian.parisson.org/deefuzzer-0.4.3.tar.gz DeeFuzzer 0.4.3] has been released ! [[BR]]
+
+   Mainly bugfixes again : [http://svn.parisson.org/deefuzzer/log/?action=stop_on_copy&mode=stop_on_copy&rev=248&stop_rev=237&limit=100 changelog here].[[BR]]
+   Bugfixes for the metadata writing method, improve buffer behavior when no network is available.[[BR]]
+   As python-twitter is not updated yet against the new Twitter API OAuth, the !DeeFuzzer twitter posting method is disabled again in this version :(
+
+ * September 9th 2010:
+
+   [http://debian.parisson.org/deefuzzer-0.4.2.tar.gz DeeFuzzer 0.4.2] has been released ! [[BR]]
+
+   Mainly bugfixes : [http://svn.parisson.org/deefuzzer/log/?action=stop_on_copy&mode=stop_on_copy&rev=236&stop_rev=210&limit=100 changelog here].[[BR]]
+   Improve the Recorder which has been tested in production during 150 record sessions (450 hours tot), seems OK !
+
+   Due to the new oauth system provided by Twitter, our old based authorization do NOT work anymore.[[BR]]
+   So please DISABLE the twitter mode of your DeeFuzzer until the next really soon release (python-twitter-0.8 needed and coming...)
+
+   Stay Tuned !
+
+ * March 2nd 2010:
+
+    [http://debian.parisson.org/deefuzzer-0.4.1.tar.gz DeeFuzzer 0.4.1] has been released ! [[BR]]
+    New features : recording, full documented example [[BR]]
+    Fix many bugs : [http://svn.parisson.org/deefuzzer/log/?action=stop_on_copy&mode=stop_on_copy&rev=208&stop_rev=185&limit=100 Changelog here]. [[BR]]
+    Stable here for 12 stations during 1 month :)
+
+ * December 24th 2009:
+
+    [http://debian.parisson.org/deefuzzer-0.4.tar.gz DeeFuzzer 0.4] has been released ! [[BR]]
+    New features : twitting, jingling, relaying, all controlled by OSC commands [[BR]]
+    [http://svn.parisson.org/deefuzzer/log/?action=stop_on_copy&mode=stop_on_copy&rev=184&stop_rev=138&limit=100 Changelog here]. [[BR]]
+    Happy X-Mas ;-)
+
+ * October 5th 2009:
+
+   [http://debian.parisson.org/deefuzzer-0.3.2.tar.gz DeeFuzzer 0.3.2] has been released ! [http://svn.parisson.org/deefuzzer/log/?action=stop_on_copy&mode=stop_on_copy&rev=138&stop_rev=134&limit=100 Changelog here].
+  
+
+ * April 17th 2009:
+
+   [http://debian.parisson.org/deefuzzer-0.3.1.tar.gz DeeFuzzer 0.3.1] has been released ! [http://debian.parisson.org/deefuzzer-0.3.1.tar.gz Get it] and !DeeFuzz it ;)
+
+ * April 16th 2009:
+
+   !DeeFuzzer is now more stable thanks to the new threading capability of shout-python and many bugfixes.[[BR]]
+   It is now able to start multiple stations at one time without xruns...[[BR]]
+   I will release 0.3.0 very soon as a beta version... Enjoy ! ;-)
+
+ * March 29th 2009:
+
+   !DeeFuzzer is now fully functional for one station thread (new RSS feeding).
+
