@@ -1,8 +1,10 @@
 #!/bin/sh
 # needs epydoc
 
-dir=/home/momo/dev/deefuzzer/doc/
+app="deefuzzer"
+dir=/home/$USER/dev/$app/doc/
+server="doc.parisson.com"
 
-epydoc -n deefuzzer -u https://github.com/yomguy/DeeFuzzer -o $dir deefuzzer/
-rsync -a $dir doc.parisson.com:/var/www/files/doc/deefuzzer/
+epydoc -n $app -u https://github.com/yomguy/DeeFuzzer -o $dir $app/
+rsync -a $dir $server:/var/www/files/doc/$app/
 
