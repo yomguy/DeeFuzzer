@@ -109,12 +109,9 @@ or, more specificially::
 XML Configuration
 =================
 
-See example/deefuzz_doc.xml in a text editor.
-The inline comments should help you to configure your stations.
+As an example of a configuration file, see `this one  <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.xml>`_ or `this one <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_doc.xml>`_ for more infos on the markup parameters.
 
-For a short MP3 example, see example/deefuzzer.xml.
-For a mixed MP3 + OGG example, see example/deefuzzer_mp3_ogg.xml.
-
+OGG Vorbis and MP3 together, see `this one <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_mp3_ogg.xml>`_.
 
 OSC Control
 ===========
