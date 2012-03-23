@@ -39,7 +39,9 @@ News
  * live webm relaying works good, webm playlist reading NEED testing
  * new <station><server><type> parameter ('icecast or 'stream-m')
 
-Enjoy the video streaming ! ;)
+`Download it <http://pypi.python.org/packages/source/D/DeeFuzzer/DeeFuzzer-0.6.1.tar.gz>`_
+
+and enjoy the video streaming ! ;)
 
 `Full CHANGELOG <https://github.com/yomguy/DeeFuzzer/blob/master/CHANGELOG>`_
 
