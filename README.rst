@@ -41,7 +41,7 @@ News
 
 Enjoy the video streaming ! ;)
 
-`Full CHANGELOG <http://github.com/yomguy/DeeFuzzer/blob/master/CHANGELOG>`_
+`Full CHANGELOG <https://github.com/yomguy/DeeFuzzer/blob/master/CHANGELOG>`_
 
 
 Installation
@@ -61,7 +61,7 @@ or::
 
 	sudo easy_install deefuzzer
 
-To install the DeeFuzzer from sources, download the last archive `here <http://pypi.python.org/pypi/DeeFuzzer>`_ or `here <http://github.com/yomguy/DeeFuzzer/tags>`_.
+To install the DeeFuzzer from sources, download the last archive `here <http://pypi.python.org/pypi/DeeFuzzer>`_ or `here <https://github.com/yomguy/DeeFuzzer/tags>`_.
 
 Uncompress, go to the deefuzzer app directory and run install as root. For example::
 
@@ -75,7 +75,7 @@ Follow the related package list to install optional or recommended applications:
  * **optional**: python-twitter, python-liblo | pyliblo (>= 0.26)
  * **recommends**: icecast2, python-setuptools, stream-m
 
-For more informations, please see http://github.com/yomguy/DeeFuzzer or twitt a message to @parisson_studio
+For more informations, please see https://github.com/yomguy/DeeFuzzer or twitt a message to @parisson_studio
 
 Usage
 =====
@@ -91,8 +91,7 @@ To make the deefuzzer act as a deamon, just play it in the background::
     deefuzzer example/deefuzzer.xml &
 
 Note that you must edit the config file with right parameters before playing.
-You can find an example for a draft XML file in the directory "example/" of this
-application (maybe in /usr/share/deefuzzer/example/ if installed with the help of install.py)
+You can find an example for a draft XML file in the "example" directory of the source code.
 
 WARNING: because we need the DeeFuzer to be a very stable streaming process with multiple channel management,
 the multi-threaded implementation of deefuzzer instances avoids shutting down the process with a CTRL+C.
@@ -169,7 +168,7 @@ Development
 ============
 
 Everybody is welcome to participate to the DeeFuzzer project !
-We use GitHub to collaborate: http://github.com/yomguy/DeeFuzzer
+We use GitHub to collaborate: https://github.com/yomguy/DeeFuzzer
 
 Join us!
 
@@ -205,7 +204,7 @@ Twitter:
 
 GitHub:
 
-    http://github.com/yomguy/DeeFuzzer
+    https://github.com/yomguy/DeeFuzzer
 
 Expertise, Business, Sponsoring:
 
