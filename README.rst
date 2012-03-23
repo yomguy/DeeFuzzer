@@ -163,6 +163,11 @@ For example::
 
 Your DeeFuzzer will now tweet the currently playing track and new tracks on your profile.
 
+API
+===
+
+http://files.parisson.com/doc/deefuzzer/
+
 Development
 ============
 
