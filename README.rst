@@ -3,12 +3,13 @@
 Introduction
 ============
 
-DeeFuzzer is a free, light and instant software made for streaming audio and video over internet.
-It is dedicated to people who wants to create playlisted web radios or web TVs with rich media contents including some metadata.
+DeeFuzzer is an open, light and instant software made for streaming audio and video over internet.
+It is dedicated to media streaming communities who wants to create web radios, web televisions,
+live multimedia relaying or even as a personal home radio, with rich media contents including track metadata.
 
 Here are the main features of the deefuzzer:
 
- * MP3 and OGG (audio & video) file streaming over internet (Icecast)
+ * MP3, OGG Vorbis file and live streaming over internet
  * Full metadata encapsulation and management
  * RSS podcast generator (current tracks and playlists)
  * M3U playlist generator
@@ -19,14 +20,21 @@ Here are the main features of the deefuzzer:
  * OSC controller : control the main functions from a distant terminal
  * Station relaying : stream other stations like *LIVE* sessions !
  * Very light and optimized streaming process
+ * Fully written in Python
+ * Works with Icecast2, ShoutCast, Stream-m
+ * EXPERIMENTAL: WebM video streaming support
 
-It is onlu neccessary to provide a config file which sets all needed parameters.
+It is only neccessary to provide a config file which sets all needed parameters.
 Please see example/deefuzzer.xml for an example.
 
 Because our aim is to get DeeFuzzer as light as possible it is NOT capable of re-encoding or transcoding media files.
 
 Installation
 ============
+
+DeeFuzzer has now only been well tested on Linux, but should work on any other platform.
+You would then need to install libshout3 and liblo libraries for it. On Windows,
+an install inside Gygwin should work well.
 
 Please first install libshout3 and liblo from source OR libshout3-dev and liblo-dev from your own distribution package manager.
 
@@ -38,24 +46,15 @@ or::
 
 	sudo easy_install deefuzzer
 
-To install the DeeFuzzer from sources, go to the main deefuzzer app directory, for example::
+To install the DeeFuzzer from sources, download the last archive `HERE <http://github.com/yomguy/DeeFuzzer/tags>`_
+
+Uncompress, go to the deefuzzer app directory and run install as root. For example::
 
     tar xzf deefuzzer-0.6.tar.gz
     cd deefuzzer-0.6
-
-and run::
-
     sudo python setup.py install
 
-For more informations, see http://svn.parisson.org/deefuzzer/
-
-
-License
-=======
-
-This software is licensed as described in the file LICENSE.txt, which
-you should have received as part of this distribution. The terms
-are also available at http://svn.parisson.org/deefuzzer/wiki/DeeFuzzerLicense
+For more informations, please see http://github.com/yomguy/DeeFuzzer or twitt a message to @parisson_studio
 
 
 Usage
@@ -75,14 +74,15 @@ Note that you must edit the config file with right parameters before playing.
 You can find an example for a draft XML file in the directory "example/" of this
 application (maybe in /usr/share/deefuzzer/example/ if installed with the help of install.py)
 
-Since 0.3, deefuzzer doesn't print anything into the shell, then a right <log> parameter
-is needed in the XML config file.
-
-BE CAREFULL : at the moment, the multi-threaded implementation of deefuzzer instances
-avoids shutting down the process with a CTRL+C. You have to kill them manually,
-after a CTRL+Z, making this::
+WARNING: because we need the DeeFuzer to be a very stable streaming process with multiple channel management,
+the multi-threaded implementation of deefuzzer instances avoids shutting down the process with a CTRL+C.
+You have to kill them manually, after a CTRL+Z, making this::
 
     pkill -9 deefuzzer
+
+or, more specificially::
+
+    pkill -9 -f "deefuzzer example/deefuzzer.xml"
 
 
 XML Configuration
@@ -98,50 +98,42 @@ For a mixed MP3 + OGG example, see example/deefuzzer_mp3_ogg.xml.
 OSC Control
 ===========
 
-We can now control some functions of the deefuzzer with external commands
-coming from an OSC client. These are accessible only if the <control><mode> tag is
-set up to "1" in the config file (see example/deefuzzer.xml again...).
+Some of the DeeFuzzer function parameters can be control through the great OSC protocol.
+The OSC server is only active if the <control><mode> tag is set up to "1"
+in the config file (see example/deefuzzer.xml again..).
 
-Next track::
+The available parameters are:
 
-    python deefuzzer/scripts/osc_next.py
+    * play next track
+    * start/stop twitting
+    * start/stop relaying
+    * start/stop jingling
 
-Start twitting::
+Then any OSC remote (PureDate, Monome, TouchOSC, etc..) can a become controller ! :)
 
-    python deefuzzer/scripts/osc_twitter_start.py
+We provide some client python scripts as some examples about how to control the parameters
+from a console or any application (see deefuzzer/scripts/).
 
-Stop twitting::
+Development
+============
 
-    python deefuzzer/scripts/osc_twitter_stop.py
+Everybody is welcome to participate to the DeeFuzzer project !
+We use GitHub to collaborate: http://github.com/yomguy/DeeFuzzer
 
-Start relaying::
-
-    python deefuzzer/scripts/osc_relay_start.py
-
-Stop relaying::
-
-    python deefuzzer/scripts/osc_relay_stop.py
-
-Start jingling::
-
-    python deefuzzer/scripts/osc_jingles_start.py
-
-Stop jingling::
-
-    python deefuzzer/scripts/osc_jingles_stop.py
-
-
-CHANGELOG
-==========
-
-See CHANGELOG.txt
-
+Join us!
 
 Author
 ======
 
 Guillaume Pellerin <yomguy@parisson.com>
+Twitter: @yomguy
 
+License
+=======
+
+This software is licensed as described in the file LICENSE.txt, which
+you should have received as part of this distribution. The terms
+are also available at http://svn.parisson.org/deefuzzer/wiki/DeeFuzzerLicense
 
 Aknowledgements
 ===============
@@ -154,9 +146,18 @@ from scratch in python.
 Some parts of this work are also taken from another Parisson's project : Telemeta
 (see http://telemeta.org).
 
-
 Contact / Infos
 ===============
 
-see http://svn.parisson.org/deefuzzer/ or http://parisson.com for more info.
+Twitter:
+
+    @yomguy @parisson_studio
+
+GitHub:
+
+    http://github.com/yomguy/DeeFuzzer
+
+Expertise, Business, Sponsoring:
+
+    http://parisson.com
 
