@@ -43,15 +43,6 @@ Enjoy the video streaming ! ;)
 
 `Full CHANGELOG <http://github.com/yomguy/DeeFuzzer/blob/master/CHANGELOG>`_
 
-Dependencies
-=============
-
-depends:  python, python-dev, python-xml, python-shout | shout-python, libshout3,
-	  libshout3-dev, python-mutagen, python-pycurl | pycurl
-
-optional: python-twitter, python-liblo | pyliblo (>= 0.26)
-
-recommends: icecast2, python-setuptools, stream-m
 
 Installation
 ============
@@ -78,8 +69,14 @@ Uncompress, go to the deefuzzer app directory and run install as root. For examp
     cd deefuzzer-0.6
     sudo python setup.py install
 
-For more informations, please see http://github.com/yomguy/DeeFuzzer or twitt a message to @parisson_studio
+Follow the related package list to install optional or recommended applications:
 
+ * depends: python, python-dev, python-xml, python-shout | shout-python, libshout3,
+	  libshout3-dev, python-mutagen, python-pycurl | pycurl
+ * optional: python-twitter, python-liblo | pyliblo (>= 0.26)
+ * recommends: icecast2, python-setuptools, stream-m
+
+For more informations, please see http://github.com/yomguy/DeeFuzzer or twitt a message to @parisson_studio
 
 Usage
 =====
