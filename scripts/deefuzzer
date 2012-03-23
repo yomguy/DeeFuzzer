@@ -5,8 +5,7 @@ import sys
 import shout
 import datetime
 import platform
-from deefuzzer.core import DeeFuzzer
-from deefuzzer import __version__
+import deefuzzer
 
 year = datetime.datetime.now().strftime("%Y")
 platform_system = platform.system()
@@ -22,30 +21,30 @@ def prog_info():
 
  This software is licensed as described in the file COPYING, which
  you should have received as part of this distribution. The terms
- are also available at http://svn.parisson.org/deefuzzer/DeeFuzzerLicense
+ are also available at https://github.com/yomguy/DeeFuzzer/blob/master/LICENSE
 
  depends:  python, python-dev, python-xml, python-shout | shout-python, libshout3,
-           libshout3-dev, python-mutagen
+           libshout3-dev, python-mutagen, python-pycurl
 
  recommends: icecast2, python-twitter, python-tinyurl, python-liblo | pyliblo (>= 0.26)
 
  Usage : deefuzzer [file]
 
-  where [file] is the path for a XML config file. 
-  
+  where [file] is the path for a XML config file.
+
   Edit an example in example/deefuzzer.xml
-  and then start one or more stations: 
- 
+  and then start one or more stations:
+
   $ deefuzzer example/deefuzzer.xml
 
- see http://svn.parisson.org/deefuzzer/ for more details
+ see http://github.com/yomguy/DeeFuzzer for more details and debugging.
         """
 
-    return desc % (__version__, platform_system, year)
+    return desc % (deefuzzer.__version__, platform_system, year)
 
 def main():
     if len(sys.argv) >= 2:
-        d = DeeFuzzer(sys.argv[-1])
+        d = deefuzzer.core.DeeFuzzer(sys.argv[-1])
         d.start()
     else:
         text = prog_info()

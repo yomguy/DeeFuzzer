@@ -4,23 +4,21 @@
 '''The setup and build script for the python-twitter library.'''
 
 import os
-
-__version__ = '0.6.1'
-__author__ = 'yomguy@parisson.com'
+import deefuzzer
 
 README = os.path.join(os.path.dirname(__file__), 'README.rst')
 
 # The base package metadata to be used by both distutils and setuptools
 METADATA = dict(
   name = "DeeFuzzer",
-  version = __version__,
+  version = deefuzzer.__version__,
   py_modules = ['deefuzzer'],
-  description='an easy and instant media streaming tool',
+  description='an open, light and instant media streaming tool',
   author='Guillaume Pellerin',
   author_email='yomguy@parisson.com',
   license='CeCILL',
-  url='http://svn.parisson.org/deefuzzer',
-  keywords='audio video streaming broadcast shout',
+  url='http://github.com/yomguy/DeeFuzzer',
+  keywords='media audio video streaming broadcast shout',
   install_requires = ['setuptools', 'tinyurl', 'python-shout', 'python-twitter', 'mutagen', 'pyliblo', 'pycurl'],
   packages=['deefuzzer', 'deefuzzer.tools'],
   include_package_data = True,
