@@ -11,6 +11,7 @@
             <genre>Various Funk Groove</genre>
         </infos>
         <server>
+            <type>icecast</type>
             <host>mydomain.com</host>
             <port>8000</port>
             <sourcepassword>icecast_source_password</sourcepassword>
@@ -64,6 +65,7 @@
             <genre>Various Funk Groove</genre>
         </infos>
         <server>
+            <type>icecast</type>
             <host>mydomain.com</host>
             <port>8000</port>
             <sourcepassword>icecast_source_password</sourcepassword>
