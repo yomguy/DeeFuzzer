@@ -64,13 +64,13 @@ Please first install libshout3 and liblo from source OR libshout3-dev and liblo-
 
 Now, the easiest way to install the DeeFuzzer from a shell::
 
-	sudo pip install deefuzzer
+    sudo pip install deefuzzer
 
 or::
 
-	sudo easy_install deefuzzer
+    sudo easy_install deefuzzer
 
-To install the DeeFuzzer from sources, download the last archive `here <http://pypi.python.org/pypi/DeeFuzzer>`_ or `here <https://github.com/yomguy/DeeFuzzer/tags>`_.
+To install the DeeFuzzer from sources, download the last archive `there <http://pypi.python.org/pypi/DeeFuzzer>`_
 
 Uncompress, go to the deefuzzer app directory and run install as root. For example::
 
@@ -84,7 +84,7 @@ Follow the related package list to install optional or recommended applications:
  * **optional**: python-twitter, python-liblo | pyliblo (>= 0.26)
  * **recommends**: icecast2, python-setuptools, stream-m
 
-For more informations, please see https://github.com/yomguy/DeeFuzzer or twitt a message to @parisson_studio
+For more informations, please see on `GitHub <https://github.com/yomguy/DeeFuzzer>`_ or twitt a message to @parisson_studio
 
 Usage
 =====
@@ -116,9 +116,11 @@ or, more specificially::
 XML Configuration
 =================
 
-As an example of a configuration file, see `this one  <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.xml>`_ or `this one <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_doc.xml>`_ for more infos on the markup parameters.
+Some examples of markup configuration files:
 
-OGG Vorbis and MP3 together, see `this one <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_mp3_ogg.xml>`_.
+ * `Generic <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.xml>`_
+ * `Generic Documented <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_doc.xml>`_
+ * `OGG Vorbis and MP3 together <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_mp3_ogg.xml>`_
 
 OSC Control
 ===========
@@ -212,15 +214,8 @@ Some parts of this work are also taken from another Parisson's project : Telemet
 Contact / Infos
 ===============
 
-Twitter:
+Twitter: @yomguy @parisson_studio
 
-    @yomguy @parisson_studio
+GitHub : https://github.com/yomguy/DeeFuzzer
 
-GitHub:
-
-    https://github.com/yomguy/DeeFuzzer
-
-Expertise, Business, Sponsoring:
-
-    http://parisson.com
-
+Expertise, Business, Sponsoring: http://parisson.com
