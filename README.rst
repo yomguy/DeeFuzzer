@@ -71,8 +71,7 @@ Uncompress, go to the deefuzzer app directory and run install as root. For examp
 
 Follow the related package list to install optional or recommended applications:
 
- * depends: python, python-dev, python-xml, python-shout | shout-python, libshout3,
-	  libshout3-dev, python-mutagen, python-pycurl | pycurl
+ * depends: python, python-dev, python-xml, python-shout | shout-python, libshout3, libshout3-dev, python-mutagen, python-pycurl | pycurl
  * optional: python-twitter, python-liblo | pyliblo (>= 0.26)
  * recommends: icecast2, python-setuptools, stream-m
 
