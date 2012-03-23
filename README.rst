@@ -71,9 +71,9 @@ Uncompress, go to the deefuzzer app directory and run install as root. For examp
 
 Follow the related package list to install optional or recommended applications:
 
- * depends: python, python-dev, python-xml, python-shout | shout-python, libshout3, libshout3-dev, python-mutagen, python-pycurl | pycurl
- * optional: python-twitter, python-liblo | pyliblo (>= 0.26)
- * recommends: icecast2, python-setuptools, stream-m
+ * **depends**: python, python-dev, python-xml, python-shout | shout-python, libshout3, libshout3-dev, python-mutagen, python-pycurl | pycurl
+ * **optional**: python-twitter, python-liblo | pyliblo (>= 0.26)
+ * **recommends**: icecast2, python-setuptools, stream-m
 
 For more informations, please see http://github.com/yomguy/DeeFuzzer or twitt a message to @parisson_studio
 
@@ -182,9 +182,8 @@ Twitter: @yomguy
 License
 =======
 
-This software is licensed as described in the file LICENSE.txt, which
-you should have received as part of this distribution. The terms
-are also available at https://github.com/yomguy/DeeFuzzer/blob/master/LICENSE
+This software is licensed under the terms of the CeCILL license (much like GPLv2)
+as described in the file LICENSE in the source directory or online https://github.com/yomguy/DeeFuzzer/blob/master/LICENSE
 
 Aknowledgements
 ===============
