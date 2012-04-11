@@ -1,2 +1,9 @@
+include CHANGELOG
 include *.txt
-recursive-include docs *.txt
+include *.rst
+exclude *.cfg
+recursive-include doc *
+global-exclude *.pyc
+prune dist
+prune build
+

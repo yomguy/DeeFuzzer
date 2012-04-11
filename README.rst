@@ -34,6 +34,9 @@ News
 
 0.6.3 Fix install bug !
 
+ * setup rewritten
+ * fix MANIFEST
+
 0.6.2 has been released !
 
  * No new functions but bugfixes (including a serious one during install from pypi)
