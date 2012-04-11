@@ -203,7 +203,7 @@ License
 =======
 
 This software is released under the terms of the CeCILL license (GPLv2 compatible).
-as described in the file LICENSE in the source directory or online https://github.com/yomguy/DeeFuzzer/blob/master/License.txt
+as described in the file LICENSE.txt in the source directory or online https://github.com/yomguy/DeeFuzzer/blob/master/LICENSE.txt
 
 Aknowledgements
 ===============
