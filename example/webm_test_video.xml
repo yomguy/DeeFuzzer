@@ -8,18 +8,18 @@
             <name>TeleCaster LocalHost</name>
             <description>TeleCaster local audio streaming</description>
             <url>http://parisson.com</url>
-            <genre>Audio</genre>
+            <genre>Video</genre>
         </infos>
         <server>
             <type>stream-m</type>
-            <host>127.0.0.1</host>
-            <port>8080</port>
+            <host>parisson.com</host>
+            <port>9000</port>
             <sourcepassword>source2parisson</sourcepassword>
             <public>0</public>
         </server>
         <media>
             <dir>/home/momo/media/webm</dir>
-            <format>mp3</format>
+            <format>webm</format>
             <bitrate>96</bitrate>
             <ogg_quality>7</ogg_quality>
             <samplerate>44100</samplerate>
@@ -47,11 +47,11 @@
         </control>
         <relay>
             <mode>1</mode>
-            <url>http://192.168.0.16:9000/</url>
+            <url>http://127.0.0.1:9000/</url>
             <author>Parisson</author>
         </relay>
         <record>
-            <mode>1</mode>
+            <mode>0</mode>
             <dir>/tmp</dir>
         </record>
     </station>    

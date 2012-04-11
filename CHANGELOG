@@ -1,3 +1,16 @@
+deefuzzer (0.6.3-1) unstable; urgency=low
+
+ * setup rewritten
+ * closes: #1
+
+deefuzzer (0.6.2-1) unstable; urgency=low
+
+ * No new functions but bugfixes (including a serious one during install from pypi)
+ * Definitely moved the project to `GitHub <https://github.com/yomguy/DeeFuzzer>`_
+ * Update various README details
+ * update API doc: http://files.parisson.com/doc/deefuzzer/
+
+
 deefuzzer (0.6.1-1) unstable; urgency=low
 
 * new HTTP steamer based on pycurl to handle stream-m servers (webm streaming)

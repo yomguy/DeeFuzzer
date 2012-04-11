@@ -1,40 +1,38 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''The setup and build script for the python-twitter library.'''
+'''The setup and build script for the library.'''
 
+from setuptools import setup, find_packages
 import os
 import deefuzzer
 
-README = os.path.join(os.path.dirname(__file__), 'README.rst')
+CLASSIFIERS = ['Programming Language :: Python', 
+                'Topic :: Internet :: WWW/HTTP :: Dynamic Content', 
+                'Topic :: Multimedia :: Sound/Audio', 
+                'Topic :: Multimedia :: Sound/Audio :: Players',]
 
-# The base package metadata to be used by both distutils and setuptools
-METADATA = dict(
+setup(
   name = "DeeFuzzer",
+  url = "http://github.com/yomguy/DeeFuzzer",
+  description = "an open, light and instant media streaming tool",
+  long_description = open('README.rst').read(),
+  author = "Guillaume Pellerin",
+  author_email = "yomguy@parisson.com",
   version = deefuzzer.__version__,
-  py_modules = ['deefuzzer'],
-  description='an open, light and instant media streaming tool',
-  author='Guillaume Pellerin',
-  author_email='yomguy@parisson.com',
-  license='CeCILL',
-  url='http://github.com/yomguy/DeeFuzzer',
-  keywords='media audio video streaming broadcast shout',
-  install_requires = ['setuptools', 'tinyurl', 'python-shout', 'python-twitter', 'mutagen', 'pyliblo', 'pycurl'],
-  packages=['deefuzzer', 'deefuzzer.tools'],
+  install_requires = [
+        'setuptools', 
+        'tinyurl', 
+        'python-shout', 
+        'python-twitter', 
+        'mutagen', 
+        'pyliblo', 
+        'pycurl',
+  ],
+  platforms=['OS Independent'],
+  license='CeCILL v2',
+  classifiers = CLASSIFIERS,
+  packages = find_packages(),
   include_package_data = True,
-  scripts=['scripts/deefuzzer'],
-  classifiers = ['Programming Language :: Python', 'Topic :: Internet :: WWW/HTTP :: Dynamic Content', 'Topic :: Multimedia :: Sound/Audio', 'Topic :: Multimedia :: Sound/Audio :: Players',],
-  long_description=open(README).read(),
+  zip_safe = False,
 )
-
-def Main():
-  # Use setuptools if available, otherwise fallback and use distutils
-  try:
-    import setuptools
-    setuptools.setup(**METADATA)
-  except ImportError:
-    import distutils.core
-    distutils.core.setup(**METADATA)
-
-if __name__ == '__main__':
-    Main()

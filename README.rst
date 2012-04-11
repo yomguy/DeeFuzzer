@@ -32,6 +32,8 @@ Because our aim is to get DeeFuzzer as light as possible it is NOT capable of re
 News
 =====
 
+0.6.3 Fix install bug !
+
 0.6.2 has been released !
 
  * No new functions but bugfixes (including a serious one during install from pypi)
@@ -46,7 +48,7 @@ News
  * live webm relaying works good, webm playlist reading NEED testing
  * new <station><server><type> parameter ('icecast or 'stream-m')
 
-`Download it <http://pypi.python.org/packages/source/D/DeeFuzzer/DeeFuzzer-0.6.1.tar.gz>`_
+`Download it <http://pypi.python.org/packages/source/D/DeeFuzzer/DeeFuzzer-0.6.3.tar.gz>`_
 
 and enjoy the video streaming ! ;)
 
@@ -197,8 +199,8 @@ YomguY aka Guillaume Pellerin:
 License
 =======
 
-This software is licensed under the terms of the CeCILL license (much like GPLv2)
-as described in the file LICENSE in the source directory or online https://github.com/yomguy/DeeFuzzer/blob/master/LICENSE
+This software is released under the terms of the CeCILL license (GPLv2 compatible).
+as described in the file LICENSE in the source directory or online https://github.com/yomguy/DeeFuzzer/blob/master/License.txt
 
 Aknowledgements
 ===============
