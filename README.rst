@@ -65,7 +65,8 @@ DeeFuzzer has now only been well tested on Linux, but should work on any other p
 You would then need to install libshout3 and liblo libraries for it. On Windows,
 an install inside Gygwin should work well.
 
-Please first install libshout3 and liblo from source OR libshout3-dev and liblo-dev from your own distribution package manager.
+IMPORTANT: Please first install libshout3 and liblo from source OR libshout3-dev, 
+liblo-dev, gnutls-dev and librtmp-dev from your own distribution package manager.
 
 Now, the easiest way to install the DeeFuzzer from a shell::
 
@@ -74,6 +75,10 @@ Now, the easiest way to install the DeeFuzzer from a shell::
 or::
 
     sudo easy_install deefuzzer
+
+to upgrade::
+
+    sudo pip install --upgrade deefuzzer
 
 To install the DeeFuzzer from sources, download the last archive `there <http://pypi.python.org/pypi/DeeFuzzer>`_
 
