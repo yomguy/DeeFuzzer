@@ -30,6 +30,7 @@ setup(
   ],
   platforms=['OS Independent'],
   license='CeCILL v2',
+  scripts=['scripts/deefuzzer'],
   classifiers = CLASSIFIERS,
   packages = find_packages(),
   include_package_data = True,
