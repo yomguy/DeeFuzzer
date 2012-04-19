@@ -146,10 +146,13 @@ in the config file (see example/deefuzzer.xml again..).
 
 The available parameters are:
 
-    * `play next track <https://github.com/yomguy/DeeFuzzer/blob/master/deefuzzer/scripts/osc_player_next.py>`_
-    * twitting: `start <https://github.com/yomguy/DeeFuzzer/blob/master/deefuzzer/scripts/osc_twitter_start.py>`_ and `stop <https://github.com/yomguy/DeeFuzzer/blob/master/deefuzzer/scripts/osc_twitter_stop.py>`_
-    * relaying: `start <https://github.com/yomguy/DeeFuzzer/blob/master/deefuzzer/scripts/osc_relay_start.py>`_ and `stop <https://github.com/yomguy/DeeFuzzer/blob/master/deefuzzer/scripts/osc_relay_stop.py>`_
-    * jingling: `start <https://github.com/yomguy/DeeFuzzer/blob/master/deefuzzer/scripts/osc_jingles_start.py>`_ and `stop <https://github.com/yomguy/DeeFuzzer/blob/master/deefuzzer/scripts/osc_jingles_stop.py>`_
+    * playing: next track
+    * twitting: start and stop
+    * relaying: start and stop
+    * jingling: start and stop
+    * recording: start and stop
+
+See `examples here. <https://github.com/yomguy/DeeFuzzer/blob/master/deefuzzer/scripts/>`_
 
 Then any OSC remote (PureDate, Monome, TouchOSC, etc..) can a become controller ! :)
 
