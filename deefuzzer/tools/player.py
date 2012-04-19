@@ -42,9 +42,9 @@ class Player:
     """A file streaming iterator"""
 
     def __init__(self):
-        self.main_buffer_size = 0x100000
-        self.relay_queue_size = 0x100000
-        self.sub_buffer_size = 0x10000
+        self.main_buffer_size = 0x200000
+        self.relay_queue_size = 0x80000
+        self.sub_buffer_size = 0x100000
 
     def set_media(self, media):
         self.media = media

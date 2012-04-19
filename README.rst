@@ -32,6 +32,11 @@ Because our aim is to get DeeFuzzer as light as possible it is NOT capable of re
 News
 =====
 
+0.6.4 is out!
+
+ * Fix install bug again (add main script to install), sorry :(
+ * reduce streaming buffer length
+
 0.6.3 Fix install bug !
 
  * setup rewritten
@@ -65,7 +70,7 @@ DeeFuzzer has now only been well tested on Linux, but should work on any other p
 You would then need to install libshout3 and liblo libraries for it. On Windows,
 an install inside Gygwin should work well.
 
-IMPORTANT: Please first install libshout3 and liblo from source OR libshout3-dev, 
+IMPORTANT: Please first install libshout3 and liblo from source OR libshout3-dev,
 liblo-dev, gnutls-dev and librtmp-dev from your own distribution package manager.
 
 Now, the easiest way to install the DeeFuzzer from a shell::
@@ -128,8 +133,8 @@ XML Configuration
 
 Some examples of markup configuration files:
 
- * `Generic <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.xml>`_
- * `Generic Documented <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_doc.xml>`_
+ * `generic <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.xml>`_
+ * `generic and gocumented <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_doc.xml>`_
  * `OGG Vorbis and MP3 together <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_mp3_ogg.xml>`_
 
 OSC Control
@@ -141,10 +146,10 @@ in the config file (see example/deefuzzer.xml again..).
 
 The available parameters are:
 
-    * play next track
-    * start/stop twitting
-    * start/stop relaying
-    * start/stop jingling
+    * `play next track <https://github.com/yomguy/DeeFuzzer/blob/master/deefuzzer/scripts/osc_player_next.py>`_
+    * twitting: `start <https://github.com/yomguy/DeeFuzzer/blob/master/deefuzzer/scripts/osc_twitter_start.py>`_ and `stop <https://github.com/yomguy/DeeFuzzer/blob/master/deefuzzer/scripts/osc_twitter_stop.py>`_
+    * relaying: `start <https://github.com/yomguy/DeeFuzzer/blob/master/deefuzzer/scripts/osc_relay_start.py>`_ and `stop <https://github.com/yomguy/DeeFuzzer/blob/master/deefuzzer/scripts/osc_relay_stop.py>`_
+    * jingling: `start <https://github.com/yomguy/DeeFuzzer/blob/master/deefuzzer/scripts/osc_jingles_start.py>`_ and `stop <https://github.com/yomguy/DeeFuzzer/blob/master/deefuzzer/scripts/osc_jingles_stop.py>`_
 
 Then any OSC remote (PureDate, Monome, TouchOSC, etc..) can a become controller ! :)
 
