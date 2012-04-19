@@ -4,12 +4,11 @@
 '''The setup and build script for the library.'''
 
 from setuptools import setup, find_packages
-import os
 import deefuzzer
 
-CLASSIFIERS = ['Programming Language :: Python', 
-                'Topic :: Internet :: WWW/HTTP :: Dynamic Content', 
-                'Topic :: Multimedia :: Sound/Audio', 
+CLASSIFIERS = ['Programming Language :: Python',
+                'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+                'Topic :: Multimedia :: Sound/Audio',
                 'Topic :: Multimedia :: Sound/Audio :: Players',]
 
 setup(
@@ -21,12 +20,12 @@ setup(
   author_email = "yomguy@parisson.com",
   version = deefuzzer.__version__,
   install_requires = [
-        'setuptools', 
-        'tinyurl', 
-        'python-shout', 
-        'python-twitter', 
-        'mutagen', 
-        'pyliblo', 
+        'setuptools',
+        'tinyurl',
+        'python-shout',
+        'python-twitter',
+        'mutagen',
+        'pyliblo',
         'pycurl',
   ],
   platforms=['OS Independent'],
