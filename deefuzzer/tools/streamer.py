@@ -37,7 +37,6 @@
 # Author: Guillaume Pellerin <yomguy@parisson.com>
 
 from threading import Thread
-import pycurl
 
 class HTTPStreamer(Thread):
 
@@ -58,6 +57,7 @@ class HTTPStreamer(Thread):
 
     def __init__(self):
         Thread.__init__(self)
+        import pycurl
         self.curl = pycurl.Curl()
 
     def set_callback(self, read_callback):
