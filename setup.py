@@ -4,7 +4,6 @@
 '''The setup and build script for the library.'''
 
 from setuptools import setup, find_packages
-import deefuzzer
 
 CLASSIFIERS = ['Programming Language :: Python',
                 'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
@@ -18,7 +17,7 @@ setup(
   long_description = open('README.rst').read(),
   author = "Guillaume Pellerin",
   author_email = "yomguy@parisson.com",
-  version = deefuzzer.__version__,
+  version = '0.6.4',
   install_requires = [
         'setuptools',
         'tinyurl',
@@ -36,3 +35,4 @@ setup(
   include_package_data = True,
   zip_safe = False,
 )
+
