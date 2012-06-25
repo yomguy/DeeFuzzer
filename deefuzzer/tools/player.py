@@ -44,7 +44,7 @@ class Player:
     def __init__(self):
         self.main_buffer_size = 0x100000
         self.relay_queue_size = 0x100000
-        self.sub_buffer_size = 0x20000
+        self.sub_buffer_size = 0x10000
 
     def set_media(self, media):
         self.media = media
