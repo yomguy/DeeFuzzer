@@ -286,7 +286,10 @@ class Station(Thread):
             self.recorder.open(self.rec_file)
 
         elif value == 0 and not self.type == 'stream-m':
-            self.recorder.close()
+            try:
+                self.recorder.close()
+            except:
+                pass
             date = datetime.datetime.now().strftime("%Y")
             if self.channel.format == 'mp3':
                 media = Mp3(self.record_dir + os.sep + self.rec_file)
