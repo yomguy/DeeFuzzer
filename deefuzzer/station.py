@@ -43,7 +43,7 @@ import datetime
 import string
 import random
 import shout
-import urllib
+import urllib2
 import mimetypes
 from threading import Thread
 from tools import *
@@ -54,7 +54,6 @@ class Station(Thread):
 
     id = 999999
     counter = 0
-    command = 'cat '
     delay = 0
     start_time = time.time()
 
@@ -111,18 +110,21 @@ class Station(Thread):
                                     'samplerate': self.samplerate,
                                     'quality': self.ogg_quality,
                                     'channels': self.voices,}
+
         self.server_url = 'http://' + self.channel.host + ':' + str(self.channel.port)
         self.channel_url = self.server_url + self.channel.mount
 
         # RSS
         self.rss_dir = self.station['rss']['dir']
         self.rss_enclosure = self.station['rss']['enclosure']
+
         if 'media_url' in self.station['rss']:
             self.rss_media_url = self.station['rss']['media_url']
             if self.rss_media_url[-1] != '/':
                 self.rss_media_url = self.rss_media_url + '/'
         else:
             self.rss_media_url = self.channel.url + '/media/'
+
         self.base_name = self.rss_dir + os.sep + self.short_name + '_' + self.channel.format
         self.rss_current_file = self.base_name + '_current.xml'
         self.rss_playlist_file = self.base_name + '_playlist.xml'
@@ -486,7 +488,7 @@ class Station(Thread):
             pass
 
     def set_relay_mode(self):
-        self.prefix = '#nowplaying (relaying #LIVE)'
+        self.prefix = '#nowplaying #LIVE'
         self.title = self.channel.description.encode('utf-8')
         self.artist = self.relay_author.encode('utf-8')
         self.title = self.title.replace('_', ' ')
@@ -550,7 +552,7 @@ class Station(Thread):
         while not self.server_ping:
             try:
                 self.q.get(1)
-                server = urllib.urlopen(self.server_url)
+                server = urllib2.urlopen(self.server_url)
                 self.server_ping = True
                 self.logger.write_info('Station ' + self.channel_url + \
                                         ' : channel available')
@@ -595,13 +597,15 @@ class Station(Thread):
                     self.set_relay_mode()
                 elif os.path.exists(self.media) and not os.sep+'.' in self.media:
                     if self.lp == 0:
-                        self.logger.write_error('Station ' + self.channel_url + ' : has no media to stream !')
+                        self.logger.write_error('Station ' + self.channel_url + \
+                                                    ' : has no media to stream !')
                         break
                     self.set_read_mode()
                 self.q.task_done()
 
                 self.q.get(1)
-                if (not (self.jingles_mode and (self.counter % 2)) or self.relay_mode) and self.twitter_mode:
+                if (not (self.jingles_mode and (self.counter % 2)) or \
+                                    self.relay_mode) and self.twitter_mode:
                     try:
                         self.update_twitter_current()
                     except:

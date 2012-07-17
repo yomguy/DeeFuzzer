@@ -112,7 +112,8 @@ class FileReader:
 
 class URLReader:
     def __init__(self, relay):
-        self.relay = urllib.urlopen(relay)
+        import urllib2
+        self.relay = urllib2.urlopen(relay)
         self.rec_mode = 0
 
     def set_recorder(self, recorder, mode=1):
@@ -125,11 +126,11 @@ class URLReader:
         except:
             while True:
                 try:
-                    self.relay = urllib.urlopen(relay)
+                    self.relay = urllib2.urlopen(relay)
                     chunk = self.relay.read(size)
                     break
                 except:
-                    time.sleep(1)
+                    time.sleep(0.5)
                     continue
 
         if self.rec_mode == 1 and chunk:
