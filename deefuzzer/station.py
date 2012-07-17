@@ -43,7 +43,7 @@ import datetime
 import string
 import random
 import shout
-import urllib2
+import urllib
 import mimetypes
 from threading import Thread
 from tools import *
@@ -552,7 +552,7 @@ class Station(Thread):
         while not self.server_ping:
             try:
                 self.q.get(1)
-                server = urllib2.urlopen(self.server_url)
+                server = urllib.urlopen(self.server_url)
                 self.server_ping = True
                 self.logger.write_info('Station ' + self.channel_url + \
                                         ' : channel available')
