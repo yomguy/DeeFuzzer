@@ -203,8 +203,8 @@ class Station(Thread):
         # mode = 0 means Off, mode = 1 means On
         if 'control' in self.station:
             self.osc_control_mode = int(self.station['control']['mode'])
-            self.osc_port = self.station['control']['port']
-            if self.osc_control_mode == 1:
+            if self.osc_control_mode:
+                self.osc_port = self.station['control']['port']
                 self.osc_controller = OSCController(self.osc_port)
                 self.osc_controller.start()
                 # OSC paths and callbacks
