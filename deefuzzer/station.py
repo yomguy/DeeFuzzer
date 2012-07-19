@@ -147,6 +147,24 @@ class Station(Thread):
         self.player = Player()
         self.player_mode = 0
 
+        # OSCing
+        self.osc_control_mode = 0
+        # mode = 0 means Off, mode = 1 means On
+        if 'control' in self.station:
+            self.osc_control_mode = int(self.station['control']['mode'])
+            if self.osc_control_mode:
+                self.osc_port = self.station['control']['port']
+                self.osc_controller = OSCController(self.osc_port)
+                # OSC paths and callbacks
+                self.osc_controller.add_method('/media/next', 'i', self.media_next_callback)
+                self.osc_controller.add_method('/media/relay', 'i', self.relay_callback)
+                self.osc_controller.add_method('/twitter', 'i', self.twitter_callback)
+                self.osc_controller.add_method('/jingles', 'i', self.jingles_callback)
+                self.osc_controller.add_method('/record', 'i', self.record_callback)
+                self.osc_controller.add_method('/player', 'i', self.player_callback)
+                self.osc_controller.add_method('/run', 'i', self.run_callback)
+                self.osc_controller.start()
+
         # Jingling between each media.
         # mode = 0 means Off, mode = 1 means On
         self.jingles_mode = 0
@@ -184,24 +202,6 @@ class Station(Thread):
 
             if self.twitter_mode == 1:
                 self.twitter_callback('/twitter', [1])
-
-        # OSCing
-        self.osc_control_mode = 0
-        # mode = 0 means Off, mode = 1 means On
-        if 'control' in self.station:
-            self.osc_control_mode = int(self.station['control']['mode'])
-            if self.osc_control_mode:
-                self.osc_port = self.station['control']['port']
-                self.osc_controller = OSCController(self.osc_port)
-                self.osc_controller.start()
-                # OSC paths and callbacks
-                self.osc_controller.add_method('/media/next', 'i', self.media_next_callback)
-                self.osc_controller.add_method('/media/relay', 'i', self.relay_callback)
-                self.osc_controller.add_method('/twitter', 'i', self.twitter_callback)
-                self.osc_controller.add_method('/jingles', 'i', self.jingles_callback)
-                self.osc_controller.add_method('/record', 'i', self.record_callback)
-                self.osc_controller.add_method('/player', 'i', self.player_callback)
-                self.osc_controller.add_method('/run', 'i', self.run_callback)
 
         # Recording
         # mode = 0 means Off, mode = 1 means On
@@ -290,7 +290,7 @@ class Station(Thread):
                 self.recorder.close()
             except:
                 pass
-            if not self.type == 'stream-m':
+            if self.type == 'icecast':
                 date = datetime.datetime.now().strftime("%Y")
                 if self.channel.format == 'mp3':
                     media = Mp3(self.record_dir + os.sep + self.rec_file)
