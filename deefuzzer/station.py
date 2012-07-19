@@ -185,19 +185,6 @@ class Station(Thread):
             if self.twitter_mode == 1:
                 self.twitter_callback('/twitter', [1])
 
-        # Recording
-        # mode = 0 means Off, mode = 1 means On
-        self.record_mode = 0
-        if 'record' in self.station:
-            self.record_mode = int(self.station['record']['mode'])
-            self.record_dir = self.station['record']['dir']
-            if self.record_mode:
-                self.record_callback('/record', [1])
-
-        # Running
-        # mode = 0 means Off, mode = 1 means On
-        self.run_mode = 1
-
         # OSCing
         self.osc_control_mode = 0
         # mode = 0 means Off, mode = 1 means On
@@ -215,6 +202,19 @@ class Station(Thread):
                 self.osc_controller.add_method('/record', 'i', self.record_callback)
                 self.osc_controller.add_method('/player', 'i', self.player_callback)
                 self.osc_controller.add_method('/run', 'i', self.run_callback)
+
+        # Recording
+        # mode = 0 means Off, mode = 1 means On
+        self.record_mode = 0
+        if 'record' in self.station:
+            self.record_mode = int(self.station['record']['mode'])
+            self.record_dir = self.station['record']['dir']
+            if self.record_mode:
+                self.record_callback('/record', [1])
+
+        # Running
+        # mode = 0 means Off, mode = 1 means On
+        self.run_mode = 1
 
     def run_callback(self, path, value):
         value = value[0]
@@ -285,22 +285,23 @@ class Station(Thread):
             self.recorder = Recorder(self.record_dir)
             self.recorder.open(self.rec_file)
 
-        elif value == 0 and not self.type == 'stream-m':
+        elif value == 0:
             try:
                 self.recorder.close()
             except:
                 pass
-            date = datetime.datetime.now().strftime("%Y")
-            if self.channel.format == 'mp3':
-                media = Mp3(self.record_dir + os.sep + self.rec_file)
-            if self.channel.format == 'ogg':
-                media = Ogg(self.record_dir + os.sep + self.rec_file)
-            media.metadata = {'artist': self.artist.encode('utf-8'),
-                                'title': self.title.encode('utf-8'),
-                                'album': self.short_name.encode('utf-8'),
-                                'genre': self.channel.genre.encode('utf-8'),
-                                'date' : date.encode('utf-8'),}
-            media.write_tags()
+            if not self.type == 'stream-m':
+                date = datetime.datetime.now().strftime("%Y")
+                if self.channel.format == 'mp3':
+                    media = Mp3(self.record_dir + os.sep + self.rec_file)
+                if self.channel.format == 'ogg':
+                    media = Ogg(self.record_dir + os.sep + self.rec_file)
+                media.metadata = {'artist': self.artist.encode('utf-8'),
+                                    'title': self.title.encode('utf-8'),
+                                    'album': self.short_name.encode('utf-8'),
+                                    'genre': self.channel.genre.encode('utf-8'),
+                                    'date' : date.encode('utf-8'),}
+                media.write_tags()
 
         self.record_mode = value
         message = "Station " + self.channel_url + \
