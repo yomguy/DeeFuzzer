@@ -41,11 +41,15 @@ from relay import *
 class Player:
     """A file streaming iterator"""
 
-    def __init__(self):
+    def __init__(self, type='icecast'):
         self.main_buffer_size = 0x100000
-        self.relay_queue_size = 0x100000
-        self.sub_buffer_size = 0x10000
-
+        if type == 'icecast':
+            self.relay_queue_size = 0x100000
+            self.sub_buffer_size = 0x10000
+        if type == 'stream-m':
+            self.relay_queue_size = 0x10000
+            self.sub_buffer_size = 0x20000
+        
     def set_media(self, media):
         self.media = media
 
@@ -129,7 +133,7 @@ class URLReader:
                     chunk = self.relay.read(size)
                     break
                 except:
-                    time.sleep(1)
+                    time.sleep(0.5)
                     continue
 
         if self.rec_mode == 1 and chunk:

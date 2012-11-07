@@ -70,8 +70,9 @@ DeeFuzzer has now only been well tested on Linux, but should work on any other p
 You would then need to install libshout3 and liblo libraries for it. On Windows,
 an install inside Gygwin should work well.
 
-IMPORTANT: Please first install libshout3 and liblo from source OR libshout3-dev,
-liblo-dev, gnutls-dev and librtmp-dev from your own distribution package manager.
+To install it, say on Debian, do::
+
+    sudo apt-get install python-pip liblo-dev libshout3-dev gnutls-dev librtmp-dev
 
 Now, the easiest way to install the DeeFuzzer from a shell::
 
