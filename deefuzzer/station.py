@@ -144,7 +144,7 @@ class Station(Thread):
             os.makedirs(self.metadata_dir)
 
         # The station's player
-        self.player = Player()
+        self.player = Player(self.type)
         self.player_mode = 0
 
         # OSCing
