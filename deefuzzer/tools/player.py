@@ -46,7 +46,7 @@ class Player:
         if type == 'icecast':
             self.relay_queue_size = 0x100000
             self.sub_buffer_size = 0x10000
-        if type == 'stream-m':
+        elif type == 'stream-m':
             self.relay_queue_size = 0x10000
             self.sub_buffer_size = 0x20000
         
