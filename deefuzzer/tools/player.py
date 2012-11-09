@@ -41,14 +41,14 @@ from relay import *
 class Player:
     """A file streaming iterator"""
 
-    def __init__(self, type='icecast'):
+    def __init__(self, stream_type='icecast'):
         self.main_buffer_size = 0x100000
-        if type == 'icecast':
+        if stream_type == 'icecast':
             self.relay_queue_size = 0x100000
             self.sub_buffer_size = 0x10000
-        elif type == 'stream-m':
-            self.relay_queue_size = 0x10000
-            self.sub_buffer_size = 0x20000
+        elif stream_type == 'stream-m':
+            self.relay_queue_size = 0x100000
+            self.sub_buffer_size = 0x40000
         
     def set_media(self, media):
         self.media = media
