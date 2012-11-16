@@ -45,10 +45,10 @@ class Player:
         self.main_buffer_size = 0x100000
         if stream_type == 'icecast':
             self.relay_queue_size = 0x100000
-            self.sub_buffer_size = 0x10000
+            self.sub_buffer_size = 0x8000
         elif stream_type == 'stream-m':
             self.relay_queue_size = 0x100000
-            self.sub_buffer_size = 0x40000
+            self.sub_buffer_size = 0x10000
         
     def set_media(self, media):
         self.media = media
