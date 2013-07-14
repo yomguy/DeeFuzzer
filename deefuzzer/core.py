@@ -76,9 +76,15 @@ class DeeFuzzer(Thread):
 
     def get_conf_dict(self):
         confile = open(self.conf_file,'r')
-        conf_xml = confile.read()
+        filename, ext = os.path.splitext(self.conf_file)
+        data = confile.read()
         confile.close()
-        return xmltodict(conf_xml,'utf-8')
+
+        if 'xml' in ext:
+            return xmltodict(data,'utf-8')
+        elif 'yaml' in ext:
+            import yaml
+            return yaml.load(data)
 
     def set_m3u_playlist(self):
         m3u_dir = os.sep.join(self.m3u.split(os.sep)[:-1])

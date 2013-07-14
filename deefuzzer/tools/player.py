@@ -50,7 +50,7 @@ class Player:
             self.main_buffer_size = 0x100000
             self.relay_queue_size = 0x100000
             self.sub_buffer_size = 0x10000
-        
+
     def set_media(self, media):
         self.media = media
 
@@ -108,6 +108,7 @@ class Player:
 
 
 class FileReader:
+
     def __init__(self, fp):
         self.fp = open(fp, 'r')
 
@@ -116,6 +117,7 @@ class FileReader:
 
 
 class URLReader:
+
     def __init__(self, relay):
         self.relay = urllib.urlopen(relay)
         self.rec_mode = 0

@@ -75,24 +75,26 @@ class Station(Thread):
         self.voices = self.station['media']['voices']
 
         # Server
-        self.short_name = self.station['infos']['short_name']
+        if 'mountpoint' in self.station['server'].keys():
+            self.mountpoint = self.station['server']['mountpoint']
+        elif 'short_name' in self.station['infos'].keys():
+            self.mountpoint = self.station['infos']['short_name']
+        else:
+            self.mountpoint = 'default'
+
+        self.short_name = self.mountpoint
 
         if 'type' in self.station['server']:
             self.type = self.station['server']['type'] #  'icecast' | 'stream-m'
 
-        if self.type == 'stream-m':
-            self.mount = '/publish/' + self.short_name
-        elif self.type == 'icecast':
-            self.mount = '/' + self.short_name
-        else:
-            self.mount = '/' + self.short_name
-
         if 'stream-m' in self.type:
             self.channel = HTTPStreamer()
-            self.channel.mount = self.mount
-        else:
+            self.channel.mount = '/publish/' + self.mountpoint
+        elif 'icecast' in self.type:
             self.channel = shout.Shout()
-            self.channel.mount = self.mount + '.' + self.media_format
+            self.channel.mount = '/' + self.mountpoint + '.' + self.media_format
+        else:
+            sys.exit('Not a compatible server type. Choose "stream-m" or "icecast".')
 
         self.channel.url = self.station['infos']['url']
         self.channel.name = self.station['infos']['name'] + ' : ' + self.channel.url
@@ -106,10 +108,10 @@ class Station(Thread):
         self.channel.public = int(self.station['server']['public'])
         self.channel.genre = self.station['infos']['genre']
         self.channel.description = self.station['infos']['description']
-        self.channel.audio_info = { 'bitrate': self.bitrate,
-                                    'samplerate': self.samplerate,
-                                    'quality': self.ogg_quality,
-                                    'channels': self.voices,}
+        self.channel.audio_info = { 'bitrate': str(self.bitrate),
+                                    'samplerate': str(self.samplerate),
+                                    'quality': str(self.ogg_quality),
+                                    'channels': str(self.voices),}
 
         self.server_url = 'http://' + self.channel.host + ':' + str(self.channel.port)
         self.channel_url = self.server_url + self.channel.mount

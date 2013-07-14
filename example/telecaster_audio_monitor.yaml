@@ -1,0 +1,25 @@
+deefuzzer:
+  log: /var/log/telecaster/telecaster_audio_monitor.log
+  m3u: /var/www/m3u/telecaster_audio_monitor.m3u
+  station:
+    control: {mode: 0, port: 1236}
+    infos: {description: TeleCaster MP3 monitor,
+            genre: Vocal,
+            name: telecaster_mp3_monitor,
+            url: 'http://parisson.com.com'}
+    jingles: {dir: /path/to/jingles, mode: 0, shuffle: 1}
+    media: {bitrate: 96,
+            dir: /home/telecaster/media/mp3,
+            format: mp3, ogg_quality: 4,
+            samplerate: 48000, shuffle: 0, voices: '2'}
+    record: {dir: /home/telecaster/trash/mp3, mode: 1}
+    relay: {author: Inconnu, mode: 1,
+            url: 'http://127.0.0.1:8000/telecaster_live.mp3'}
+    rss: {dir: /var/www/rss, enclosure: 0,
+          media_url: 'http://my.domain.com/rss/'}
+    server: {host: 127.0.0.1, mountpoint: telecaster_mp3_monitor,
+             port: 8000, public: 0,
+             sourcepassword: source2parisson, type: icecast}
+    twitter: {key: 76728330-OjKgbHtn4II86Ad7pNUGEzfNAkGTW5Wvw38qUmLE,
+              mode: 0, secret: 4egZs1dSM37XVY8zXa016Yueku2fleXF2bx8k25V4,
+              tags: bla bla}
