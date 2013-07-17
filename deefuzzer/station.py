@@ -202,7 +202,7 @@ class Station(Thread):
             except:
                 pass
 
-            if self.twitter_mode == 1:
+            if self.twitter_mode:
                 self.twitter_callback('/twitter', [1])
 
         # Recording
@@ -234,11 +234,11 @@ class Station(Thread):
 
     def relay_callback(self, path, value):
         value = value[0]
-        if value == 1:
+        if value:
             self.relay_mode = 1
             if self.type == 'icecast':
                 self.player.start_relay(self.relay_url)
-        elif value == 0:
+        else:
             self.relay_mode = 0
             if self.type == 'icecast':
                 self.player.stop_relay()
@@ -267,7 +267,7 @@ class Station(Thread):
 
     def jingles_callback(self, path, value):
         value = value[0]
-        if value == 1:
+        if value:
             self.jingles_list = self.get_jingles()
             self.jingles_length = len(self.jingles_list)
             self.jingle_id = 0
@@ -278,7 +278,7 @@ class Station(Thread):
 
     def record_callback(self, path, value):
         value = value[0]
-        if value == 1:
+        if value:
             if not os.path.exists(self.record_dir):
                 os.makedirs(self.record_dir)
             self.rec_file = self.short_name.replace('/', '_') + '-' + \
@@ -286,8 +286,7 @@ class Station(Thread):
                                                 '.' + self.channel.format
             self.recorder = Recorder(self.record_dir)
             self.recorder.open(self.rec_file)
-
-        elif value == 0:
+        else:
             try:
                 self.recorder.close()
             except:
@@ -502,10 +501,10 @@ class Station(Thread):
         self.song = self.artist + ' : ' + self.title
 
         if self.type == 'stream-m':
-            relay = URLReader(self.relay_url)
-            self.channel.set_callback(relay.read_callback)
+            self.relay = URLReader(self.relay_url)
+            self.channel.set_callback(self.relay.read_callback)
             if self.record_mode:
-                relay.set_recorder(self.recorder)
+                self.relay.set_recorder(self.recorder)
         else:
             self.stream = self.player.relay_read()
 
