@@ -501,10 +501,10 @@ class Station(Thread):
         self.song = self.artist + ' : ' + self.title
 
         if self.type == 'stream-m':
-            self.relay = URLReader(self.relay_url)
-            self.channel.set_callback(self.relay.read_callback)
+            relay = URLReader(self.relay_url)
+            self.channel.set_callback(relay.read_callback)
             if self.record_mode:
-                self.relay.set_recorder(self.recorder)
+                relay.set_recorder(self.recorder)
         else:
             self.stream = self.player.relay_read()
 
