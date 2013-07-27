@@ -43,6 +43,7 @@ class Recorder:
 
     def __init__(self, path):
         self.path = path
+        self.recording = True
 
     def open(self, filename):
         self.filename = filename
@@ -50,8 +51,9 @@ class Recorder:
 
     def write(self, chunk):
         try:
-            self.media.write(chunk)
-            self.media.flush()
+            if self.recording:
+                self.media.write(chunk)
+                self.media.flush()
         except:
             pass
 

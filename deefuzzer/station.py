@@ -288,6 +288,7 @@ class Station(Thread):
             self.recorder.open(self.rec_file)
         else:
             try:
+                self.recorder.recording = False
                 self.recorder.close()
             except:
                 pass
