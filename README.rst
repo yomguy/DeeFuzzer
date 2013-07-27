@@ -32,6 +32,12 @@ Because our aim is to get DeeFuzzer as light as possible it is NOT capable of re
 News
 =====
 
+0.6.5
+
+ * add WebM live streaming through Stream-m server
+ * read yaml configuration files
+ * minor fixes
+
 0.6.4 is out!
 
  * Fix install bug again (add main script to install), sorry :(
@@ -72,7 +78,7 @@ an install inside Gygwin should work well.
 
 To install it, say on Debian, do::
 
-    sudo apt-get install python-pip liblo-dev libshout3-dev gnutls-dev librtmp-dev
+    sudo apt-get install python-pip liblo-dev libshout3-dev gnutls-dev librtmp-dev python-yaml
 
 Now, the easiest way to install the DeeFuzzer from a shell::
 
@@ -97,7 +103,7 @@ Uncompress, go to the deefuzzer app directory and run install as root. For examp
 Follow the related package list to install optional or recommended applications:
 
  * **depends**: python, python-dev, python-xml, python-shout | shout-python, libshout3, libshout3-dev, python-mutagen, python-pycurl | pycurl
- * **optional**: python-twitter, python-liblo | pyliblo (>= 0.26)
+ * **optional**: python-twitter, python-liblo | pyliblo (>= 0.26), python-yaml
  * **recommends**: icecast2, python-setuptools, stream-m
 
 For more informations, please see on `GitHub <https://github.com/yomguy/DeeFuzzer>`_ or twitt a message to @parisson_studio

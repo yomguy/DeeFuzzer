@@ -3,7 +3,11 @@ include *.txt
 include *.rst
 exclude *.cfg
 recursive-include doc *
+recursive-include example *
+recursive-include scripts *
 global-exclude *.pyc
 prune dist
 prune build
+recursive-exclude TimeSide.egg-info *
+
 
