@@ -86,6 +86,8 @@ class Station(Thread):
 
         if 'type' in self.station['server']:
             self.type = self.station['server']['type'] #  'icecast' | 'stream-m'
+        else:
+            self.type = 'icecast'
 
         if 'stream-m' in self.type:
             self.channel = HTTPStreamer()
