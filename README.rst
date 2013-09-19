@@ -18,7 +18,7 @@ Here are the main features of the deefuzzer:
  * Auto Twitter posting of the current playing and new tracks
  * Jingling between main tracks
  * OSC controller : control the main functions from a distant terminal
- * Station relaying : stream other stations like *LIVE* sessions !
+ * Relaying : relay and stream *LIVE* sessions !
  * Very light and optimized streaming process
  * Fully written in Python
  * Works with Icecast2, ShoutCast, Stream-m
@@ -34,7 +34,7 @@ News
 
 0.6.5
 
- * add WebM live streaming through Stream-m server
+ * stable WebM live streaming through Stream-m server
  * read yaml configuration files
  * minor fixes
 
