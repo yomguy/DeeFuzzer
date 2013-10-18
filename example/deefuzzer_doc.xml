@@ -47,6 +47,8 @@
             <voices>2</voices>
             <!-- If '1', the playlist will be randomized. '0' for aphanumeric order -->
             <shuffle>1</shuffle>
+            <!-- You can also give a M3U playlist file -->
+            <m3u>/path/to/m3u_file</m3u>
         </media>
         <rss>
             <!-- A path to the directory containing RSS (XML) files that is 'currently playing'

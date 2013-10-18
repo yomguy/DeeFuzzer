@@ -3,6 +3,7 @@
 
 import logging
 
+
 class Logger:
     """A logging object"""
 

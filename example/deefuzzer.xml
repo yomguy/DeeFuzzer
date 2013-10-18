@@ -25,6 +25,7 @@
             <samplerate>44100</samplerate>
             <voices>2</voices>
             <shuffle>1</shuffle>
+            <m3u>/path/to/m3u_file</m3u>
         </media>
         <rss>
             <dir>/path/to/rss/</dir>

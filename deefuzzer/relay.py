@@ -40,6 +40,7 @@ from threading import Thread
 import Queue
 import urllib
 
+
 class Relay(Thread):
 
     def __init__(self, sub_buffer_size, queue_size):
@@ -71,5 +72,4 @@ class Relay(Thread):
             else:
                 self.stream.close()
                 break
-
 

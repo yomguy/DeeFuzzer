@@ -38,6 +38,7 @@
 
 from relay import *
 
+
 class Player:
     """A file streaming iterator"""
 

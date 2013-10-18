@@ -38,6 +38,7 @@
 
 import os
 
+
 class Recorder:
     """A file streaming iterator"""
 

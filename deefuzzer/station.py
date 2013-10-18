@@ -45,9 +45,13 @@ import random
 import shout
 import urllib
 import mimetypes
-from threading import Thread
-from tools import *
 
+from threading import Thread
+from player import *
+from recorder import *
+from relay import *
+from streamer import *
+from tools import *
 
 class Station(Thread):
     """a DeeFuzzer shouting station thread"""
@@ -73,6 +77,8 @@ class Station(Thread):
         self.ogg_quality = self.station['media']['ogg_quality']
         self.samplerate = self.station['media']['samplerate']
         self.voices = self.station['media']['voices']
+        if 'm3u' in self.station['media'].keys():
+            self.m3u_playlist_file = self.station['media']['m3u']
 
         # Server
         if 'mountpoint' in self.station['server'].keys():
@@ -319,13 +325,19 @@ class Station(Thread):
 
     def get_playlist(self):
         file_list = []
-        for root, dirs, files in os.walk(self.media_dir):
-            for file in files:
-                s = file.split('.')
-                ext = s[len(s)-1]
-                if ext.lower() == self.channel.format and not os.sep+'.' in file:
-                    file_list.append(root + os.sep + file)
-        file_list.sort()
+        if not self.m3u_playlist_file:
+            for root, dirs, files in os.walk(self.media_dir):
+                for file in files:
+                    s = file.split('.')
+                    ext = s[len(s)-1]
+                    if ext.lower() == self.channel.format and not os.sep+'.' in file:
+                        file_list.append(root + os.sep + file)
+            file_list.sort()
+        else:
+            f = open(self.m3u_playlist_file, 'r')
+            for path in f.readlines():
+                if '#' != path[0]:
+                    file_list.append(path[:-1])
         return file_list
 
     def get_jingles(self):
@@ -341,12 +353,12 @@ class Station(Thread):
 
     def get_next_media(self):
         # Init playlist
-        if self.lp != 0:
+        if self.lp:
             playlist = self.playlist
             new_playlist = self.get_playlist()
             lp_new = len(new_playlist)
 
-            if lp_new != self.lp or self.counter == 0:
+            if lp_new != self.lp or not self.counter:
                 self.id = 0
                 self.lp = lp_new
 
@@ -356,7 +368,7 @@ class Station(Thread):
                 new_tracks = new_playlist_set - playlist_set
                 self.new_tracks = list(new_tracks.copy())
 
-                if len(new_tracks) != 0:
+                if len(new_tracks):
                     new_tracks_objs = self.media_to_objs(self.new_tracks)
                     for media_obj in new_tracks_objs:
                         title = media_obj.metadata['title']
@@ -376,7 +388,7 @@ class Station(Thread):
                             self.update_twitter(message)
 
                 # Shake it, Fuzz it !
-                if self.shuffle_mode == 1:
+                if self.shuffle_mode:
                     random.shuffle(playlist)
 
                 # Play new tracks first
@@ -389,7 +401,7 @@ class Station(Thread):
                 self.update_rss(self.media_to_objs(self.playlist),
                                 self.rss_playlist_file, '(playlist)')
 
-            if self.jingles_mode == 1 and (self.counter % 2) == 0 and not self.jingles_length == 0:
+            if self.jingles_mode and not (self.counter % 2) and self.jingles_length:
                 media = self.jingles_list[self.jingle_id]
                 self.jingle_id = (self.jingle_id + 1) % self.jingles_length
             else:
@@ -571,6 +583,7 @@ class Station(Thread):
                     log = False
                 self.q.task_done()
                 pass
+
 
     def run(self):
         self.q.get(1)
