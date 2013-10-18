@@ -77,6 +77,7 @@ class Station(Thread):
         self.ogg_quality = self.station['media']['ogg_quality']
         self.samplerate = self.station['media']['samplerate']
         self.voices = self.station['media']['voices']
+        self.m3u_playlist_file = []
         if 'm3u' in self.station['media'].keys():
             self.m3u_playlist_file = self.station['media']['m3u']
 
