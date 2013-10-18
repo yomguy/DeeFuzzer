@@ -40,7 +40,7 @@ import os
 import string
 import datetime
 from mutagen.oggvorbis import OggVorbis
-from tools import *
+from utils import *
 
 
 class Ogg:

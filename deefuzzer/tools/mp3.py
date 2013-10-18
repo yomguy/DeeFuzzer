@@ -42,7 +42,7 @@ import datetime
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3, MPEGInfo
 from mutagen import id3
-from tools import *
+from utils import *
 
 EasyID3.valid_keys["comment"]="COMM::'XXX'"
 EasyID3.valid_keys["copyright"]="TCOP::'XXX'"
