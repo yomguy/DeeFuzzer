@@ -265,8 +265,8 @@ class Station(Thread):
         self.twitter_mode = value
         message = "Station " + self.channel_url + \
                 " : received OSC message '%s' with arguments '%d'" % (path, value)
-        self.m3u_url = self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
-        self.rss_url = self.channel.url + '/rss/' + self.rss_playlist_file.split(os.sep)[-1])
+        self.m3u_url = self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1]
+        self.rss_url = self.channel.url + '/rss/' + self.rss_playlist_file.split(os.sep)[-1]
         self.logger.write_info(message)
 
     def jingles_callback(self, path, value):

@@ -13,7 +13,7 @@ CLASSIFIERS = ['Programming Language :: Python',
 setup(
   name = "DeeFuzzer",
   url = "http://github.com/yomguy/DeeFuzzer",
-  description = "an open, light and instant media streaming tool",
+  description = "open, light and instant media streaming tool",
   long_description = open('README.rst').read(),
   author = "Guillaume Pellerin",
   author_email = "yomguy@parisson.com",
