@@ -79,7 +79,7 @@ an install inside Gygwin should work well.
 
 To install it, say on Debian, do::
 
-    sudo apt-get install python-pip liblo-dev libshout3-dev gnutls-dev librtmp-dev python-yaml
+    sudo apt-get install python-pip liblo-dev libshout3-dev gnutls-dev librtmp-dev python-yaml libcurl4-openssl-dev
 
 Now, the easiest way to install the DeeFuzzer from a shell::
 
