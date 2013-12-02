@@ -36,6 +36,7 @@ News
 
  * stable WebM live streaming through Stream-m server
  * read yaml configuration files
+ * read m3u playlist files
  * minor fixes
 
 0.6.4 is out!
