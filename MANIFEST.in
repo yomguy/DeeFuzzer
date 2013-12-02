@@ -8,7 +8,4 @@ recursive-include scripts *
 global-exclude *.pyc
 prune dist
 prune build
-recursive-exclude TimeSide.egg-info *
 recursive-exclude debian *
-
-
