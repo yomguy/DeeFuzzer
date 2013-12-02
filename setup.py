@@ -20,7 +20,6 @@ setup(
   version = '0.6.5',
   install_requires = [
         'setuptools',
-        'tinyurl',
         'python-shout',
         'python-twitter',
         'mutagen',

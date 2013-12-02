@@ -261,15 +261,12 @@ class Station(Thread):
 
     def twitter_callback(self, path, value):
         value = value[0]
-        import tinyurl
         self.twitter = Twitter(self.twitter_key, self.twitter_secret)
         self.twitter_mode = value
         message = "Station " + self.channel_url + \
                 " : received OSC message '%s' with arguments '%d'" % (path, value)
-        self.m3u_tinyurl = tinyurl.create_one(self.channel.url + \
-                            '/m3u/' + self.m3u.split(os.sep)[-1])
-        self.rss_tinyurl = tinyurl.create_one(self.channel.url + \
-                            '/rss/' + self.rss_playlist_file.split(os.sep)[-1])
+        self.m3u_url = self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1])
+        self.rss_url = self.channel.url + '/rss/' + self.rss_playlist_file.split(os.sep)[-1])
         self.logger.write_info(message)
 
     def jingles_callback(self, path, value):
@@ -385,7 +382,7 @@ class Station(Thread):
                             artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
                             message = '#NEWTRACK ! %s #%s on #%s RSS: ' % \
                                      (song.replace('_', ' '), artist_tags, self.short_name)
-                            message = message[:113] + self.rss_tinyurl
+                            message = message[:113] + self.rss_url
                             self.update_twitter(message)
 
                 # Shake it, Fuzz it !
@@ -558,7 +555,7 @@ class Station(Thread):
         message = '%s %s on #%s' % (self.prefix, self.song, self.short_name)
         tags = '#' + ' #'.join(self.twitter_tags)
         message = message + ' ' + tags
-        message = message[:108] + ' M3U: ' + self.m3u_tinyurl
+        message = message[:108] + ' M3U: ' + self.m3u_url
         self.update_twitter(message)
 
     def channel_open(self):
