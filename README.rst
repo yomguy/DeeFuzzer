@@ -63,12 +63,6 @@ News
  * live webm relaying works good, webm playlist reading NEED testing
  * new <station><server><type> parameter ('icecast or 'stream-m')
 
-`Download it <http://pypi.python.org/packages/source/D/DeeFuzzer/DeeFuzzer-0.6.3.tar.gz>`_
-
-and enjoy the video streaming ! ;)
-
-`Full CHANGELOG <https://github.com/yomguy/DeeFuzzer/blob/master/CHANGELOG>`_
-
 
 Installation
 ============
@@ -97,8 +91,8 @@ To install the DeeFuzzer from sources, download the last archive `there <http://
 
 Uncompress, go to the deefuzzer app directory and run install as root. For example::
 
-    tar xzf deefuzzer-0.6.tar.gz
-    cd deefuzzer-0.6
+    tar xzf deefuzzer-0.6.5.tar.gz
+    cd deefuzzer-0.6.5
     sudo python setup.py install
 
 Follow the related package list to install optional or recommended applications:
@@ -114,13 +108,17 @@ Usage
 
 Usage : deefuzzer CONFIGFILE
 
-where CONFIGFILE is the path for a XML config file. For example::
+where CONFIGFILE is the path for a XML or YAML config file. For example::
 
     deefuzzer example/deefuzzer.xml
 
+or::
+
+    deefuzzer example/deefuzzer.yaml    
+
 To make the deefuzzer act as a deamon, just play it in the background::
 
-    deefuzzer example/deefuzzer.xml &
+    deefuzzer example/deefuzzer.yaml &
 
 Note that you must edit the config file with right parameters before playing.
 You can find an example for a draft XML file in the "example" directory of the source code.
@@ -133,17 +131,19 @@ You have to kill them manually, after a CTRL+Z, making this::
 
 or, more specificially::
 
-    pkill -9 -f "deefuzzer example/deefuzzer.xml"
+    pkill -9 -f "deefuzzer example/deefuzzer.yaml"
 
 
-XML Configuration
-=================
+Configuration
+==============
 
 Some examples of markup configuration files:
 
- * `generic <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.xml>`_
- * `generic and gocumented <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_doc.xml>`_
+ * `generic XML <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.xml>`_
+ * `generic and gocumented XML <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_doc.xml>`_
  * `OGG Vorbis and MP3 together <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_mp3_ogg.xml>`_
+ * `generic YAML <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.yaml>`_
+ 
 
 OSC Control
 ===========
