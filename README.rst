@@ -92,8 +92,8 @@ To install the DeeFuzzer from sources, download the last archive `there <http://
 
 Uncompress, go to the deefuzzer app directory and run install as root. For example::
 
-    tar xzf deefuzzer-0.6.5.tar.gz
-    cd deefuzzer-0.6.5
+    tar xzf DeeFuzzer-0.6.5.tar.gz
+    cd DeeFuzzer-0.6.5
     sudo python setup.py install
 
 Follow the related package list to install optional or recommended applications:
@@ -115,7 +115,7 @@ where CONFIGFILE is the path for a XML or YAML config file. For example::
 
 or::
 
-    deefuzzer example/deefuzzer.yaml    
+    deefuzzer example/deefuzzer.yaml
 
 To make the deefuzzer act as a deamon, just play it in the background::
 
@@ -141,10 +141,10 @@ Configuration
 Some examples of markup configuration files:
 
  * `generic XML <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.xml>`_
- * `generic and gocumented XML <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_doc.xml>`_
+ * `generic and documented XML <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_doc.xml>`_
  * `OGG Vorbis and MP3 together <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_mp3_ogg.xml>`_
  * `generic YAML <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.yaml>`_
- 
+
 
 OSC Control
 ===========
