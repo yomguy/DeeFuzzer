@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
-# Easily import simple XML data to Python dictionary
-# http://www.gmta.info/publications/parsing-simple-xml-structure-to-a-python-dictionary
-
 import xml.dom.minidom
+
 
 def haschilds(dom):
     # Checks whether an element has any childs

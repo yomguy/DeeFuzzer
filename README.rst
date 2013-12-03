@@ -73,7 +73,8 @@ an install inside Gygwin should work well.
 
 To install it, say on Debian, do::
 
-    sudo apt-get install python-pip python-dev liblo-dev libshout3-dev librtmp-dev python-yaml libcurl4-openssl-dev
+    sudo apt-get install python-pip python-dev liblo-dev libshout3-dev librtmp-dev \
+                         python-yaml libcurl4-openssl-dev python-mutagen
 
 Now, the easiest way to install the DeeFuzzer from a shell::
 
@@ -97,9 +98,10 @@ Uncompress, go to the deefuzzer app directory and run install as root. For examp
 
 Follow the related package list to install optional or recommended applications:
 
- * **depends**: python, python-dev, python-xml, python-shout | shout-python, libshout3, libshout3-dev, python-mutagen, python-pycurl | pycurl
- * **optional**: python-twitter, python-liblo | pyliblo (>= 0.26), python-yaml
- * **recommends**: icecast2, python-setuptools, stream-m
+ * **depends**    : python, python-dev, python-shout (from pypi.python.org) | shout-python, 
+                    libshout3, libshout3-dev, python-mutagen, python-pycurl | pycurl
+ * **optional**   : python-twitter, python-liblo | pyliblo (>= 0.26), python-yaml
+ * **recommends** : icecast2, python-setuptools, stream-m
 
 For more informations, please see on `GitHub <https://github.com/yomguy/DeeFuzzer>`_ or twitt a message to @parisson_studio
 
