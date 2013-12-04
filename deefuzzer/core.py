@@ -68,7 +68,7 @@ class DeeFuzzer(Thread):
             self.nb_stations = len(self.conf['deefuzzer']['station'])
 
         # Set the deefuzzer logger
-        self.logger.write_info('Starting DeeFuzzer')
+        self.logger.write_info('Starting DeeFuzzer version %s' % deefuzzer.__version__)
         self.logger.write_info('Using libshout version %s' % shout.version())
 
         # Init all Stations
