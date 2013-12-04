@@ -32,6 +32,13 @@ Because our aim is to get DeeFuzzer as light as possible it is NOT capable of re
 News
 =====
 
+0.6.5-chz
+
+ * update radio name (remove ": http://url")
+ * update mountpoint name (remove .mp3 or .ogg)
+ * update metadata (replace " : " by " - " between artist and title)
+ * remove "quality" on mp3 streams
+
 0.6.5
 
  * stable WebM live streaming through Stream-m server

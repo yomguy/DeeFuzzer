@@ -101,12 +101,12 @@ class Station(Thread):
             self.channel.mount = '/publish/' + self.mountpoint
         elif 'icecast' in self.type:
             self.channel = shout.Shout()
-            self.channel.mount = '/' + self.mountpoint + '.' + self.media_format
+            self.channel.mount = '/' + self.mountpoint
         else:
             sys.exit('Not a compatible server type. Choose "stream-m" or "icecast".')
 
         self.channel.url = self.station['infos']['url']
-        self.channel.name = self.station['infos']['name'] + ' : ' + self.channel.url
+        self.channel.name = self.station['infos']['name']
         self.channel.genre = self.station['infos']['genre']
         self.channel.description = self.station['infos']['description']
         self.channel.format = self.media_format
@@ -117,10 +117,15 @@ class Station(Thread):
         self.channel.public = int(self.station['server']['public'])
         self.channel.genre = self.station['infos']['genre']
         self.channel.description = self.station['infos']['description']
-        self.channel.audio_info = { 'bitrate': str(self.bitrate),
-                                    'samplerate': str(self.samplerate),
-                                    'quality': str(self.ogg_quality),
-                                    'channels': str(self.voices),}
+        if self.channel.format == 'mp3':
+            self.channel.audio_info = { 'bitrate': str(self.bitrate),
+                                        'samplerate': str(self.samplerate),
+                                        'channels': str(self.voices),}
+        if self.channel.format == 'ogg':
+            self.channel.audio_info = { 'bitrate': str(self.bitrate),
+                                        'samplerate': str(self.samplerate),
+                                        'quality': str(self.ogg_quality),
+                                        'channels': str(self.voices),}
 
         self.server_url = 'http://' + self.channel.host + ':' + str(self.channel.port)
         self.channel_url = self.server_url + self.channel.mount
@@ -376,7 +381,7 @@ class Station(Thread):
                         if not (title or artist):
                             song = str(media_obj.file_name)
                         else:
-                            song = artist + ' : ' + title
+                            song = artist + ' - ' + title
                         song = song.encode('utf-8')
                         artist = artist.encode('utf-8')
                         if self.twitter_mode == 1:
@@ -459,7 +464,7 @@ class Station(Thread):
             if not (title or artist):
                 song = str(media.file_title)
             else:
-                song = artist + ' : ' + title
+                song = artist + ' - ' + title
 
             media_absolute_playtime += media.length
 
@@ -511,7 +516,7 @@ class Station(Thread):
         self.artist = self.relay_author.encode('utf-8')
         self.title = self.title.replace('_', ' ')
         self.artist = self.artist.replace('_', ' ')
-        self.song = self.artist + ' : ' + self.title
+        self.song = self.artist + ' - ' + self.title
 
         if self.type == 'stream-m':
             relay = URLReader(self.relay_url)
@@ -532,7 +537,7 @@ class Station(Thread):
         if not (self.title or self.artist):
             song = str(self.current_media_obj[0].file_name)
         else:
-            song = self.artist + ' : ' + self.title
+            song = self.artist + ' - ' + self.title
 
         self.song = song.encode('utf-8')
         self.artist = self.artist.encode('utf-8')

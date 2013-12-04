@@ -17,7 +17,7 @@ setup(
   long_description = open('README.rst').read(),
   author = "Guillaume Pellerin",
   author_email = "yomguy@parisson.com",
-  version = '0.6.5',
+  version = '0.6.5-chz',
   install_requires = [
         'setuptools',
         'python-shout',
