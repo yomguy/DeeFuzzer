@@ -53,6 +53,7 @@ from relay import *
 from streamer import *
 from tools import *
 
+
 class Station(Thread):
     """a DeeFuzzer shouting station thread"""
 
@@ -60,6 +61,16 @@ class Station(Thread):
     counter = 0
     delay = 0
     start_time = time.time()
+    server_ping = False    
+    playlist = []
+    lp = 1
+    player_mode = 0
+    osc_control_mode = 0
+    twitter_mode = 0
+    jingles_mode = 0
+    relay_mode = 0
+    record_mode = 0
+    run_mode = 1
 
     def __init__(self, station, q, logger, m3u):
         Thread.__init__(self)
@@ -67,7 +78,6 @@ class Station(Thread):
         self.q = q
         self.logger = logger
         self.m3u = m3u
-        self.server_ping = False
 
         # Media
         self.media_dir = self.station['media']['dir']
@@ -126,8 +136,10 @@ class Station(Thread):
         self.channel_url = self.server_url + self.channel.mount
 
         # RSS
-        self.rss_dir = self.station['rss']['dir']
-        self.rss_enclosure = self.station['rss']['enclosure']
+        if 'rss' in self.station:
+            self.rss_mode = int(self.station['rss']['mode'])
+            self.rss_dir = self.station['rss']['dir']
+            self.rss_enclosure = self.station['rss']['enclosure']
 
         if 'media_url' in self.station['rss']:
             self.rss_media_url = self.station['rss']['media_url']
@@ -139,10 +151,6 @@ class Station(Thread):
         self.base_name = self.rss_dir + os.sep + self.short_name + '_' + self.channel.format
         self.rss_current_file = self.base_name + '_current.xml'
         self.rss_playlist_file = self.base_name + '_playlist.xml'
-
-        # Playlist
-        self.playlist = self.get_playlist()
-        self.lp = len(self.playlist)
 
         # Logging
         self.logger.write_info('Opening ' + self.short_name + ' - ' + self.channel.name + \
@@ -156,10 +164,8 @@ class Station(Thread):
 
         # The station's player
         self.player = Player(self.type)
-        self.player_mode = 0
 
-        # OSCing
-        self.osc_control_mode = 0
+        # OSCing    
         # mode = 0 means Off, mode = 1 means On
         if 'control' in self.station:
             self.osc_control_mode = int(self.station['control']['mode'])
@@ -177,8 +183,6 @@ class Station(Thread):
                 self.osc_controller.start()
 
         # Jingling between each media.
-        # mode = 0 means Off, mode = 1 means On
-        self.jingles_mode = 0
         if 'jingles' in self.station:
             self.jingles_mode =  int(self.station['jingles']['mode'])
             self.jingles_shuffle = self.station['jingles']['shuffle']
@@ -187,8 +191,6 @@ class Station(Thread):
                 self.jingles_callback('/jingles', [1])
 
         # Relaying
-        # mode = 0 means Off, mode = 1 means On
-        self.relay_mode = 0
         if 'relay' in self.station:
             self.relay_mode = int(self.station['relay']['mode'])
             self.relay_url = self.station['relay']['url']
@@ -197,8 +199,6 @@ class Station(Thread):
                 self.relay_callback('/media/relay', [1])
 
         # Twitting
-        # mode = 0 means Off, mode = 1 means On
-        self.twitter_mode = 0
         if 'twitter' in self.station:
             self.twitter_mode = int(self.station['twitter']['mode'])
             self.twitter_key = self.station['twitter']['key']
@@ -215,17 +215,11 @@ class Station(Thread):
                 self.twitter_callback('/twitter', [1])
 
         # Recording
-        # mode = 0 means Off, mode = 1 means On
-        self.record_mode = 0
         if 'record' in self.station:
             self.record_mode = int(self.station['record']['mode'])
             self.record_dir = self.station['record']['dir']
             if self.record_mode:
                 self.record_callback('/record', [1])
-
-        # Running
-        # mode = 0 means Off, mode = 1 means On
-        self.run_mode = 1
 
     def run_callback(self, path, value):
         value = value[0]
@@ -371,8 +365,12 @@ class Station(Thread):
                 if len(new_tracks):
                     new_tracks_objs = self.media_to_objs(self.new_tracks)
                     for media_obj in new_tracks_objs:
-                        title = media_obj.metadata['title']
-                        artist = media_obj.metadata['artist']
+                        title = ''
+                        artist = ''
+                        if media_obj.metadata.has_key('title'):
+                            title = media_obj.metadata['title']
+                        if media_obj.metadata.has_key('artist'):
+                            artist = media_obj.metadata['artist']
                         if not (title or artist):
                             song = str(media_obj.file_name)
                         else:
@@ -398,7 +396,8 @@ class Station(Thread):
 
                 self.logger.write_info('Station ' + self.channel_url + \
                                  ' : generating new playlist (' + str(self.lp) + ' tracks)')
-                self.update_rss(self.media_to_objs(self.playlist),
+                if self.rss_mode:
+                    self.update_rss(self.media_to_objs(self.playlist),
                                 self.rss_playlist_file, '(playlist)')
 
             if self.jingles_mode and not (self.counter % 2) and self.jingles_length:
@@ -417,14 +416,19 @@ class Station(Thread):
         media_objs = []
         for media in media_list:
             file_name, file_title, file_ext = get_file_info(media)
-            if file_ext.lower() == 'mp3' and mimetypes.guess_type(media)[0] == 'audio/mpeg':
+            if file_ext.lower() == 'mp3' or mimetypes.guess_type(media)[0] == 'audio/mpeg':
                 try:
                     media_objs.append(Mp3(media))
                 except:
                     continue
-            elif file_ext.lower() == 'ogg' and mimetypes.guess_type(media)[0] == 'audio/ogg':
+            elif file_ext.lower() == 'ogg' or mimetypes.guess_type(media)[0] == 'audio/ogg':
                 try:
                     media_objs.append(Ogg(media))
+                except:
+                    continue
+            elif file_ext.lower() == 'webm' or mimetypes.guess_type(media)[0] == 'video/webm':
+                try:
+                    media_objs.append(WebM(media))
                 except:
                     continue
         return media_objs
@@ -524,8 +528,13 @@ class Station(Thread):
     def set_read_mode(self):
         self.prefix = '#nowplaying'
         self.current_media_obj = self.media_to_objs([self.media])
-        self.title = self.current_media_obj[0].metadata['title']
-        self.artist = self.current_media_obj[0].metadata['artist']
+        try:
+            self.title = self.current_media_obj[0].metadata['title']
+            self.artist = self.current_media_obj[0].metadata['artist']
+        except:
+            self.title = 'title'
+            self.artist = 'artist'
+
         self.title = self.title.replace('_', ' ')
         self.artist = self.artist.replace('_', ' ')
 
@@ -537,15 +546,15 @@ class Station(Thread):
         self.song = song.encode('utf-8')
         self.artist = self.artist.encode('utf-8')
         self.metadata_file = self.metadata_dir + os.sep + self.current_media_obj[0].file_name + '.xml'
-        #self.update_rss(self.current_media_obj, self.metadata_file, '')
-        self.update_rss(self.current_media_obj, self.rss_current_file, '(currently playing)')
+        if self.rss_mode:
+            self.update_rss(self.current_media_obj, self.rss_current_file, '(currently playing)')
         self.logger.write_info('DeeFuzzing on %s :  id = %s, name = %s' \
             % (self.short_name, self.id, self.current_media_obj[0].file_name))
         self.player.set_media(self.media)
 
-        if self.player_mode == 0:
+        if self.player_mode:
             self.stream = self.player.file_read_slow()
-        elif self.player_mode == 1:
+        else:
             self.stream = self.player.file_read_fast()
 
     def set_webm_read_mode(self):
@@ -583,7 +592,6 @@ class Station(Thread):
                     log = False
                 self.q.task_done()
                 pass
-
 
     def run(self):
         self.q.get(1)

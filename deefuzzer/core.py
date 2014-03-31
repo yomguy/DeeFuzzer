@@ -48,6 +48,9 @@ from deefuzzer.tools import *
 class DeeFuzzer(Thread):
     """a DeeFuzzer diffuser"""
 
+    m3u = None
+    rss = None
+
     def __init__(self, conf_file):
         Thread.__init__(self)
         self.conf_file = conf_file
@@ -112,7 +115,9 @@ class DeeFuzzer(Thread):
                 station = self.conf['deefuzzer']['station'][i]
             self.stations.append(Station(station, q, self.logger, self.m3u))
 
-        self.set_m3u_playlist()
+        if self.m3u:
+            self.set_m3u_playlist()
+        
         p = Producer(q)
         p.start()
 
