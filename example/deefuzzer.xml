@@ -1,6 +1,6 @@
 <deefuzzer>
-    <log>/path/to/log/mystation.log</log>
-    <m3u>/path/to/m3u/mystation.m3u</m3u>
+    <log>mystation.log</log>
+    <m3u>mystation.m3u</m3u>
 
     <station>
         <infos>
