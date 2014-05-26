@@ -581,14 +581,14 @@ class Station(Thread):
                 self.q.get(1)
                 server = urllib.urlopen(self.server_url)
                 self.server_ping = True
-                self.logger.write_info('Station ' + self.channel_url + \
-                                        ' : channel available')
+                text = 'Station ' + self.channel_url + ' : channel available'
+                self.logger.write_info(text)
                 self.q.task_done()
             except:
                 time.sleep(0.5)
                 if log:
-                    self.logger.write_error('Station ' + self.channel_url + \
-                                        ' : could not connect the channel' )
+                    text = 'Station ' + self.channel_url + ' : could not connect the channel' 
+                    self.logger.write_error(text)
                     log = False
                 self.q.task_done()
                 pass
