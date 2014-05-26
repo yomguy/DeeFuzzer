@@ -40,27 +40,33 @@ import os
 import shout
 import Queue
 import datetime
+import mimetypes
 from threading import Thread
 from deefuzzer.station import *
 from deefuzzer.tools import *
+
+mimetypes.add_type('application/x-yaml','.yaml')
 
 
 class DeeFuzzer(Thread):
     """a DeeFuzzer diffuser"""
 
+    m3u = None
+    rss = None
+
     def __init__(self, conf_file):
         Thread.__init__(self)
         self.conf_file = conf_file
         self.conf = self.get_conf_dict()
-        if 'log' in self.conf['deefuzzer'].keys():
-            self.logger = Logger(self.conf['deefuzzer']['log'])
-        else:
-            self.logger = Logger('.' + os.sep + 'deefuzzer.log')
-        if 'm3u' in self.conf['deefuzzer'].keys():
-            self.m3u = self.conf['deefuzzer']['m3u']
-        else:
-            self.m3u = '.' + os.sep + 'deefuzzer.m3u'
-
+        
+        for key in self.conf['deefuzzer'].keys():
+            if key == 'log':
+                self.logger = Logger(self.conf['deefuzzer']['log'])
+            if key == 'm3u':
+                self.m3u = self.conf['deefuzzer']['m3u']
+            else:
+                setattr(self, key, self.conf['deefuzzer'][key])
+                    
         if isinstance(self.conf['deefuzzer']['station'], dict):
             # Fix wrong type data from xmltodict when one station (*)
             self.nb_stations = 1
@@ -76,16 +82,19 @@ class DeeFuzzer(Thread):
         self.logger.write_info('Number of stations : ' + str(self.nb_stations))
 
     def get_conf_dict(self):
+        mime_type = mimetypes.guess_type(self.conf_file)[0]
         confile = open(self.conf_file,'r')
-        filename, ext = os.path.splitext(self.conf_file)
         data = confile.read()
         confile.close()
 
-        if 'xml' in ext:
+        if 'xml' in mime_type:
             return xmltodict(data,'utf-8')
-        elif 'yaml' in ext:
+        elif 'yaml' in mime_type:
             import yaml
             return yaml.load(data)
+        elif 'json' in mime_type:
+            import json
+            return json.loads(data)
 
     def set_m3u_playlist(self):
         m3u_dir = os.sep.join(self.m3u.split(os.sep)[:-1])
@@ -112,7 +121,9 @@ class DeeFuzzer(Thread):
                 station = self.conf['deefuzzer']['station'][i]
             self.stations.append(Station(station, q, self.logger, self.m3u))
 
-        self.set_m3u_playlist()
+        if self.m3u:
+            self.set_m3u_playlist()
+        
         p = Producer(q)
         p.start()
 

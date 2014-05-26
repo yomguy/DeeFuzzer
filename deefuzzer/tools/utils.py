@@ -34,3 +34,4 @@ def get_file_info(media):
     file_title = '.'.join(file_title)
     file_ext = file_name.split('.')[-1]
     return file_name, file_title, file_ext
+
