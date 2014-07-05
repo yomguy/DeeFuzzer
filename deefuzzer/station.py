@@ -61,7 +61,7 @@ class Station(Thread):
     counter = 0
     delay = 0
     start_time = time.time()
-    server_ping = False    
+    server_ping = False
     playlist = []
     lp = 1
     player_mode = 0
@@ -143,8 +143,8 @@ class Station(Thread):
 
         if 'media_url' in self.station['rss']:
             self.rss_media_url = self.station['rss']['media_url']
-            if self.rss_media_url[-1] != '/':
-                self.rss_media_url = self.rss_media_url + '/'
+            if not self.rss_media_url:
+                self.rss_media_url = self.channel.url + '/media/'
         else:
             self.rss_media_url = self.channel.url + '/media/'
 
@@ -165,7 +165,7 @@ class Station(Thread):
         # The station's player
         self.player = Player(self.type)
 
-        # OSCing    
+        # OSCing
         # mode = 0 means Off, mode = 1 means On
         if 'control' in self.station:
             self.osc_control_mode = int(self.station['control']['mode'])
@@ -587,7 +587,7 @@ class Station(Thread):
             except:
                 time.sleep(0.5)
                 if log:
-                    text = 'Station ' + self.channel_url + ' : could not connect the channel' 
+                    text = 'Station ' + self.channel_url + ' : could not connect the channel'
                     self.logger.write_error(text)
                     log = False
                 self.q.task_done()
