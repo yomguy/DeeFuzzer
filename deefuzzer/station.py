@@ -137,6 +137,10 @@ class Station(Thread):
 
         # RSS
         if 'rss' in self.station:
+            if 'mode' in self.station['rss']:
+                self.rss_mode = int(self.station['rss']['mode'])
+            else:
+                self.rss_mode = 0
             self.rss_mode = int(self.station['rss']['mode'])
             self.rss_dir = self.station['rss']['dir']
             self.rss_enclosure = self.station['rss']['enclosure']
