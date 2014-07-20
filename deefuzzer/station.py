@@ -141,7 +141,6 @@ class Station(Thread):
                 self.rss_mode = int(self.station['rss']['mode'])
             else:
                 self.rss_mode = 0
-            self.rss_mode = int(self.station['rss']['mode'])
             self.rss_dir = self.station['rss']['dir']
             self.rss_enclosure = self.station['rss']['enclosure']
 
@@ -381,6 +380,7 @@ class Station(Thread):
             lp_new = len(new_playlist)
 
             if not self.counter:
+                self.id = 0
                 self.playlist = new_playlist
                 self.lp = lp_new
 
