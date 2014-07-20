@@ -362,7 +362,7 @@ class Station(Thread):
                 new_tracks = new_playlist_set - playlist_set
                 self.new_tracks = list(new_tracks.copy())
 
-                if len(new_tracks) and self.counter:
+                if len(new_tracks):
                     new_tracks_objs = self.media_to_objs(self.new_tracks)
                     for media_obj in new_tracks_objs:
                         title = ''
@@ -377,7 +377,7 @@ class Station(Thread):
                             song = artist + ' : ' + title
                         song = song.encode('utf-8')
                         artist = artist.encode('utf-8')
-                        if self.twitter_mode == 1:
+                        if self.twitter_mode == 1  and self.counter:
                             artist_names = artist.split(' ')
                             artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
                             message = '#NEWTRACK ! %s #%s on #%s RSS: ' % \
