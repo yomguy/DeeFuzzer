@@ -61,7 +61,7 @@ class Station(Thread):
     counter = 0
     delay = 0
     start_time = time.time()
-    server_ping = False    
+    server_ping = False
     playlist = []
     lp = 1
     player_mode = 0
@@ -165,7 +165,7 @@ class Station(Thread):
         # The station's player
         self.player = Player(self.type)
 
-        # OSCing    
+        # OSCing
         # mode = 0 means Off, mode = 1 means On
         if 'control' in self.station:
             self.osc_control_mode = int(self.station['control']['mode'])
@@ -362,7 +362,7 @@ class Station(Thread):
                 new_tracks = new_playlist_set - playlist_set
                 self.new_tracks = list(new_tracks.copy())
 
-                if len(new_tracks):
+                if len(new_tracks) and self.counter:
                     new_tracks_objs = self.media_to_objs(self.new_tracks)
                     for media_obj in new_tracks_objs:
                         title = ''
@@ -587,7 +587,7 @@ class Station(Thread):
             except:
                 time.sleep(0.5)
                 if log:
-                    text = 'Station ' + self.channel_url + ' : could not connect the channel' 
+                    text = 'Station ' + self.channel_url + ' : could not connect the channel'
                     self.logger.write_error(text)
                     log = False
                 self.q.task_done()
