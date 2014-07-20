@@ -376,7 +376,7 @@ class Station(Thread):
             new_playlist = self.get_playlist()
             lp_new = len(new_playlist)
 
-            if not counter:
+            if not self.counter:
                 self.playlist = new_playlist
                 self.lp = lp_new
 
