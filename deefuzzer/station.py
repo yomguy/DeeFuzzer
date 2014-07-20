@@ -137,14 +137,17 @@ class Station(Thread):
 
         # RSS
         if 'rss' in self.station:
-            self.rss_mode = int(self.station['rss']['mode'])
+            if 'mode' in self.station['rss']:
+                self.rss_mode = int(self.station['rss']['mode'])
+            else:
+                self.rss_mode = 0
             self.rss_dir = self.station['rss']['dir']
             self.rss_enclosure = self.station['rss']['enclosure']
 
         if 'media_url' in self.station['rss']:
             self.rss_media_url = self.station['rss']['media_url']
-            if self.rss_media_url[-1] != '/':
-                self.rss_media_url = self.rss_media_url + '/'
+            if not self.rss_media_url:
+                self.rss_media_url = self.channel.url + '/media/'
         else:
             self.rss_media_url = self.channel.url + '/media/'
 
@@ -345,6 +348,30 @@ class Station(Thread):
         file_list.sort()
         return file_list
 
+    def tweet(self):
+        if len(self.new_tracks):
+            new_tracks_objs = self.media_to_objs(self.new_tracks)
+            for media_obj in new_tracks_objs:
+                title = ''
+                artist = ''
+                if media_obj.metadata.has_key('title'):
+                    title = media_obj.metadata['title']
+                if media_obj.metadata.has_key('artist'):
+                    artist = media_obj.metadata['artist']
+                if not (title or artist):
+                    song = str(media_obj.file_name)
+                else:
+                    song = artist + ' : ' + title
+                    song = song.encode('utf-8')
+                    artist = artist.encode('utf-8')
+
+                    artist_names = artist.split(' ')
+                    artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
+                    message = '#NEWTRACK ! %s #%s on #%s RSS: ' % \
+                             (song.replace('_', ' '), artist_tags, self.short_name)
+                    message = message[:113] + self.rss_url
+                    self.update_twitter(message)
+
     def get_next_media(self):
         # Init playlist
         if self.lp:
@@ -352,7 +379,20 @@ class Station(Thread):
             new_playlist = self.get_playlist()
             lp_new = len(new_playlist)
 
-            if lp_new != self.lp or not self.counter:
+            if not self.counter:
+                self.id = 0
+                self.playlist = new_playlist
+                self.lp = lp_new
+
+                # Shake it, Fuzz it !
+                if self.shuffle_mode:
+                    random.shuffle(self.playlist)
+
+                self.logger.write_info('Station ' + self.channel_url + \
+                                 ' : generating new playlist (' + str(self.lp) + ' tracks)')
+
+
+            elif lp_new != self.lp:
                 self.id = 0
                 self.lp = lp_new
 
@@ -362,28 +402,8 @@ class Station(Thread):
                 new_tracks = new_playlist_set - playlist_set
                 self.new_tracks = list(new_tracks.copy())
 
-                if len(new_tracks):
-                    new_tracks_objs = self.media_to_objs(self.new_tracks)
-                    for media_obj in new_tracks_objs:
-                        title = ''
-                        artist = ''
-                        if media_obj.metadata.has_key('title'):
-                            title = media_obj.metadata['title']
-                        if media_obj.metadata.has_key('artist'):
-                            artist = media_obj.metadata['artist']
-                        if not (title or artist):
-                            song = str(media_obj.file_name)
-                        else:
-                            song = artist + ' : ' + title
-                        song = song.encode('utf-8')
-                        artist = artist.encode('utf-8')
-                        if self.twitter_mode == 1  and self.counter:
-                            artist_names = artist.split(' ')
-                            artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
-                            message = '#NEWTRACK ! %s #%s on #%s RSS: ' % \
-                                     (song.replace('_', ' '), artist_tags, self.short_name)
-                            message = message[:113] + self.rss_url
-                            self.update_twitter(message)
+                if self.twitter_mode == 1  and self.counter:
+                    self.tweet()
 
                 # Shake it, Fuzz it !
                 if self.shuffle_mode:
@@ -392,10 +412,12 @@ class Station(Thread):
                 # Play new tracks first
                 for track in self.new_tracks:
                     playlist.insert(0, track)
+
                 self.playlist = playlist
 
                 self.logger.write_info('Station ' + self.channel_url + \
                                  ' : generating new playlist (' + str(self.lp) + ' tracks)')
+
                 if self.rss_mode:
                     self.update_rss(self.media_to_objs(self.playlist),
                                 self.rss_playlist_file, '(playlist)')
