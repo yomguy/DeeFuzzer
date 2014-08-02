@@ -162,7 +162,7 @@ The available parameters are:
     * jingling: start and stop
     * recording: start and stop
 
-See `examples here. <https://github.com/yomguy/DeeFuzzer/blob/master/deefuzzer/scripts/>`_
+See `examples here. <https://github.com/yomguy/DeeFuzzer/blob/master/scripts/>`_
 
 Then any OSC remote (PureDate, Monome, TouchOSC, etc..) can a become controller ! :)
 
