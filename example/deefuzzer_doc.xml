@@ -1,4 +1,5 @@
 <deefuzzer>
+
     <!-- A path to the log file (need write access rights to the directory) -->
     <log>/path/to/log/mystation.log</log>
     <!-- A path to the M3U playlist file (need write access rights to the directory).
@@ -7,6 +8,7 @@
     <m3u>/path/to/m3u/mystation.m3u</m3u>
 
     <station>
+
         <infos>
             <!-- The short name of the station. It will define the mount point,
                  for example http://mydomain.com:8000/my_station.mp3 -->
@@ -20,6 +22,7 @@
             <!-- The genres of the audio streams -->
             <genre>Various Funk Groove</genre>
         </infos>
+
         <server>
             <!-- The type of the server (icecast or stream-m) -->
             <type>icecast</type>
@@ -32,6 +35,7 @@
             <!-- If '1', the mount point will be publish on yp.icecast.org, '0' for private streams -->
             <public>1</public>
         </server>
+
         <media>
             <!-- The path to the directory containing all the media. It will be analyse recursively. -->
             <dir>/path/to/mp3/</dir>
@@ -50,6 +54,7 @@
             <!-- You can also give a M3U playlist file -->
             <m3u>/path/to/m3u_file</m3u>
         </media>
+
         <rss>
             <!-- A path to the directory containing RSS (XML) files that is 'currently playing'
                 and 'playlist' feeds (need write access rights to the directory).
@@ -63,6 +68,7 @@
                  Default is station url /media -->
             <media_url>http://my.domain.com/media/</media_url>
         </rss>
+
         <twitter>
             <!-- If '1', deefuzzer will tweet #nowplaying, new tracks and other things to Twitter. 'O' does nothing. -->
             <mode>0</mode>
@@ -73,6 +79,7 @@
             <!-- These tags will be added to each twitter message -->
             <tags>bla bla</tags>
         </twitter>
+
         <jingles>
             <!-- If '1', some media will be played between each main track of the playlist. '0' does nothing. -->
             <mode>0</mode>
@@ -82,6 +89,7 @@
             <!-- If '1', the jingle playlist will be randomized. '0' for aphanumeric order -->
             <shuffle>1</shuffle>
         </jingles>
+
         <control>
             <!-- If '1', an OSC controller thread is started to allow external commands
                 See README for more info -->
@@ -89,6 +97,7 @@
             <!-- The port of the OSC server -->
             <port>1234</port>
         </control>
+
         <relay>
             <!-- If '1', the station will relay another _existing_ stream.
             Wonderful for commuting to live sessions. '0' does nothing -->
@@ -98,15 +107,15 @@
             <!-- The default author of the relay streams -->
             <author>Me</author>
         </relay>
+
         <record>
             <!-- If '1', the stream will be recorded, '0' does nothing -->
             <mode>0</mode>
             <!-- The directory where files will be recorded -->
             <dir>/path/to/archives</dir>
         </record>
+
     </station>
 
     <!-- Note that you can add many different stations in the same config file, thanks to the multi-threaded architecure ! -->
 </deefuzzer>
-
-
