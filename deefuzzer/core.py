@@ -58,7 +58,7 @@ class DeeFuzzer(Thread):
         Thread.__init__(self)
         self.conf_file = conf_file
         self.conf = self.get_conf_dict()
-        
+
         for key in self.conf['deefuzzer'].keys():
             if key == 'log':
                 self.logger = Logger(self.conf['deefuzzer']['log'])
@@ -66,7 +66,7 @@ class DeeFuzzer(Thread):
                 self.m3u = self.conf['deefuzzer']['m3u']
             else:
                 setattr(self, key, self.conf['deefuzzer'][key])
-                    
+
         if isinstance(self.conf['deefuzzer']['station'], dict):
             # Fix wrong type data from xmltodict when one station (*)
             self.nb_stations = 1
@@ -74,7 +74,7 @@ class DeeFuzzer(Thread):
             self.nb_stations = len(self.conf['deefuzzer']['station'])
 
         # Set the deefuzzer logger
-        self.logger.write_info('Starting DeeFuzzer')
+        self.logger.write_info('Starting DeeFuzzer version %s' % deefuzzer.__version__)
         self.logger.write_info('Using libshout version %s' % shout.version())
 
         # Init all Stations
@@ -123,7 +123,7 @@ class DeeFuzzer(Thread):
 
         if self.m3u:
             self.set_m3u_playlist()
-        
+
         p = Producer(q)
         p.start()
 

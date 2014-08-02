@@ -41,7 +41,6 @@ deefuzzer:
           enclosure: 0,
           media_url: 'http://localhost/rss/'}
 
-
     twitter: {key: 76728330-OjKgbHtn4II86Ad7pNUGEzfNAkGTW5Wvw38qUmLE,
               mode: 0, secret: 4egZs1dSM37XVY8zXa016Yueku2fleXF2bx8k25V4,
               tags: bla bla}

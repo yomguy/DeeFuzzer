@@ -1,8 +1,10 @@
 <deefuzzer>
+
     <log>mystation.log</log>
     <m3u>mystation.m3u</m3u>
 
     <station>
+
         <infos>
             <short_name>my_station</short_name>
             <name>My best funky station</name>
@@ -10,6 +12,7 @@
             <url>http://mydomain.com</url>
             <genre>Various Funk Groove</genre>
         </infos>
+
         <server>
             <type>icecast</type>
             <host>mydomain.com</host>
@@ -17,6 +20,7 @@
             <sourcepassword>icecast_source_password</sourcepassword>
             <public>1</public>
         </server>
+
         <media>
             <dir>/path/to/mp3/</dir>
             <format>mp3</format>
@@ -27,37 +31,42 @@
             <shuffle>1</shuffle>
             <m3u>/path/to/m3u_file</m3u>
         </media>
+
         <rss>
             <dir>/path/to/rss/</dir>
             <enclosure>1</enclosure>
             <media_url>http://my.domain.com/media/</media_url>
         </rss>
+
         <twitter>
             <mode>0</mode>
             <key>your access token key</key>
             <secret>your access token secret key</secret>
             <tags>bla bla</tags>
         </twitter>
+
         <jingles>
             <mode>0</mode>
             <dir>/path/to/jingles</dir>
             <shuffle>1</shuffle>
         </jingles>
+
         <control>
             <mode>0</mode>
             <port>1234</port>
         </control>
+
         <relay>
             <mode>0</mode>
             <url>http://anotherdomain.com:8000/stream.mp3</url>
             <author>Me</author>
         </relay>
+
         <record>
             <mode>0</mode>
             <dir>/path/to/archives</dir>
         </record>
+
     </station>
 
 </deefuzzer>
-
-
