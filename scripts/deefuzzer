@@ -26,7 +26,7 @@ def prog_info():
  depends:  python, python-dev, python-xml, python-shout | shout-python, libshout3,
            libshout3-dev, python-mutagen, python-pycurl
 
- recommends: icecast2, python-twitter, python-tinyurl, python-liblo | pyliblo (>= 0.26)
+ recommends: icecast2, python-twitter, python-liblo | pyliblo (>= 0.26)
 
  Usage : deefuzzer [file]
 

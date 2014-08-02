@@ -1,0 +1,15 @@
+language: python
+python:
+  - "2.7"
+virtualenv:
+  system_site_packages: true
+
+# command to prepare the system to install prerequisites or dependencies
+before_install:
+ - sudo apt-get install python-setuptools
+ - sudo apt-get install -qq libshout3-dev python-liblo python-mutagen python-pycurl
+
+# command to run tests
+script:
+ - "python setup.py install"
+# - "python tests/testcomponent.py"

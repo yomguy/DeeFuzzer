@@ -83,10 +83,10 @@ class Ogg:
         return 'ogg'
 
     def get_mime_type(self):
-        return 'application/ogg'
+        return 'audio/ogg'
 
     def get_description(self):
-        return 'FIXME'
+        return 'OGG Vorbis'
 
     def get_file_info(self):
         try:
