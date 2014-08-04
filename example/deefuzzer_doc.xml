@@ -1,55 +1,73 @@
 <deefuzzer>
     <!-- A path to the log file (need write access rights to the directory) -->
-    <log>/path/to/log/mystation.log</log>
+    <log>/path/to/station.log</log>
     <!-- A path to the M3U playlist file (need write access rights to the directory).
          The file is preferably accessible behind an url,
          for example, http://mydomain.com/m3u/mystation.m3u -->
-    <m3u>/path/to/m3u/mystation.m3u</m3u>
-
+    <m3u>/path/to/station.m3u</m3u>
     <station>
+        <control>
+            <!-- If '1', an OSC controller thread is started to allow external commands
+                See README for more info -->
+            <mode>0</mode>
+            <!-- The port of the OSC server -->
+            <port>16001</port>
+        </control>
         <infos>
-            <!-- The short name of the station. It will define the mount point,
-                 for example http://mydomain.com:8000/my_station.mp3 -->
-            <short_name>my_station</short_name>
+            <!-- The description of the station -->
+            <description>My personal best funky playlist ever!</description>
             <!-- The name (title) of the station -->
             <name>My best funky station</name>
-            <!-- The description of the station -->
-            <description>My personal best funky playlist ever !</description>
+            <!-- The short name of the station. It will define the mount point,
+                 for example http://mydomain.com:8000/my_station.mp3 -->
+            <short_name>My_station</short_name>
             <!-- The website of the station (for metadata) -->
-            <url>http://mydomain.com</url>
+            <url>http://parisson.com</url>
             <!-- The genres of the audio streams -->
             <genre>Various Funk Groove</genre>
         </infos>
-        <server>
-            <!-- The type of the server (icecast or stream-m) -->
-            <type>icecast</type>
-            <!-- The host to send the stream (domain or IP) -->
-            <host>mydomain.com</host>
-            <!-- The port of the Icecast2 server on the host -->
-            <port>8000</port>
-            <!-- The source password of the Icecast2 server on the host -->
-            <sourcepassword>icecast_source_password</sourcepassword>
-            <!-- If '1', the mount point will be publish on yp.icecast.org, '0' for private streams -->
-            <public>1</public>
-        </server>
+        <jingles>
+            <!-- A path to the directory containing jingles media files.
+                The files have to be of the same type of the main media files. -->
+            <dir>/path/to/jingles</dir>
+            <!-- If '1', some media will be played between each main track of the playlist. '0' does nothing. -->
+            <mode>0</mode>
+            <!-- If '1', the jingle playlist will be randomized. '0' for aphanumeric order -->
+            <shuffle>1</shuffle>
+        </jingles>
         <media>
+            <!-- The mean bitrate of the media -->
+            <bitrate>96</bitrate>
             <!-- The path to the directory containing all the media. It will be analyse recursively. -->
             <dir>/path/to/mp3/</dir>
             <!-- The audio format of the media. Can be 'mp3' or 'ogg' -->
             <format>mp3</format>
-            <!-- The mean bitrate of the media -->
-            <bitrate>192</bitrate>
-            <!-- The ogg quality of the ogg vorbis media -->
-            <ogg_quality>7</ogg_quality>
-            <!-- The samplerate of the media -->
-            <samplerate>44100</samplerate>
-            <!-- The number of channels - or voices - of the media. '1' for mono, '2' for stereo. -->
-            <voices>2</voices>
-            <!-- If '1', the playlist will be randomized. '0' for aphanumeric order -->
-            <shuffle>1</shuffle>
             <!-- You can also give a M3U playlist file -->
             <m3u>/path/to/m3u_file</m3u>
+            <!-- The ogg quality of the ogg vorbis media -->
+            <ogg_quality>4</ogg_quality>
+            <!-- The samplerate of the media -->
+            <samplerate>48000</samplerate>
+            <!-- If '1', the playlist will be randomized. '0' for aphanumeric order -->
+            <shuffle>0</shuffle>
+            <!-- The number of channels - or voices - of the media. '1' for mono, '2' for stereo. -->
+            <voices>2</voices>
         </media>
+        <record>
+            <!-- The directory where files will be recorded -->
+            <dir>/path/to/archives</dir>
+            <!-- If '1', the stream will be recorded, '0' does nothing -->
+            <mode>0</mode>
+        </record>
+        <relay>
+            <!-- The default author of the relay streams -->
+            <author>Unknown</author>
+            <!-- If '1', the station will relay another _existing_ stream.
+            Wonderful for commuting to live sessions. '0' does nothing -->
+            <mode>0</mode>
+            <!-- The URL of the station to relay -->
+            <url>http://127.0.0.1:8000/telecaster_live.mp3</url>
+        </relay>
         <rss>
             <!-- A path to the directory containing RSS (XML) files that is 'currently playing'
                 and 'playlist' feeds (need write access rights to the directory).
@@ -61,49 +79,32 @@
             <enclosure>1</enclosure>
             <!-- the base URL of all media items (optional).
                  Default is station url /media -->
-            <media_url>http://my.domain.com/media/</media_url>
+            <media_url>http://localhost/media/</media_url>
         </rss>
+        <server>
+            <!-- The host to send the stream (domain or IP) -->
+            <host>127.0.0.1</host>
+            <!-- The mountpoint stream -->
+            <mountpoint>monitor</mountpoint>
+            <!-- The port of the Icecast2 server on the host -->
+            <port>8000</port>
+            <!-- If '1', the mount point will be publish on yp.icecast.org, '0' for private streams -->
+            <public>0</public>
+            <!-- The source password of the Icecast2 server on the host -->
+            <sourcepassword>icecast_source_password</sourcepassword>
+            <!-- The type of the server (icecast or stream-m) -->
+            <type>icecast</type>
+        </server>
         <twitter>
-            <!-- If '1', deefuzzer will tweet #nowplaying, new tracks and other things to Twitter. 'O' does nothing. -->
-            <mode>0</mode>
             <!-- Your twitter username -->
             <key>your access token key</key>
+            <!-- If '1', deefuzzer will tweet #nowplaying, new tracks and other things to Twitter. 'O' does nothing. -->
+            <mode>0</mode>
             <!-- Your twitter password -->
             <secret>your access token secret key</secret>
             <!-- These tags will be added to each twitter message -->
-            <tags>bla bla</tags>
+            <tags>parisson deefuzzer</tags>
         </twitter>
-        <jingles>
-            <!-- If '1', some media will be played between each main track of the playlist. '0' does nothing. -->
-            <mode>0</mode>
-            <!-- A path to the directory containing jingles media files.
-                The files have to be of the same type of the main media files. -->
-            <dir>/path/to/jingles</dir>
-            <!-- If '1', the jingle playlist will be randomized. '0' for aphanumeric order -->
-            <shuffle>1</shuffle>
-        </jingles>
-        <control>
-            <!-- If '1', an OSC controller thread is started to allow external commands
-                See README for more info -->
-            <mode>0</mode>
-            <!-- The port of the OSC server -->
-            <port>1234</port>
-        </control>
-        <relay>
-            <!-- If '1', the station will relay another _existing_ stream.
-            Wonderful for commuting to live sessions. '0' does nothing -->
-            <mode>0</mode>
-            <!-- The URL of the station to relay -->
-            <url>http://anotherdomain.com:8000/stream.mp3</url>
-            <!-- The default author of the relay streams -->
-            <author>Me</author>
-        </relay>
-        <record>
-            <!-- If '1', the stream will be recorded, '0' does nothing -->
-            <mode>0</mode>
-            <!-- The directory where files will be recorded -->
-            <dir>/path/to/archives</dir>
-        </record>
     </station>
 
     <!-- Note that you can add many different stations in the same config file, thanks to the multi-threaded architecure ! -->
