@@ -58,15 +58,19 @@ class DeeFuzzer(Thread):
         Thread.__init__(self)
         self.conf_file = conf_file
         self.conf = self.get_conf_dict()
-        
+
         for key in self.conf['deefuzzer'].keys():
             if key == 'log':
-                self.logger = Logger(self.conf['deefuzzer']['log'])
+                log_file = self.conf['deefuzzer']['log']
+                log_dir = os.sep.join(log_file.split(os.sep)[:-1])
+                if not os.path.exists(log_dir) and log_dir:
+                    os.makedirs(m3u_dir)
+                self.logger = Logger(log_file)
             if key == 'm3u':
                 self.m3u = self.conf['deefuzzer']['m3u']
             else:
                 setattr(self, key, self.conf['deefuzzer'][key])
-                    
+
         if isinstance(self.conf['deefuzzer']['station'], dict):
             # Fix wrong type data from xmltodict when one station (*)
             self.nb_stations = 1
@@ -98,7 +102,7 @@ class DeeFuzzer(Thread):
 
     def set_m3u_playlist(self):
         m3u_dir = os.sep.join(self.m3u.split(os.sep)[:-1])
-        if not os.path.exists(m3u_dir):
+        if not os.path.exists(m3u_dir) and m3u_dir:
             os.makedirs(m3u_dir)
         m3u = open(self.m3u, 'w')
         m3u.write('#EXTM3U\n')
@@ -123,7 +127,7 @@ class DeeFuzzer(Thread):
 
         if self.m3u:
             self.set_m3u_playlist()
-        
+
         p = Producer(q)
         p.start()
 

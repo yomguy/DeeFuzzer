@@ -607,7 +607,7 @@ class Station(Thread):
                 self.logger.write_info(text)
                 self.q.task_done()
             except:
-                time.sleep(0.5)
+                time.sleep(1)
                 if log:
                     text = 'Station ' + self.channel_url + ' : could not connect the channel'
                     self.logger.write_error(text)
