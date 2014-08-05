@@ -1,4 +1,4 @@
-.. image:: http://github.com/yomguy/DeeFuzzer/raw/master/doc/img/logo_deefuzzer.png
+.. image:: https://github.com/yomguy/DeeFuzzer/raw/master/doc/img/logo_deefuzzer.png
 
 Introduction
 ============
