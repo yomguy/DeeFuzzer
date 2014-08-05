@@ -1,47 +1,47 @@
 deefuzzer:
-  log: mystation.log
-  m3u: mystation.m3u
+  log: /path/to/station.log
+  m3u: /path/to/station.m3u
 
   station:
     control: {mode: 0,
              port: 16001}
 
-    server: {host: 127.0.0.1,
-             mountpoint: monitor,
-             port: 8000, public: 0,
-             sourcepassword: source2parisson,
-             type: icecast}
-
-    infos: {name: my_station,
-            description: my_station,
-            genre: music,
+    infos: {description: 'My personal best funky playlist ever!',
+            genre: 'Various Funk Groove',
+            name: 'My best funky station',
+            short_name: "My_station",
             url: 'http://parisson.com'}
-
-    media: {dir: /path/to/mp3/,
-            m3u: /path/to/m3u_file,
-            format: mp3,
-            bitrate: 96,
-            ogg_quality: 4,
-            samplerate: 48000,
-            shuffle: 0,
-            voices: '2'}
 
     jingles: {dir: /path/to/jingles,
               mode: 0,
               shuffle: 1}
 
-    record: {dir: /home/telecaster/archives/mp3,
+    media: {bitrate: 96,
+            dir: /path/to/mp3/,
+            format: mp3,
+            m3u: /path/to/m3u_file,
+            ogg_quality: 4,
+            samplerate: 48000,
+            shuffle: 0,
+            voices: '2'}
+
+    record: {dir: /path/to/archives,
              mode: 0}
 
-    relay: {author: Inconnu,
+    relay: {author: Unknown,
             mode: 0,
             url: 'http://127.0.0.1:8000/telecaster_live.mp3'}
 
     rss: {dir: /var/www/rss,
           enclosure: 0,
-          media_url: 'http://localhost/rss/'}
+          media_url: 'http://localhost/media/'}
 
+    server: {host: 127.0.0.1,
+             mountpoint: monitor,
+             port: 8000, public: 0,
+             sourcepassword: icecast_source_password,
+             type: icecast}
 
-    twitter: {key: 76728330-OjKgbHtn4II86Ad7pNUGEzfNAkGTW5Wvw38qUmLE,
-              mode: 0, secret: 4egZs1dSM37XVY8zXa016Yueku2fleXF2bx8k25V4,
-              tags: bla bla}
+    twitter: {key: 'your access token key',
+              mode: 0, secret: 'your acess token secret key',
+              tags: 'parisson deefuzzzer'}
