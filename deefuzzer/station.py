@@ -127,10 +127,15 @@ class Station(Thread):
         self.channel.public = int(self.station['server']['public'])
         self.channel.genre = self.station['infos']['genre']
         self.channel.description = self.station['infos']['description']
-        self.channel.audio_info = { 'bitrate': str(self.bitrate),
-                                    'samplerate': str(self.samplerate),
-                                    'quality': str(self.ogg_quality),
-                                    'channels': str(self.voices),}
+        if self.channel.format == 'mp3':
+            self.channel.audio_info = { 'bitrate': str(self.bitrate),
+                                        'samplerate': str(self.samplerate),
+                                        'channels': str(self.voices),}
+        else:
+            self.channel.audio_info = { 'bitrate': str(self.bitrate),
+                                        'samplerate': str(self.samplerate),
+                                        'quality': str(self.ogg_quality),
+                                        'channels': str(self.voices),}
 
         self.server_url = 'http://' + self.channel.host + ':' + str(self.channel.port)
         self.channel_url = self.server_url + self.channel.mount
