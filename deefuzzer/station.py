@@ -71,6 +71,7 @@ class Station(Thread):
     relay_mode = 0
     record_mode = 0
     run_mode = 1
+    station_dir = None
 
     def __init__(self, station, q, logger, m3u):
         Thread.__init__(self)
@@ -78,6 +79,9 @@ class Station(Thread):
         self.q = q
         self.logger = logger
         self.m3u = m3u
+
+        if 'station_dir' in self.station:
+            self.station_dir = self.station['station_dir']
 
         # Media
         self.media_dir = self.station['media']['dir']

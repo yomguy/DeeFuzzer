@@ -35,3 +35,5 @@ def get_file_info(media):
     file_ext = file_name.split('.')[-1]
     return file_name, file_title, file_ext
 
+def is_absolute_path(path):
+    return os.sep == path[0]
