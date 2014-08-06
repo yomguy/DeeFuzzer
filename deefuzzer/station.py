@@ -116,7 +116,7 @@ class Station(Thread):
             sys.exit('Not a compatible server type. Choose "stream-m" or "icecast".')
 
         self.channel.url = self.station['infos']['url']
-        self.channel.name = self.station['infos']['name'] + ' : ' + self.channel.url
+        self.channel.name = self.station['infos']['name']
         self.channel.genre = self.station['infos']['genre']
         self.channel.description = self.station['infos']['description']
         self.channel.format = self.media_format
