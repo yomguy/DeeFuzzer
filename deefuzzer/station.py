@@ -361,7 +361,7 @@ class Station(Thread):
                 if not (title or artist):
                     song = str(media_obj.file_name)
                 else:
-                    song = artist + ' : ' + title
+                    song = artist + ' - ' + title
                     song = song.encode('utf-8')
                     artist = artist.encode('utf-8')
 
@@ -485,7 +485,7 @@ class Station(Thread):
             if not (title or artist):
                 song = str(media.file_title)
             else:
-                song = artist + ' : ' + title
+                song = artist + ' - ' + title
 
             media_absolute_playtime += media.length
 
@@ -537,7 +537,7 @@ class Station(Thread):
         self.artist = self.relay_author.encode('utf-8')
         self.title = self.title.replace('_', ' ')
         self.artist = self.artist.replace('_', ' ')
-        self.song = self.artist + ' : ' + self.title
+        self.song = self.artist + ' - ' + self.title
 
         if self.type == 'stream-m':
             relay = URLReader(self.relay_url)
@@ -563,7 +563,7 @@ class Station(Thread):
         if not (self.title or self.artist):
             song = str(self.current_media_obj[0].file_name)
         else:
-            song = self.artist + ' : ' + self.title
+            song = self.artist + ' - ' + self.title
 
         self.song = song.encode('utf-8')
         self.artist = self.artist.encode('utf-8')
