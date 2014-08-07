@@ -3,22 +3,22 @@
 Introduction
 ============
 
-DeeFuzzer is an open, light and instant software made for streaming audio and video over internet.
+DeeFuzzer is an open, light and instant software made for streaming audio and video over Internet.
 It is dedicated to media streaming communities who wants to create web radios, web televisions,
 live multimedia relaying or even as a personal home radio, with rich media contents including track metadata.
 
 Here are the main features of the deefuzzer:
 
- * MP3, OGG Vorbis file and live streaming over internet
+ * MP3, OGG Vorbis file and live streaming over Internet
  * Full metadata encapsulation and management
  * RSS podcast generator (current tracks and playlists)
  * M3U playlist generator
  * Recursive, random (shuffled) or pre-defined playlists
- * Multi-threaded architecture : multiple station streaming with one config file
+ * Multi-threaded architecture: multiple station streaming with one config file
  * Auto Twitter posting of the current playing and new tracks
  * Jingling between main tracks
- * OSC controller : control the main functions from a distant terminal
- * Relaying : relay and stream *LIVE* sessions !
+ * OSC controller: control the main functions from a distant terminal
+ * Relaying: relay and stream *LIVE* sessions!
  * Very light and optimized streaming process
  * Fully written in Python
  * Works with Icecast2, ShoutCast, Stream-m
@@ -32,36 +32,43 @@ Because our aim is to get DeeFuzzer as light as possible it is NOT capable of re
 News
 =====
 
+0.6.6
+
+ * Update station name (remove ": http://url")
+ * Update mountpoint name (remove .mp3 or .ogg)
+ * Update metadata (replace " : " by " - " between Artist and Track)
+ * Remove "ogg_quality" on mp3 streams
+
 0.6.5
 
- * stable WebM live streaming through Stream-m server
- * read yaml configuration files
- * read m3u playlist files
- * minor fixes
+ * Stable WebM live streaming through Stream-m server
+ * Read yaml configuration files
+ * Read m3u playlist files
+ * Minor fixes
 
 0.6.4 is out!
 
  * Fix install bug again (add main script to install), sorry :(
- * reduce streaming buffer length
+ * Reduce streaming buffer length
 
-0.6.3 Fix install bug !
+0.6.3 Fix install bug!
 
- * setup rewritten
- * fix MANIFEST
+ * Setup rewritten
+ * Fix MANIFEST
 
-0.6.2 has been released !
+0.6.2 has been released!
 
  * No new functions but bugfixes (including a serious one during install from pypi)
  * Definitely moved the project to `GitHub <https://github.com/yomguy/DeeFuzzer>`_
  * Update various README details
  * update API doc: http://files.parisson.com/doc/deefuzzer/
 
-0.6.1 is out !
+0.6.1 is out!
 
- * new HTTP steamer based on pycurl to handle streaming over stream-m servers (WebM streaming)
+ * New HTTP steamer based on pycurl to handle streaming over stream-m servers (WebM streaming)
    see http://code.google.com/p/stream-m/
- * live webm relaying works good, webm playlist reading NEED testing
- * new <station><server><type> parameter ('icecast or 'stream-m')
+ * Live webm relaying works good, webm playlist reading NEED testing
+ * New <station><server><type> parameter ('icecast or 'stream-m')
 
 
 Installation
@@ -108,7 +115,7 @@ For more informations, please see on `GitHub <https://github.com/yomguy/DeeFuzze
 Usage
 =====
 
-Usage : deefuzzer CONFIGFILE
+Usage: deefuzzer CONFIGFILE
 
 where CONFIGFILE is the path for a XML or YAML config file. For example::
 
@@ -164,7 +171,7 @@ The available parameters are:
 
 See `examples here. <https://github.com/yomguy/DeeFuzzer/blob/master/scripts/>`_
 
-Then any OSC remote (PureDate, Monome, TouchOSC, etc..) can a become controller ! :)
+Then any OSC remote (PureDate, Monome, TouchOSC, etc..) can a become controller! :)
 
 We provide some client python scripts as some examples about how to control the parameters
 from a console or any application (see deefuzzer/scripts/).
@@ -186,7 +193,7 @@ Please run the dedicated script to do this from the main deefuzzer app directory
 
 You will be invited to copy/paste an URL in your browser to get a pin code.
 Then copy/paste this code into the console and press ENTER.
-The script gives you a pair of keys : one access token key and one access token secret key.
+The script gives you a pair of keys: one access token key and one access token secret key.
 
 Change the <twitter> block options in your deefuzzer XML config file, giving the 2 keys.
 For example::
@@ -208,7 +215,7 @@ http://files.parisson.com/doc/deefuzzer/
 Development
 ============
 
-Everybody is welcome to participate to the DeeFuzzer project !
+Everybody is welcome to participate to the DeeFuzzer project!
 We use GitHub to collaborate: https://github.com/yomguy/DeeFuzzer
 
 Join us!
@@ -231,12 +238,12 @@ as described in the file LICENSE.txt in the source directory or online https://g
 Aknowledgements
 ===============
 
-This work is inspired by the great - C coded - Oddsock's streaming program : Ezstream.
+This work is inspired by the great - C coded - Oddsock's streaming program: Ezstream.
 Since I needed to patch it in order to modify the playlist (randomize for example)
 and make external batch tools to create multiple channels, I decided to rewrite it
 from scratch in python.
 
-Some parts of this work are also taken from another Parisson's project : Telemeta
+Some parts of this work are also taken from another Parisson's project: Telemeta
 (see http://telemeta.org).
 
 Contact / Infos
@@ -244,6 +251,6 @@ Contact / Infos
 
 Twitter: @yomguy @parisson_studio
 
-GitHub : https://github.com/yomguy/DeeFuzzer
+GitHub: https://github.com/yomguy/DeeFuzzer
 
 Expertise, Business, Sponsoring: http://parisson.com
