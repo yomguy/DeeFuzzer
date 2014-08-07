@@ -1,4 +1,3 @@
-include CHANGELOG
 include *.txt
 include *.rst
 exclude *.cfg
