@@ -107,13 +107,10 @@ class DeeFuzzer(Thread):
         m3u = open(self.m3u, 'w')
         m3u.write('#EXTM3U\n')
         for s in self.stations:
-            info = '#EXTINF:%s,%s - %s\n' % ('-1',s.short_name, s.channel.name)
-            url =  'http://' + s.channel.host + ':' + str(s.channel.port) + s.channel.mount + '\n'
-            m3u.write(info)
-            m3u.write(url)
+            m3u.write('#EXTINF:%s,%s - %s\n' % ('-1',s.short_name, s.channel.name))
+            m3u.write('http://' + s.channel.host + ':' + str(s.channel.port) + s.channel.mount + '\n')
         m3u.close()
         self.logger.write_info('Writing M3U file to : ' + self.m3u)
-
 
     def run(self):
         q = Queue.Queue(1)
@@ -149,4 +146,3 @@ class Producer(Thread):
         while True:
             q.put(i,1)
             i+=1
-
