@@ -32,7 +32,8 @@ deefuzzer:
             mode: 0,
             url: 'http://127.0.0.1:8000/telecaster_live.mp3'}
 
-    rss: {dir: /var/www/rss,
+    feeds: {mode: 1, rss: 1, json: 0, playlist: 1,
+          dir: /var/www/rss,
           enclosure: 0,
           media_url: 'http://localhost/media/'}
 

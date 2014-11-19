@@ -37,11 +37,15 @@
             <mode>0</mode>
             <url>http://127.0.0.1:8000/telecaster_live.mp3</url>
         </relay>
-        <rss>
+        <feeds>
+            <mode>1</mode>
+            <rss>1</rss>
+            <json>0</json>
+            <playlist>1</playlist>
             <dir>/path/to/rss/</dir>
             <enclosure>1</enclosure>
             <media_url>http://localhost/media/</media_url>
-        </rss>
+        </feeds>
         <server>
             <host>127.0.0.1</host>
             <mountpoint>monitor</mountpoint>
