@@ -73,6 +73,8 @@ class Station(Thread):
     run_mode = 1
     station_dir = None
     appendtype = 1
+    feed_json = 0
+    feed_rss = 1
 
     def __init__(self, station, q, logger, m3u):
         Thread.__init__(self)
@@ -151,20 +153,30 @@ class Station(Thread):
         self.channel_url = self.server_url + self.channel.mount
 
         # RSS
-        if 'rss' in self.station:
-            if 'mode' in self.station['rss']:
-                self.rss_mode = int(self.station['rss']['mode'])
+        rss_options = {}
+        if 'feed' in self.station:
+            rss_options['rss'] = self.station['feed']
+        elif 'rss' in self.station:
+            rss_options['rss'] = self.station['rss']
+
+        self.rss_media_url = self.channel.url + '/media/'
+
+        if 'rss' in rss_options:
+            if 'mode' in rss_options['rss']:
+                self.rss_mode = int(rss_options['rss']['mode'])
             else:
                 self.rss_mode = 0
-            self.rss_dir = self.station['rss']['dir']
-            self.rss_enclosure = self.station['rss']['enclosure']
+            self.rss_dir = rss_options['rss']['dir']
+            self.rss_enclosure = int(rss_options['rss']['enclosure'])
+            if 'json' in rss_options['rss']:
+                self.feed_json = int(rss_options['rss']['json'])
+            if 'rss' in rss_options['rss']:
+                self.feed_rss = int(rss_options['rss']['rss'])
 
-        if 'media_url' in self.station['rss']:
-            self.rss_media_url = self.station['rss']['media_url']
-            if not self.rss_media_url:
-                self.rss_media_url = self.channel.url + '/media/'
-        else:
-            self.rss_media_url = self.channel.url + '/media/'
+            if 'media_url' in rss_options['rss']:
+                self.rss_media_url = rss_options['rss']['media_url']
+                if not self.rss_media_url:
+                    self.rss_media_url = self.channel.url + '/media/'
 
         self.base_name = self.rss_dir + os.sep + self.short_name + '_' + self.channel.format
         self.rss_current_file = self.base_name + '_current.xml'
@@ -478,8 +490,10 @@ class Station(Thread):
         _date_now = datetime.datetime.now()
         date_now = str(_date_now)
         media_absolute_playtime = _date_now
+        json_data = []
 
         for media in media_list:
+            json_item = {}
             media_stats = os.stat(media.media)
             media_date = time.localtime(media_stats[8])
             media_date = time.strftime("%a, %d %b %Y %H:%M:%S +0200", media_date)
@@ -493,6 +507,7 @@ class Station(Thread):
                 if media.metadata[key] != '':
                     media_description += media_description_item % (key.capitalize(),
                                                                    media.metadata[key])
+                    json_item[key] = media.metadata[key]
             media_description += '</table>'
 
             title = media.metadata['title']
@@ -528,15 +543,26 @@ class Station(Thread):
                     guid = Guid(media_link),
                     pubDate = media_date,)
                     )
+            json_data.append(json_item)
 
         rss = RSS2(title = channel_subtitle,
                             link = self.channel.url,
                             description = self.channel.description.decode('utf-8'),
                             lastBuildDate = date_now,
                             items = rss_item_list,)
-        f = open(rss_file, 'w')
-        rss.write_xml(f, 'utf-8')
-        f.close()
+
+        if self.feed_rss:
+            f = open(rss_file, 'w')
+            rss.write_xml(f, 'utf-8')
+            f.close()
+
+        if self.feed_json:
+            path, fn = os.path.split(rss_file)
+            base, ext = os.path.splitext(fn)
+            json_file = os.path.join(self.rss_dir, base + '.json')
+            f = open(json_file, 'w')
+            f.write(json.dumps(json_data, separators=(',',':')))
+            f.close()
 
     def update_twitter(self, message):
         try:
