@@ -40,7 +40,7 @@ deefuzzer:
              mountpoint: monitor,
              port: 8000, public: 0,
              sourcepassword: icecast_source_password,
-             type: icecast}
+             type: icecast, appendtype: 1}
 
     twitter: {key: 'your access token key',
               mode: 0, secret: 'your acess token secret key',
