@@ -72,6 +72,7 @@ class Station(Thread):
     record_mode = 0
     run_mode = 1
     station_dir = None
+    appendtype = 1
 
     def __init__(self, station, q, logger, m3u):
         Thread.__init__(self)
@@ -105,6 +106,9 @@ class Station(Thread):
 
         self.short_name = self.mountpoint
 
+        if 'appendtype' in self.station['server'].keys():
+            self.appendtype = self.station['server']['appendtype']
+
         if 'type' in self.station['server']:
             self.type = self.station['server']['type'] #  'icecast' | 'stream-m'
         else:
@@ -115,7 +119,9 @@ class Station(Thread):
             self.channel.mount = '/publish/' + self.mountpoint
         elif 'icecast' in self.type:
             self.channel = shout.Shout()
-            self.channel.mount = '/' + self.mountpoint + '.' + self.media_format
+            self.channel.mount = '/' + self.mountpoint
+            if self.appendtype:
+                self.channel.mount = self.channel.mount + '.' + self.media_format
         else:
             sys.exit('Not a compatible server type. Choose "stream-m" or "icecast".')
 

@@ -49,6 +49,7 @@
             <public>0</public>
             <sourcepassword>icecast_source_password</sourcepassword>
             <type>icecast</type>
+            <appendtype>1</appendtype>
         </server>
         <twitter>
             <key>your access token key</key>
