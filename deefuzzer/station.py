@@ -45,6 +45,7 @@ import random
 import shout
 import urllib
 import mimetypes
+import json
 
 from threading import Thread
 from player import *
@@ -73,6 +74,10 @@ class Station(Thread):
     run_mode = 1
     station_dir = None
     appendtype = 1
+    feeds_json = 0
+    feeds_rss = 1
+    feeds_mode = 1
+    feeds_playlist = 1
 
     def __init__(self, station, q, logger, m3u):
         Thread.__init__(self)
@@ -151,24 +156,29 @@ class Station(Thread):
         self.channel_url = self.server_url + self.channel.mount
 
         # RSS
+        if 'feeds' in self.station:
+            self.station['rss'] = self.station['feeds']
+
         if 'rss' in self.station:
             if 'mode' in self.station['rss']:
-                self.rss_mode = int(self.station['rss']['mode'])
-            else:
-                self.rss_mode = 0
-            self.rss_dir = self.station['rss']['dir']
-            self.rss_enclosure = self.station['rss']['enclosure']
+                self.feeds_mode = int(self.station['rss']['mode'])
+            self.feeds_dir = self.station['rss']['dir']
+            self.feeds_enclosure = int(self.station['rss']['enclosure'])
+            if 'json' in self.station['rss']:
+                self.feeds_json = int(self.station['rss']['json'])
+            if 'rss' in self.station['rss']:
+                self.feeds_rss = int(self.station['rss']['rss'])
+            if 'playlist' in self.station['rss']:
+                self.feeds_playlist = int(self.station['rss']['playlist'])
 
-        if 'media_url' in self.station['rss']:
-            self.rss_media_url = self.station['rss']['media_url']
-            if not self.rss_media_url:
-                self.rss_media_url = self.channel.url + '/media/'
-        else:
-            self.rss_media_url = self.channel.url + '/media/'
+            self.feeds_media_url = self.channel.url + '/media/'
+            if 'media_url' in self.station['rss']:
+                if self.station['rss']['media_url']:
+                    self.feeds_media_url = self.station['rss']['media_url']
 
-        self.base_name = self.rss_dir + os.sep + self.short_name + '_' + self.channel.format
-        self.rss_current_file = self.base_name + '_current.xml'
-        self.rss_playlist_file = self.base_name + '_playlist.xml'
+        self.base_name = self.feeds_dir + os.sep + self.short_name + '_' + self.channel.format
+        self.feeds_current_file = self.base_name + '_current.xml'
+        self.feeds_playlist_file = self.base_name + '_playlist.xml'
 
         # Logging
         self.logger.write_info('Opening ' + self.short_name + ' - ' + self.channel.name + \
@@ -176,7 +186,7 @@ class Station(Thread):
 
         self.metadata_relative_dir = 'metadata'
         self.metadata_url = self.channel.url + '/rss/' + self.metadata_relative_dir
-        self.metadata_dir = self.rss_dir + os.sep + self.metadata_relative_dir
+        self.metadata_dir = self.feeds_dir + os.sep + self.metadata_relative_dir
         if not os.path.exists(self.metadata_dir):
             os.makedirs(self.metadata_dir)
 
@@ -280,7 +290,7 @@ class Station(Thread):
         message = "Station " + self.channel_url + \
                 " : received OSC message '%s' with arguments '%d'" % (path, value)
         self.m3u_url = self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1]
-        self.rss_url = self.channel.url + '/rss/' + self.rss_playlist_file.split(os.sep)[-1]
+        self.feeds_url = self.channel.url + '/rss/' + self.feeds_playlist_file.split(os.sep)[-1]
         self.logger.write_info(message)
 
     def jingles_callback(self, path, value):
@@ -384,7 +394,7 @@ class Station(Thread):
                     artist_tags = ' #'.join(list(set(artist_names)-set(['&', '-'])))
                     message = '#NEWTRACK ! %s #%s on #%s RSS: ' % \
                              (song.replace('_', ' '), artist_tags, self.short_name)
-                    message = message[:113] + self.rss_url
+                    message = message[:113] + self.feeds_url
                     self.update_twitter(message)
 
     def get_next_media(self):
@@ -406,6 +416,8 @@ class Station(Thread):
                 self.logger.write_info('Station ' + self.channel_url + \
                                  ' : generating new playlist (' + str(self.lp) + ' tracks)')
 
+                if self.feeds_playlist:
+                    self.update_feeds(self.media_to_objs(self.playlist), self.feeds_playlist_file, '(playlist)')
 
             elif lp_new != self.lp:
                 self.id = 0
@@ -433,9 +445,8 @@ class Station(Thread):
                 self.logger.write_info('Station ' + self.channel_url + \
                                  ' : generating new playlist (' + str(self.lp) + ' tracks)')
 
-                if self.rss_mode:
-                    self.update_rss(self.media_to_objs(self.playlist),
-                                self.rss_playlist_file, '(playlist)')
+                if self.feeds_playlist:
+                    self.update_feeds(self.media_to_objs(self.playlist), self.feeds_playlist_file, '(playlist)')
 
             if self.jingles_mode and not (self.counter % 2) and self.jingles_length:
                 media = self.jingles_list[self.jingle_id]
@@ -470,16 +481,21 @@ class Station(Thread):
                     continue
         return media_objs
 
-    def update_rss(self, media_list, rss_file, sub_title):
+    def update_feeds(self, media_list, rss_file, sub_title):
+        if not self.feeds_mode:
+            return
+            
         rss_item_list = []
-        if not os.path.exists(self.rss_dir):
-            os.makedirs(self.rss_dir)
+        if not os.path.exists(self.feeds_dir):
+            os.makedirs(self.feeds_dir)
         channel_subtitle = self.channel.name + ' ' + sub_title
         _date_now = datetime.datetime.now()
         date_now = str(_date_now)
         media_absolute_playtime = _date_now
+        json_data = []
 
         for media in media_list:
+            json_item = {}
             media_stats = os.stat(media.media)
             media_date = time.localtime(media_stats[8])
             media_date = time.strftime("%a, %d %b %Y %H:%M:%S +0200", media_date)
@@ -493,6 +509,7 @@ class Station(Thread):
                 if media.metadata[key] != '':
                     media_description += media_description_item % (key.capitalize(),
                                                                    media.metadata[key])
+                    json_item[key] = media.metadata[key]
             media_description += '</table>'
 
             title = media.metadata['title']
@@ -504,8 +521,8 @@ class Station(Thread):
 
             media_absolute_playtime += media.length
 
-            if self.rss_enclosure == '1':
-                media_link = self.rss_media_url + media.file_name
+            if self.feeds_enclosure == '1':
+                media_link = self.feeds_media_url + media.file_name
                 media_link = media_link.decode('utf-8')
                 rss_item_list.append(RSSItem(
                     title = song,
@@ -528,15 +545,26 @@ class Station(Thread):
                     guid = Guid(media_link),
                     pubDate = media_date,)
                     )
+            json_data.append(json_item)
 
         rss = RSS2(title = channel_subtitle,
                             link = self.channel.url,
                             description = self.channel.description.decode('utf-8'),
                             lastBuildDate = date_now,
                             items = rss_item_list,)
-        f = open(rss_file, 'w')
-        rss.write_xml(f, 'utf-8')
-        f.close()
+
+        if self.feeds_rss:
+            f = open(rss_file, 'w')
+            rss.write_xml(f, 'utf-8')
+            f.close()
+
+        if self.feeds_json:
+            path, fn = os.path.split(rss_file)
+            base, ext = os.path.splitext(fn)
+            json_file = os.path.join(self.feeds_dir, base + '.json')
+            f = open(json_file, 'w')
+            f.write(json.dumps(json_data, separators=(',',':')))
+            f.close()
 
     def update_twitter(self, message):
         try:
@@ -583,8 +611,7 @@ class Station(Thread):
         self.song = song.encode('utf-8')
         self.artist = self.artist.encode('utf-8')
         self.metadata_file = self.metadata_dir + os.sep + self.current_media_obj[0].file_name + '.xml'
-        if self.rss_mode:
-            self.update_rss(self.current_media_obj, self.rss_current_file, '(currently playing)')
+        self.update_feeds(self.current_media_obj, self.feeds_current_file, '(currently playing)')
         self.logger.write_info('DeeFuzzing on %s :  id = %s, name = %s' \
             % (self.short_name, self.id, self.current_media_obj[0].file_name))
         self.player.set_media(self.media)
