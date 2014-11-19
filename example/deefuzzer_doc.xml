@@ -69,15 +69,23 @@
             <url>http://127.0.0.1:8000/telecaster_live.mp3</url>
         </relay>
         <rss>
-            <!-- A path to the directory containing RSS (XML) files that is 'currently playing'
+            <!-- If '1', the feeds will output, '0' will do nothing.  Default: '1' -->
+            <mode>1</mode>
+            <!-- If '1', the feeds will output in RSS format, '0' will not.  Default: '1' -->
+            <rss>1</rss>
+            <!-- If '1', the feeds will output in JSON format, '0' will not.  Default: '0' -->
+            <json>0</json>
+            <!-- If '1', the feeds will output a 'playlist' feed, '0' will not.  Default: '1' -->
+            <playlist>1</playlist>
+            <!-- REQUIRED: A path to the directory containing RSS (XML) files that is 'currently playing'
                 and 'playlist' feeds (need write access rights to the directory).
                 The file is preferably accessible behind an url,
                 for example, http://mydomain.com/rss/mystation.xml -->
             <dir>/path/to/rss/</dir>
-            <!-- If '1', the RSS feeds will contain an enclosure to become a podcast feed.
+            <!-- REQUIRED: If '1', the RSS feeds will contain an enclosure to become a podcast feed.
                 '0' for simple RSS feed without enclosure -->
             <enclosure>1</enclosure>
-            <!-- the base URL of all media items (optional).
+            <!-- the base URL of all media items.
                  Default is station url /media -->
             <media_url>http://localhost/media/</media_url>
         </rss>
