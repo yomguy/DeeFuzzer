@@ -94,9 +94,9 @@
             <sourcepassword>icecast_source_password</sourcepassword>
             <!-- The type of the server (icecast or stream-m) -->
             <type>icecast</type>
-						<!-- If '1', the media format will be appended to the mount name (ie, /mount.mp3 instead of /mount).  
-						     '0' will leave the mount name alone.  Used only for icecast streams -->
-						<appendtype>1</appendtype>
+            <!-- If '1', the media format will be appended to the mount name (ie, /mount.mp3 instead of /mount).  
+                 '0' will leave the mount name alone.  Used only for icecast streams -->
+            <appendtype>1</appendtype>
         </server>
         <twitter>
             <!-- Your twitter username -->
