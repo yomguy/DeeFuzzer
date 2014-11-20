@@ -123,10 +123,6 @@ class DeeFuzzer(Thread):
         for i in range(0,self.nb_stations):
             station = self.conf['deefuzzer']['station'][i]
 
-            # Apply station defaults if they exist
-            if 'stationdefaults' in self.conf['deefuzzer']:
-                if isinstance(self.conf['deefuzzer']['stationdefaults'], dict):
-                    station = merge_defaults(station, self.conf['deefuzzer']['stationdefaults'])
             self.stations.append(Station(station, q, self.logger, self.m3u))
 
         if self.m3u:
