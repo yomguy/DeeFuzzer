@@ -13,6 +13,8 @@
 import os
 import re
 import string
+from itertools import chain
+from deefuzzer.tools import *
 
 def clean_word(word) :
     """ Return the word without excessive blank spaces, underscores and
@@ -37,3 +39,18 @@ def get_file_info(media):
 
 def is_absolute_path(path):
     return os.sep == path[0]
+
+def merge_defaults(setting, default):
+    combined = {}
+    for key in set(chain(setting, default)):
+        if key in setting:
+            if key in default:
+                if isinstance(setting[key], dict) and isinstance(default[key], dict):
+                    combined[key] = merge_defaults(setting[key], default[key])
+                else:
+                    combined[key] = setting[key]
+            else:
+                combined[key] = setting[key]
+        else:
+            combined[key] = default[key]
+    return combined
