@@ -141,6 +141,29 @@
     </station>
 
     <!-- Note that you can add many different stations in the same config file, thanks to the multi-threaded architecure ! -->
+
+    <!-- The stationfolder option allows auto-creation of stations based on a folder structure.  See the readme
+         for details. -->
+    <stationfolder>
+        <!-- REQUIRED: The base folder to use when auto-generating stations -->
+        <folder>/path/to/media</folder>
+        <!-- Station information to use.  At a minimum, the following should be defined:
+                infos.short_name so that mount points will be unique. 
+                media.dir so that the files are loaded from the right place (IMPROVEMENT: should be set in code!)
+             All the same options are available as the station setting, and all stations will also have the global
+             stationdefaults applied.  -->
+        <infos>
+            <short_name>[name]</short_name>
+            <name>[name]</name>
+            <genre>[name]</genre>
+        </infos>
+        <media>
+            <dir>[path]</dir>
+        </media>
+    </stationfolder>
+		
+    <!-- The stationfolder option allows specifying a folder to scan for additional configuration files.  Applies only 
+				 those that are station blocks.  Can specify multiple stationoption blocks.  -->
+		<stationconfig>/path/to/configs</stationconfig>
+		<stationconfig>/path/to/configs2</stationconfig>
 </deefuzzer>
-
-
