@@ -2,6 +2,14 @@ deefuzzer:
   log: /path/to/station.log
   m3u: /path/to/station.m3u
 
+  stationdefaults:
+    control: {mode: 0,
+             port: 16001}
+
+    jingles: {dir: /path/to/jingles,
+              mode: 0,
+              shuffle: 1}
+
   station:
     control: {mode: 0,
              port: 16001}
