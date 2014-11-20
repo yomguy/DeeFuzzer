@@ -5,6 +5,28 @@
          The file is preferably accessible behind an url,
          for example, http://mydomain.com/m3u/mystation.m3u -->
     <m3u>/path/to/station.m3u</m3u>
+    <stationdefaults>
+      <!-- This tag allows a common default configuration to be set for all stations.  This
+           is useful when defining many stations that will share many common configuration
+           settings.  If a setting is specified here and in a station tag, the station tag 
+           will override this one.  Available options are the same as the station tag. -->
+        <control>
+            <!-- If '1', an OSC controller thread is started to allow external commands
+                See README for more info -->
+            <mode>0</mode>
+            <!-- The port of the OSC server -->
+            <port>16001</port>
+        </control>
+        <jingles>
+            <!-- A path to the directory containing jingles media files.
+                The files have to be of the same type of the main media files. -->
+            <dir>/path/to/jingles</dir>
+            <!-- If '1', some media will be played between each main track of the playlist. '0' does nothing. -->
+            <mode>0</mode>
+            <!-- If '1', the jingle playlist will be randomized. '0' for aphanumeric order -->
+            <shuffle>1</shuffle>
+        </jingles>
+    </stationdefaults>
     <station>
         <control>
             <!-- If '1', an OSC controller thread is started to allow external commands
