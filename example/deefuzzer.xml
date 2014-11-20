@@ -1,6 +1,17 @@
 <deefuzzer>
     <log>/path/to/station.log</log>
     <m3u>/path/to/station.m3u</m3u>
+    <stationdefaults>
+        <control>
+            <mode>0</mode>
+            <port>16001</port>
+        </control>
+        <jingles>
+            <dir>/path/to/jingles</dir>
+            <mode>0</mode>
+            <shuffle>1</shuffle>
+        </jingles>
+    </stationdefaults>
     <station>
         <control>
             <mode>0</mode>

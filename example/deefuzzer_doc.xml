@@ -5,6 +5,28 @@
          The file is preferably accessible behind an url,
          for example, http://mydomain.com/m3u/mystation.m3u -->
     <m3u>/path/to/station.m3u</m3u>
+    <stationdefaults>
+      <!-- This tag allows a common default configuration to be set for all stations.  This
+           is useful when defining many stations that will share many common configuration
+           settings.  If a setting is specified here and in a station tag, the station tag 
+           will override this one.  Available options are the same as the station tag. -->
+        <control>
+            <!-- If '1', an OSC controller thread is started to allow external commands
+                See README for more info -->
+            <mode>0</mode>
+            <!-- The port of the OSC server -->
+            <port>16001</port>
+        </control>
+        <jingles>
+            <!-- A path to the directory containing jingles media files.
+                The files have to be of the same type of the main media files. -->
+            <dir>/path/to/jingles</dir>
+            <!-- If '1', some media will be played between each main track of the playlist. '0' does nothing. -->
+            <mode>0</mode>
+            <!-- If '1', the jingle playlist will be randomized. '0' for aphanumeric order -->
+            <shuffle>1</shuffle>
+        </jingles>
+    </stationdefaults>
     <station>
         <control>
             <!-- If '1', an OSC controller thread is started to allow external commands
@@ -119,6 +141,29 @@
     </station>
 
     <!-- Note that you can add many different stations in the same config file, thanks to the multi-threaded architecure ! -->
+
+    <!-- The stationfolder option allows auto-creation of stations based on a folder structure.  See the readme
+         for details. -->
+    <stationfolder>
+        <!-- REQUIRED: The base folder to use when auto-generating stations -->
+        <folder>/path/to/media</folder>
+        <!-- Station information to use.  At a minimum, the following should be defined:
+                infos.short_name so that mount points will be unique. 
+                media.dir so that the files are loaded from the right place (IMPROVEMENT: should be set in code!)
+             All the same options are available as the station setting, and all stations will also have the global
+             stationdefaults applied.  -->
+        <infos>
+            <short_name>[name]</short_name>
+            <name>[name]</name>
+            <genre>[name]</genre>
+        </infos>
+        <media>
+            <dir>[path]</dir>
+        </media>
+    </stationfolder>
+		
+    <!-- The stationfolder option allows specifying a folder to scan for additional configuration files.  Applies only 
+				 those that are station blocks.  Can specify multiple stationoption blocks.  -->
+		<stationconfig>/path/to/configs</stationconfig>
+		<stationconfig>/path/to/configs2</stationconfig>
 </deefuzzer>
-
-

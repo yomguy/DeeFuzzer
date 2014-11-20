@@ -176,6 +176,7 @@ Then any OSC remote (PureDate, Monome, TouchOSC, etc..) can a become controller!
 We provide some client python scripts as some examples about how to control the parameters
 from a console or any application (see deefuzzer/scripts/).
 
+
 Twitter (manual and optional)
 ================================
 
@@ -206,6 +207,53 @@ For example::
     </twitter>
 
 Your DeeFuzzer will now tweet the currently playing track and new tracks on your profile.
+
+
+Station Folders
+===============
+
+Station folders are a specific way of setting up your file system so that you can auto-create many stations
+based on only a few settings.  The feature requires a single main folder, with one or more subfolders.  Each
+subfolder is scanned for the presence of media files (audio-only at the moment).  If files are found, then a
+station is created using the parameters in the <stationfolder> block.  Substitution is performed to fill in
+some detail to the stationfolder parameters, and all stationdefaults are also applied.
+
+The base folder is specified by the <folder> block.  No substitution is done on this parameter.
+
+Subsitution is done for [name] and [path] - [name] is replaced with the name of the subfolder, and [path] is
+replaced with the subfolder's complete path.
+
+Consider the following example.  We have a block with the following settings:
+
+		<stationfolder>
+				<folder>/path/to/media</folder>
+				<infos>
+						<short_name>[name]</short_name>
+						<name>[name]</name>
+						<genre>[name]</genre>
+				</infos>
+				<media>
+						<dir>[path]</dir>
+				</media>
+		</stationfolder>
+
+The folder structure is as follows:
+
+		/path/to/media
+				+ one
+						- song1.mp3
+						- song2.mp3
+				+ two
+						- song3.ogg
+				+ three
+						- presentation.pdf
+				+ four
+						- song4.mp3
+
+In this case, three stations are created:  one, two, and four.  Each will have their short name (and thus their
+icecast mount point) set to their respective folder names.  Subfolder three is skipped, as there are no audio files
+present - just a PDF file.
+
 
 API
 ===
