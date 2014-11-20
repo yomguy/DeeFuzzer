@@ -71,11 +71,16 @@ class DeeFuzzer(Thread):
             else:
                 setattr(self, key, self.conf['deefuzzer'][key])
 
-        if isinstance(self.conf['deefuzzer']['station'], dict):
-            # Fix wrong type data from xmltodict when one station (*)
-            self.nb_stations = 1
+        # Fix wrong type data from xmltodict when one station (*)
+        if 'station' not in self.conf['deefuzzer']:
+            self.conf['deefuzzer']['station'] = []
         else:
-            self.nb_stations = len(self.conf['deefuzzer']['station'])
+            if not isinstance(self.conf['deefuzzer']['station'], list):
+                s = self.conf['deefuzzer']['station']
+                self.conf['deefuzzer']['station'] = []
+                self.conf['deefuzzer']['station'].append(s)
+
+        self.nb_stations = len(self.conf['deefuzzer']['station'])
 
         # Set the deefuzzer logger
         self.logger.write_info('Starting DeeFuzzer')
@@ -116,10 +121,8 @@ class DeeFuzzer(Thread):
         q = Queue.Queue(1)
 
         for i in range(0,self.nb_stations):
-            if isinstance(self.conf['deefuzzer']['station'], dict):
-                station = self.conf['deefuzzer']['station']
-            else:
-                station = self.conf['deefuzzer']['station'][i]
+            station = self.conf['deefuzzer']['station'][i]
+
             self.stations.append(Station(station, q, self.logger, self.m3u))
 
         if self.m3u:
