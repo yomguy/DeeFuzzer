@@ -131,7 +131,7 @@ class DeeFuzzer(Thread):
                 s[i] = replace_all(options[i], d)
         if not 'media' in s.keys():
             s['media'] = {}
-        s['media']['dir'] = folder:
+        s['media']['dir'] = folder
         self.conf['deefuzzer']['station'].append(s)
     
         
