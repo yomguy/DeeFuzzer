@@ -51,51 +51,52 @@ mimetypes.add_type('application/x-yaml','.yaml')
 class DeeFuzzer(Thread):
     """a DeeFuzzer diffuser"""
 
+    logger = None
     m3u = None
     rss = None
+    station = []
+    stations = []
 
     def __init__(self, conf_file):
         Thread.__init__(self)
         self.conf_file = conf_file
         self.conf = get_conf_dict(self.conf_file)
+
+        # Get the log setting first (if possible)
+        log_file = str(self.conf.pop('log', ''))
+        log_dir = os.sep.join(log_file.split(os.sep)[:-1])
+        if not os.path.exists(log_dir) and log_dir:
+            os.makedirs(m3u_dir)
+        self.logger = Logger(log_file)
+
         for key in self.conf['deefuzzer'].keys():
-            if key == 'log':
-                log_file = self.conf['deefuzzer']['log']
-                log_dir = os.sep.join(log_file.split(os.sep)[:-1])
-                if not os.path.exists(log_dir) and log_dir:
-                    os.makedirs(m3u_dir)
-                self.logger = Logger(log_file)
             if key == 'm3u':
-                self.m3u = self.conf['deefuzzer']['m3u']
+                self.m3u = str(self.conf['deefuzzer'][key])
+
+            elif key == 'station':
+                # Load station definitions from the main config file
+                if not isinstance(self.conf['deefuzzer'][key], list):
+                    self.add_station(self.conf['deefuzzer'][key])
+                else:
+                    for s in self.conf['deefuzzer'][key]:
+                        self.add_station(s)
+
+            elif key == 'stationconfig':
+                # Load additional station definitions from the requested folder
+                self.load_stations_fromconfig(self.conf['deefuzzer'][key])
+
+            elif key == 'stationfolder':
+                # Create stations automagically from a folder structure
+                if isinstance(self.conf['deefuzzer'][key], dict):
+                    self.create_stations_fromfolder(self.conf['deefuzzer'][key])
             else:
                 setattr(self, key, self.conf['deefuzzer'][key])
-
-        # Fix wrong type data from xmltodict when one station (*)
-        if 'station' not in self.conf['deefuzzer']:
-            self.conf['deefuzzer']['station'] = []
-        else:
-            if not isinstance(self.conf['deefuzzer']['station'], list):
-                s = self.conf['deefuzzer']['station']
-                self.conf['deefuzzer']['station'] = []
-                self.conf['deefuzzer']['station'].append(s)
-        
-        # Load additional station definitions from the requested folder
-        if 'stationconfig' in self.conf['deefuzzer']:
-            self.load_stations(self.conf['deefuzzer']['stationconfig'])
-        
-        # Create stations automagically from a folder structure
-        if 'stationfolder' in self.conf['deefuzzer'].keys() and isinstance(self.conf['deefuzzer']['stationfolder'], dict):
-            self.create_stations_fromfolder(self.conf['deefuzzer']['stationfolder'])
-
-        self.nb_stations = len(self.conf['deefuzzer']['station'])
 
         # Set the deefuzzer logger
         self.logger.write_info('Starting DeeFuzzer')
         self.logger.write_info('Using libshout version %s' % shout.version())
+        self.logger.write_info('Number of stations : ' + str(len(self.station)))
 
-        # Init all Stations
-        self.stations = []
-        self.logger.write_info('Number of stations : ' + str(self.nb_stations))
 
     def set_m3u_playlist(self):
         m3u_dir = os.sep.join(self.m3u.split(os.sep)[:-1])
@@ -110,10 +111,19 @@ class DeeFuzzer(Thread):
         self.logger.write_info('Writing M3U file to : ' + self.m3u)
 
     def create_stations_fromfolder(self, options):
+        """Scan a folder for subfolders containing media, and make stations from them all."""
+
         if not 'folder' in options.keys():
+            # We have no folder specified.  Bail.
             return
+
         folder = str(options['folder'])
-        self.logger.write_info('Scanning folder ' + folder + ' for stations...')
+        if not os.path.isdir(folder):
+            # The specified path is not a folder.  Bail.
+            return
+
+        self.logger.write_info('Scanning folder ' + folder + ' for stations')
+
         files = os.listdir(folder)
         for file in files:
             filepath = os.path.join(folder, file)
@@ -122,6 +132,8 @@ class DeeFuzzer(Thread):
                     self.create_station(filepath, options)
 
     def create_station(self, folder, options):
+        """Create a station definition for a folder given the specified options."""
+
         self.logger.write_info('Creating station for folder ' + folder)
         s = {}
         path, name = os.path.split(folder)
@@ -132,43 +144,70 @@ class DeeFuzzer(Thread):
         if not 'media' in s.keys():
             s['media'] = {}
         s['media']['dir'] = folder
-        self.conf['deefuzzer']['station'].append(s)
-    
-        
-    def load_stations(self, folder):
-        if isinstance(folder, dict):
+        self.add_station(s)
+
+    def load_stations_fromconfig(self, folder):
+        """Load one or more configuration files looking for stations."""
+
+        if isinstance(folder, dict) or isinstance(folder, list):
+            # We were given a list or dictionary.  Loop though it and load em all
             for f in folder:
-                self.load_stations(f)
+                self.load_station_configs(f)
             return
 
-        if not os.path.isdir(folder):
+        if os.path.isfile(folder):
+            # We have a file specified.  Load just that file.
+            self.load_station_config(folder)
             return
-        
+            
+        if not os.path.isdir(folder):
+            # Whatever we have, it's not either a file or folder.  Bail.
+            return
+
         self.logger.write_info('Loading station config files in ' + folder)
         files = os.listdir(folder)
         for file in files:
             filepath = os.path.join(folder, file)
             if os.path.isfile(filepath):
                 self.load_station_config(filepath)
-        
+
     def load_station_config(self, file):
+        """Load station configuration(s) from a config file."""
+
         self.logger.write_info('Loading station config file ' + file)
         stationdef = get_conf_dict(file)
         if isinstance(stationdef, dict):
-            if 'station' in stationdef.keys() and isinstance(stationdef['station'], dict):
-                self.conf['deefuzzer']['station'].append(stationdef['station'])
+            if 'station' in stationdef.keys():
+                if isinstance(stationdef['station'], dict):
+                    self.add_station(stationdef['station'])
+                elif isinstance(stationdef['station'], list):
+                    for s in stationdef['station']:
+                        self.add_station(s)
+
+    def add_station(self, this_station):
+        """Adds a station configuration to the list of stations."""
+        try:
+            # We should probably test to see if we're putting the same station in multiple times
+            # Same in this case probably means the same media folder, server, and mountpoint
+            self.station.append(this_station)
+        except Exception:
+            return
 
     def run(self):
         q = Queue.Queue(1)
 
-        for i in range(0,self.nb_stations):
-            station = self.conf['deefuzzer']['station'][i]
+        ns = len(self.station)
+        for i in range(0, ns):
+            try:
+                station = self.station[i]
 
-            # Apply station defaults if they exist
-            if 'stationdefaults' in self.conf['deefuzzer']:
-                if isinstance(self.conf['deefuzzer']['stationdefaults'], dict):
-                    station = merge_defaults(station, self.conf['deefuzzer']['stationdefaults'])
-            self.stations.append(Station(station, q, self.logger, self.m3u))
+                # Apply station defaults if they exist
+                if 'stationdefaults' in self.conf['deefuzzer']:
+                    if isinstance(self.conf['deefuzzer']['stationdefaults'], dict):
+                        station = merge_defaults(station, self.conf['deefuzzer']['stationdefaults'])
+                self.stations.append(Station(station, q, self.logger, self.m3u))
+            except Exception:
+                continue
 
         if self.m3u:
             self.set_m3u_playlist()
@@ -176,9 +215,13 @@ class DeeFuzzer(Thread):
         p = Producer(q)
         p.start()
 
+        ns = len(self.stations)
         # Start the Stations
-        for i in range(0,self.nb_stations):
-            self.stations[i].start()
+        for i in range(0, ns):
+            try:
+                self.stations[i].start()
+            except Exception:
+                continue
 
 
 class Producer(Thread):
