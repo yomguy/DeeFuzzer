@@ -93,10 +93,10 @@ class Station(Thread):
         self.media_dir = self.station['media']['dir']
         self.media_format = self.station['media']['format']
         self.shuffle_mode = int(self.station['media']['shuffle'])
-        self.bitrate = self.station['media']['bitrate']
-        self.ogg_quality = self.station['media']['ogg_quality']
-        self.samplerate = self.station['media']['samplerate']
-        self.voices = self.station['media']['voices']
+        self.bitrate = int(self.station['media']['bitrate'])
+        self.ogg_quality = int(self.station['media']['ogg_quality'])
+        self.samplerate = int(self.station['media']['samplerate'])
+        self.voices = int(self.station['media']['voices'])
         self.m3u_playlist_file = []
         if 'm3u' in self.station['media'].keys():
             self.m3u_playlist_file = self.station['media']['m3u']
@@ -140,8 +140,6 @@ class Station(Thread):
         self.channel.user = 'source'
         self.channel.password = self.station['server']['sourcepassword']
         self.channel.public = int(self.station['server']['public'])
-        self.channel.genre = self.station['infos']['genre']
-        self.channel.description = self.station['infos']['description']
         if self.channel.format == 'mp3':
             self.channel.audio_info = { 'bitrate': str(self.bitrate),
                                         'samplerate': str(self.samplerate),
@@ -173,7 +171,7 @@ class Station(Thread):
 
             self.feeds_media_url = self.channel.url + '/media/'
             if 'media_url' in self.station['rss']:
-                if self.station['rss']['media_url']:
+                if not self.station['rss']['media_url'] == '':
                     self.feeds_media_url = self.station['rss']['media_url']
 
         self.base_name = self.feeds_dir + os.sep + self.short_name + '_' + self.channel.format
@@ -198,7 +196,7 @@ class Station(Thread):
         if 'control' in self.station:
             self.osc_control_mode = int(self.station['control']['mode'])
             if self.osc_control_mode:
-                self.osc_port = self.station['control']['port']
+                self.osc_port = int(self.station['control']['port'])
                 self.osc_controller = OSCController(self.osc_port)
                 # OSC paths and callbacks
                 self.osc_controller.add_method('/media/next', 'i', self.media_next_callback)
@@ -213,7 +211,7 @@ class Station(Thread):
         # Jingling between each media.
         if 'jingles' in self.station:
             self.jingles_mode =  int(self.station['jingles']['mode'])
-            self.jingles_shuffle = self.station['jingles']['shuffle']
+            self.jingles_shuffle = int(self.station['jingles']['shuffle'])
             self.jingles_dir = self.station['jingles']['dir']
             if self.jingles_mode == 1:
                 self.jingles_callback('/jingles', [1])
