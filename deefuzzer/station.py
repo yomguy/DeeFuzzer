@@ -67,16 +67,10 @@ class Station(Thread):
     lp = 1
     player_mode = 0
     osc_control_mode = 0
-    osc_control_port = 16001
     twitter_mode = 0
     jingles_mode = 0
-    jingles_shuffle = 1
-    jingles_dir = ''
     relay_mode = 0
-    relay_url = ''
-    relay_author = ''
     record_mode = 0
-    record_dir = ''
     run_mode = 1
     station_dir = None
     appendtype = 1
@@ -84,11 +78,6 @@ class Station(Thread):
     feeds_rss = 1
     feeds_mode = 1
     feeds_playlist = 1
-    media_dir = ''
-    m3u_playlist_file = []
-    mountpoint = 'default'
-    type = 'icecast'
-    feeds_media_url = ''
 
     def __init__(self, station, q, logger, m3u):
         Thread.__init__(self)
@@ -97,31 +86,39 @@ class Station(Thread):
         self.logger = logger
         self.m3u = m3u
 
-        # Port the feeds key into the rss key if it exists (for backwards compatibility)
-        if 'feeds' in self.station.keys():
-            self.station['rss'] = self.station['feeds']
-            self.station.pop('feeds')
+        if 'station_dir' in self.station:
+            self.station_dir = self.station['station_dir']
 
-        # Get the mountpoint and short name first
-        if 'server' in self.station.keys():
-            # Try to get the mountpoint as defined by the server.mountpoint parameter
-            self.mountpoint = str(self.station['server'].pop('mountpoint',self.mountpoint))
-            self.appendtype = int(self.station['server'].pop('appendtype',self.appendtype))
-            self.type = str(self.station['server'].pop('type',self.type))
-        
-        # Get our media format since we need to to define a stream object
-        if 'media' in self.station.keys():
-            self.media_format = str(self.station['media'].pop('format',self.media_format))
-            
-        # We don't have a non-default mount point yet, so get info.short_name and try that
-        if self.mountpoint == 'default':
-            if 'infos' in self.station.keys():
-                self.mountpoint = str(self.station['infos'].pop('short_name','default'))
+        # Media
+        self.media_dir = self.station['media']['dir']
+        self.media_format = self.station['media']['format']
+        self.shuffle_mode = int(self.station['media']['shuffle'])
+        self.bitrate = self.station['media']['bitrate']
+        self.ogg_quality = self.station['media']['ogg_quality']
+        self.samplerate = self.station['media']['samplerate']
+        self.voices = self.station['media']['voices']
+        self.m3u_playlist_file = []
+        if 'm3u' in self.station['media'].keys():
+            self.m3u_playlist_file = self.station['media']['m3u']
 
-        # Set the short name based on the mount point.
+        # Server
+        if 'mountpoint' in self.station['server'].keys():
+            self.mountpoint = self.station['server']['mountpoint']
+        elif 'short_name' in self.station['infos'].keys():
+            self.mountpoint = self.station['infos']['short_name']
+        else:
+            self.mountpoint = 'default'
+
         self.short_name = self.mountpoint
-        
-        # Set up the stream channel
+
+        if 'appendtype' in self.station['server'].keys():
+            self.appendtype = int(self.station['server']['appendtype'])
+
+        if 'type' in self.station['server']:
+            self.type = self.station['server']['type'] #  'icecast' | 'stream-m'
+        else:
+            self.type = 'icecast'
+
         if 'stream-m' in self.type:
             self.channel = HTTPStreamer()
             self.channel.mount = '/publish/' + self.mountpoint
@@ -132,161 +129,19 @@ class Station(Thread):
                 self.channel.mount = self.channel.mount + '.' + self.media_format
         else:
             sys.exit('Not a compatible server type. Choose "stream-m" or "icecast".')
-        
-        # Apply defaults for the channel
+
+        self.channel.url = self.station['infos']['url']
+        self.channel.name = self.station['infos']['name']
+        self.channel.genre = self.station['infos']['genre']
+        self.channel.description = self.station['infos']['description']
         self.channel.format = self.media_format
+        self.channel.host = self.station['server']['host']
+        self.channel.port = int(self.station['server']['port'])
         self.channel.user = 'source'
-        
-        # Parse the rest of the key structure
-        for key in self.station.keys():
-            if key == 'station_dir':
-                self.station_dir = self.station['station_dir']
-            
-            if key == 'media':
-                # Media
-                for subkey in self.station[key].keys():
-                    if subkey == 'dir':
-                        self.media_dir = str(self.station[key][subkey])
-                        
-                    elif subkey == 'shuffle':
-                        self.shuffle_mode = int(self.station[key][subkey])
-                        
-                    elif subkey == 'bitrate':
-                        self.bitrate = int(self.station[key][subkey])
-                        
-                    elif subkey == 'ogg_quality':
-                        self.ogg_quality = int(self.station[key][subkey])
-                        
-                    elif subkey == 'samplerate':
-                        self.samplerate = int(self.station[key][subkey])
-                        
-                    elif subkey == 'voices':
-                        self.voices = int(self.station[key][subkey])
-                        
-                    elif subkey == 'm3u':
-                        self.m3u_playlist_file = self.station[key][subkey]
-
-            if key == 'infos':
-                # Stream Info
-                for subkey in self.station[key].keys():
-                    if subkey == 'url':
-                        self.channel.url = str(self.station[key][subkey])
-                        
-                    elif subkey == 'name':
-                        self.channel.name = str(self.station[key][subkey])
-                        
-                    elif subkey == 'genre':
-                        self.channel.genre = str(self.station[key][subkey])
-                        
-                    elif subkey == 'description':
-                        self.channel.description = str(self.station[key][subkey])
-                        
-            if key == 'server':
-                # Server Info
-                for subkey in self.station[key].keys():
-                    if subkey == 'host':
-                        self.channel.host = str(self.station[key][subkey])
-                        
-                    elif subkey == 'port':
-                        self.channel.port = str(self.station[key][subkey])
-                        
-                    elif subkey == 'sourceuser':
-                        self.channel.user = str(self.station[key][subkey])
-                        
-                    elif subkey == 'sourcepassword':
-                        self.channel.password = str(self.station[key][subkey])
-                        
-                    elif subkey == 'public':
-                        self.channel.public = str(self.station[key][subkey])
-                        
-            if key == 'rss':
-                # Server Info
-                for subkey in self.station[key].keys():
-                    if subkey == 'mode':
-                        self.feeds_mode = int(self.station[key][subkey])
-                        
-                    elif subkey == 'dir':
-                        self.feeds_dir = str(self.station[key][subkey])
-                        
-                    elif subkey == 'enclosure':
-                        self.feeds_enclosure = int(self.station[key][subkey])
-                        
-                    elif subkey == 'json':
-                        self.feeds_json = int(self.station[key][subkey])
-                        
-                    elif subkey == 'rss':
-                        self.feeds_rss = int(self.station[key][subkey])
-                        
-                    elif subkey == 'playlist':
-                        self.feeds_playlist = int(self.station[key][subkey])
-                        
-                    elif subkey == 'media_url':
-                        self.feeds_media_url = str(self.station[key][subkey])
-                        
-            if key == 'control':
-                # Server Info
-                for subkey in self.station[key].keys():
-                    if subkey == 'mode':
-                        self.osc_control_mode = int(self.station[key][subkey])
-                        
-                    elif subkey == 'port':
-                        self.osc_control_port = int(self.station[key][subkey])
-                        
-            if key == 'jingles':
-                # Server Info
-                for subkey in self.station[key].keys():
-                    if subkey == 'mode':
-                        self.jingles_mode = int(self.station[key][subkey])
-                        
-                    elif subkey == 'shuffle':
-                        self.jingles_shuffle = int(self.station[key][subkey])
-                        
-                    elif subkey == 'dir':
-                        self.jingles_dir = str(self.station[key][subkey])
-                        
-            if key == 'relay':
-                # Server Info
-                for subkey in self.station[key].keys():
-                    if subkey == 'mode':
-                        self.relay_mode = int(self.station[key][subkey])
-                        
-                    elif subkey == 'url':
-                        self.relay_url = str(self.station[key][subkey])
-                        
-                    elif subkey == 'author':
-                        self.relay_author = str(self.station[key][subkey])
-                        
-            if key == 'twitter':
-                # Server Info
-                for subkey in self.station[key].keys():
-                    if subkey == 'mode':
-                        self.twitter_mode = int(self.station[key][subkey])
-                        
-                    elif subkey == 'key':
-                        self.twitter_key = str(self.station[key][subkey])
-                        
-                    elif subkey == 'secret':
-                        self.twitter_secret = str(self.station[key][subkey])
-                        
-                    elif subkey == 'tags':
-                        self.twitter_tags = str(self.station[key][subkey]).split(' ')
-                        
-                    elif subkey == 'messages':
-                        self.twitter_messages = self.station[key][subkey]
-                        if isinstance(self.twitter_messages,  dict):
-                            self.twitter_messages = list(self.twitter_messages)
-                        
-            if key == 'record':
-                # Server Info
-                for subkey in self.station[key].keys():
-                    if subkey == 'mode':
-                        self.record_mode = int(self.station[key][subkey])
-                        
-                    elif subkey == 'dir':
-                        self.record_dir = str(self.station[key][subkey])
-                        
-
-            
+        self.channel.password = self.station['server']['sourcepassword']
+        self.channel.public = int(self.station['server']['public'])
+        self.channel.genre = self.station['infos']['genre']
+        self.channel.description = self.station['infos']['description']
         if self.channel.format == 'mp3':
             self.channel.audio_info = { 'bitrate': str(self.bitrate),
                                         'samplerate': str(self.samplerate),
@@ -301,8 +156,25 @@ class Station(Thread):
         self.channel_url = self.server_url + self.channel.mount
 
         # RSS
-        if self.feeds_media_url == '':
+        if 'feeds' in self.station:
+            self.station['rss'] = self.station['feeds']
+
+        if 'rss' in self.station:
+            if 'mode' in self.station['rss']:
+                self.feeds_mode = int(self.station['rss']['mode'])
+            self.feeds_dir = self.station['rss']['dir']
+            self.feeds_enclosure = int(self.station['rss']['enclosure'])
+            if 'json' in self.station['rss']:
+                self.feeds_json = int(self.station['rss']['json'])
+            if 'rss' in self.station['rss']:
+                self.feeds_rss = int(self.station['rss']['rss'])
+            if 'playlist' in self.station['rss']:
+                self.feeds_playlist = int(self.station['rss']['playlist'])
+
             self.feeds_media_url = self.channel.url + '/media/'
+            if 'media_url' in self.station['rss']:
+                if self.station['rss']['media_url']:
+                    self.feeds_media_url = self.station['rss']['media_url']
 
         self.base_name = self.feeds_dir + os.sep + self.short_name + '_' + self.channel.format
         self.feeds_current_file = self.base_name + '_current'
@@ -322,33 +194,60 @@ class Station(Thread):
         self.player = Player(self.type)
 
         # OSCing
-        if self.osc_control_mode and self.osc_control_port:
-            self.osc_controller = OSCController(self.osc_control_port)
-            # OSC paths and callbacks
-            self.osc_controller.add_method('/media/next', 'i', self.media_next_callback)
-            self.osc_controller.add_method('/media/relay', 'i', self.relay_callback)
-            self.osc_controller.add_method('/twitter', 'i', self.twitter_callback)
-            self.osc_controller.add_method('/jingles', 'i', self.jingles_callback)
-            self.osc_controller.add_method('/record', 'i', self.record_callback)
-            self.osc_controller.add_method('/player', 'i', self.player_callback)
-            self.osc_controller.add_method('/run', 'i', self.run_callback)
-            self.osc_controller.start()
+        # mode = 0 means Off, mode = 1 means On
+        if 'control' in self.station:
+            self.osc_control_mode = int(self.station['control']['mode'])
+            if self.osc_control_mode:
+                self.osc_port = self.station['control']['port']
+                self.osc_controller = OSCController(self.osc_port)
+                # OSC paths and callbacks
+                self.osc_controller.add_method('/media/next', 'i', self.media_next_callback)
+                self.osc_controller.add_method('/media/relay', 'i', self.relay_callback)
+                self.osc_controller.add_method('/twitter', 'i', self.twitter_callback)
+                self.osc_controller.add_method('/jingles', 'i', self.jingles_callback)
+                self.osc_controller.add_method('/record', 'i', self.record_callback)
+                self.osc_controller.add_method('/player', 'i', self.player_callback)
+                self.osc_controller.add_method('/run', 'i', self.run_callback)
+                self.osc_controller.start()
 
         # Jingling between each media.
-        if self.jingles_mode:
-            self.jingles_callback('/jingles', [1])
+        if 'jingles' in self.station:
+            self.jingles_mode =  int(self.station['jingles']['mode'])
+            self.jingles_shuffle = self.station['jingles']['shuffle']
+            self.jingles_dir = self.station['jingles']['dir']
+            if self.jingles_mode == 1:
+                self.jingles_callback('/jingles', [1])
 
         # Relaying
-        if self.relay_mode:
-            self.relay_callback('/media/relay', [1])
+        if 'relay' in self.station:
+            self.relay_mode = int(self.station['relay']['mode'])
+            self.relay_url = self.station['relay']['url']
+            self.relay_author = self.station['relay']['author']
+            if self.relay_mode == 1:
+                self.relay_callback('/media/relay', [1])
 
         # Twitting
-        if self.twitter_mode:
-            self.twitter_callback('/twitter', [1])
+        if 'twitter' in self.station:
+            self.twitter_mode = int(self.station['twitter']['mode'])
+            self.twitter_key = self.station['twitter']['key']
+            self.twitter_secret = self.station['twitter']['secret']
+            self.twitter_tags = self.station['twitter']['tags'].split(' ')
+            try:
+                self.twitter_messages = self.station['twitter']['message']
+                if isinstance(self.twitter_messages,  dict):
+                    self.twitter_messages = list(self.twitter_messages)
+            except:
+                pass
+
+            if self.twitter_mode:
+                self.twitter_callback('/twitter', [1])
 
         # Recording
-        if self.record_mode:
-            self.record_callback('/record', [1])
+        if 'record' in self.station:
+            self.record_mode = int(self.station['record']['mode'])
+            self.record_dir = self.station['record']['dir']
+            if self.record_mode:
+                self.record_callback('/record', [1])
 
     def run_callback(self, path, value):
         value = value[0]
@@ -530,7 +429,7 @@ class Station(Thread):
                 new_tracks = new_playlist_set - playlist_set
                 self.new_tracks = list(new_tracks.copy())
 
-                if self.twitter_mode  and self.counter:
+                if self.twitter_mode == 1  and self.counter:
                     self.tweet()
 
                 # Shake it, Fuzz it !
