@@ -62,11 +62,14 @@ class DeeFuzzer(Thread):
         self.conf_file = conf_file
         self.conf = get_conf_dict(self.conf_file)
 
+        if not 'deefuzzer' in self.conf.keys():
+            return 
+
         # Get the log setting first (if possible)
-        log_file = str(self.conf.pop('log', ''))
+        log_file = str(self.conf['deefuzzer'].pop('log', ''))
         log_dir = os.sep.join(log_file.split(os.sep)[:-1])
         if not os.path.exists(log_dir) and log_dir:
-            os.makedirs(m3u_dir)
+            os.makedirs(log_dir)
         self.logger = Logger(log_file)
 
         for key in self.conf['deefuzzer'].keys():
