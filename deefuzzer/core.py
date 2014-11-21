@@ -210,6 +210,11 @@ class DeeFuzzer(Thread):
                         station = merge_defaults(station, self.conf['deefuzzer']['stationdefaults'])
                 self.stations.append(Station(station, q, self.logger, self.m3u))
             except Exception:
+                name = str(i)
+                if 'info' in station.keys():
+                    if 'short_name' in station['infos']:
+                        name = station['infos']['short_name']
+                self.logger.write_error('Error starting station ' + name)
                 continue
 
         if self.m3u:
