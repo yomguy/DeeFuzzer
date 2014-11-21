@@ -18,6 +18,17 @@
                 "mode": 0,
                 "port": 16001
             },
+            "jingles": {
+                "dir": "/path/to/jingles",
+                "mode": 0,
+                "shuffle": 1
+            }
+        },
+        "station": {
+            "control": {
+                "mode": 0,
+                "port": 16001
+            },
             "infos": {
                 "description": "My personal best funky playlist ever !",
                 "genre": "Various Funk Groove",
