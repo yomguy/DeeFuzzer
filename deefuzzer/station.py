@@ -78,6 +78,8 @@ class Station(Thread):
     feeds_rss = 1
     feeds_mode = 1
     feeds_playlist = 1
+    feeds_showfilepath = 0
+    feeds_showfilename = 0
 
     def __init__(self, station, q, logger, m3u):
         Thread.__init__(self)
@@ -168,6 +170,10 @@ class Station(Thread):
                 self.feeds_rss = int(self.station['rss']['rss'])
             if 'playlist' in self.station['rss']:
                 self.feeds_playlist = int(self.station['rss']['playlist'])
+            if 'showfilename' in self.station['rss']:
+                self.feeds_showfilename = int(self.station['rss']['showfilename'])
+            if 'showfilepath' in self.station['rss']:
+                self.feeds_showfilepath = int(self.station['rss']['showfilepath'])
 
             self.feeds_media_url = self.channel.url + '/media/'
             if 'media_url' in self.station['rss']:
@@ -464,19 +470,24 @@ class Station(Thread):
             file_name, file_title, file_ext = get_file_info(media)
             if file_ext.lower() == 'mp3' or mimetypes.guess_type(media)[0] == 'audio/mpeg':
                 try:
-                    media_objs.append(Mp3(media))
+                    file_meta = Mp3(media)
                 except:
                     continue
             elif file_ext.lower() == 'ogg' or mimetypes.guess_type(media)[0] == 'audio/ogg':
                 try:
-                    media_objs.append(Ogg(media))
+                    file_meta = Ogg(media)
                 except:
                     continue
             elif file_ext.lower() == 'webm' or mimetypes.guess_type(media)[0] == 'video/webm':
                 try:
-                    media_objs.append(WebM(media))
+                    file_meta = WebM(media)
                 except:
                     continue
+            if self.feeds_showfilename:
+                file_meta.metadata['filename'] = file_name.decode( "utf-8" )   #decode needed for some weird filenames
+            if self.feeds_showfilepath:
+                file_meta.metadata['filepath'] = media.decode( "utf-8" )   #decode needed for some weird filenames
+            media_objs.append(file_meta)
         return media_objs
 
     def update_feeds(self, media_list, rss_file, sub_title):
@@ -503,6 +514,7 @@ class Station(Thread):
 
             media_description = '<table>'
             media_description_item = '<tr><td>%s:   </td><td><b>%s</b></td></tr>'
+            
             for key in media.metadata.keys():
                 if media.metadata[key] != '':
                     media_description += media_description_item % (key.capitalize(),
