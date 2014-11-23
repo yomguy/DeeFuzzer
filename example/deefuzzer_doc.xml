@@ -110,6 +110,10 @@
             <!-- the base URL of all media items.
                  Default is station url /media -->
             <media_url>http://localhost/media/</media_url>
+            <!-- Include the full name of the file in the feed -->
+            <showfilename>1</showfilename>
+            <!-- Include the full server path of the file in the feed -->
+            <showfilepath>0</showfilepath>
         </feeds>
         <server>
             <!-- The host to send the stream (domain or IP) -->
