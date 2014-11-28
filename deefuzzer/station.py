@@ -664,6 +664,33 @@ class Station(Thread):
                 self.q.task_done()
                 pass
 
+    def icecastloop_nextmedia(self):
+        self.q.get(1)
+        self.next_media = 0
+        self.media = self.get_next_media()
+        self.counter += 1
+        if self.relay_mode:
+            self.set_relay_mode()
+        elif os.path.exists(self.media) and not os.sep+'.' in self.media:
+            if self.lp == 0:
+                self.logger.write_error('Station ' + self.channel_url + \
+                                            ' : has no media to stream !')
+                return false
+            self.set_read_mode()
+        self.q.task_done()
+        
+        return true
+    
+    def icecastloop_metadata(self):
+        self.q.get(1)
+        if (not (self.jingles_mode and (self.counter % 2)) or \
+                            self.relay_mode) and self.twitter_mode:
+            self.update_twitter_current()
+        self.channel.set_metadata({'song': self.song, 'charset': 'utf-8'})
+        self.q.task_done()
+        return true
+
+                
     def run(self):
         self.q.get(1)
         self.ping_server()
@@ -687,86 +714,77 @@ class Station(Thread):
             self.q.task_done()
 
             while self.run_mode:
-                self.q.get(1)
-                self.next_media = 0
-                self.media = self.get_next_media()
-                self.counter += 1
-                if self.relay_mode:
-                    self.set_relay_mode()
-                elif os.path.exists(self.media) and not os.sep+'.' in self.media:
-                    if self.lp == 0:
-                        self.logger.write_error('Station ' + self.channel_url + \
-                                                    ' : has no media to stream !')
-                        break
-                    self.set_read_mode()
-                self.q.task_done()
-
-                self.q.get(1)
-                if (not (self.jingles_mode and (self.counter % 2)) or \
-                                    self.relay_mode) and self.twitter_mode:
-                    try:
-                        self.update_twitter_current()
-                    except:
-                        continue
                 try:
-                    self.channel.set_metadata({'song': self.song, 'charset': 'utf-8',})
-                except:
-                    continue
-                self.q.task_done()
-
-
-                for self.chunk in self.stream:
-                    if self.next_media or not self.run_mode:
+                    if not self.icecastloop_nextmedia():
                         break
-                    if self.record_mode:
-                        try:
-                            self.q.get(1)
-                            self.recorder.write(self.chunk)
-                            self.q.task_done()
-                        except:
-                            self.logger.write_error('Station ' + \
-                                            self.channel_url + \
-                                            ' : could not write the buffer to the file')
-                            self.q.task_done()
-                            continue
-                    try:
-                        self.q.get(1)
-                        self.channel.send(self.chunk)
-                        self.channel.sync()
-                        self.q.task_done()
-                    except:
-                        self.logger.write_error('Station ' + \
-                                                self.channel_url + \
-                                                ' : could not send the buffer')
-                        self.q.task_done()
-                        try:
-                            self.q.get(1)
-                            self.channel.close()
-                            self.logger.write_info('Station ' + \
-                                                   self.channel_url + \
-                                                   ' : channel closed')
-                            self.q.task_done()
-                        except:
-                            self.logger.write_error('Station ' + \
-                                                    self.channel_url + \
-                                                    ' : could not close the channel')
-                            self.q.task_done()
-                            continue
-                        try:
-                            self.ping_server()
-                            self.q.get(1)
-                            self.channel_open()
-                            self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
-                            self.logger.write_info('Station ' + self.channel_url + \
-                                                    ' : channel restarted')
-                            self.q.task_done()
-                        except:
-                            self.logger.write_error('Station ' + self.channel_url + \
-                                                ' : could not restart the channel')
-                            self.q.task_done()
-                            continue
-                        continue
+                    if not self.icecastloop_metadata():
+                        break
 
+                    for self.chunk in self.stream:
+                        try:
+                            if self.next_media or not self.run_mode:
+                                break
+                                
+                            if self.record_mode:
+                                try:
+                                    self.q.get(1)
+                                    self.recorder.write(self.chunk)
+                                    self.q.task_done()
+                                except:
+                                    self.logger.write_error('Station ' + \
+                                                    self.channel_url + \
+                                                    ' : could not write the buffer to the file')
+                                    self.q.task_done()
+                                    continue
+                                    
+                            try:
+                                self.q.get(1)
+                                self.channel.send(self.chunk)
+                                self.channel.sync()
+                                self.q.task_done()
+                            except:
+                                self.logger.write_error('Station ' + \
+                                                        self.channel_url + \
+                                                        ' : could not send the buffer')
+                                self.q.task_done()
+                                
+                                try:
+                                    self.q.get(1)
+                                    self.channel.close()
+                                    self.logger.write_info('Station ' + \
+                                                           self.channel_url + \
+                                                           ' : channel closed')
+                                    self.q.task_done()
+                                except:
+                                    self.logger.write_error('Station ' + \
+                                                            self.channel_url + \
+                                                            ' : could not close the channel')
+                                    self.q.task_done()
+                                    continue
+                                    
+                                try:
+                                    self.ping_server()
+                                    self.q.get(1)
+                                    self.channel_open()
+                                    self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
+                                    self.logger.write_info('Station ' + self.channel_url + \
+                                                            ' : channel restarted')
+                                    self.q.task_done()
+                                except:
+                                    self.logger.write_error('Station ' + self.channel_url + \
+                                                        ' : could not restart the channel')
+                                    self.q.task_done()
+                                    continue
+                                continue
+
+                        except: # send chunk loop exception
+                            continue
+                    # send chunk loop end
+                    
+                except: # while run_mode exception
+                    continue
+            # while run_mode loop end
+            
             if self.record_mode:
                 self.recorder.close()
 
