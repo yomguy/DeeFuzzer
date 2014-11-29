@@ -185,7 +185,7 @@ class Station(Thread):
         self.feeds_playlist_file = self.base_name + '_playlist'
 
         # Logging
-        self.logger.write_info('Opening ' + self.short_name + ' - ' + self.channel.name + \
+        self._info('Opening ' + self.short_name + ' - ' + self.channel.name + \
                 ' (' + str(self.lp) + ' tracks)...')
 
         self.metadata_relative_dir = 'metadata'
@@ -253,19 +253,23 @@ class Station(Thread):
             if self.record_mode:
                 self.record_callback('/record', [1])
 
+    def _info(self, msg):
+        self.logger.write_info('Station ' + self.channel_url + ': ' + str(msg))
+    
+    def _err(self, msg):
+        self.logger.write_error('Station ' + self.channel_url + ': ' + str(msg))
+                
     def run_callback(self, path, value):
         value = value[0]
         self.run_mode = value
-        message = "Station " + self.channel_url + \
-                    " : received OSC message '%s' with arguments '%d'" % (path, value)
-        self.logger.write_info(message)
+        message = "received OSC message '%s' with arguments '%d'" % (path, value)
+        self._info(message)
 
     def media_next_callback(self, path, value):
         value = value[0]
         self.next_media = value
-        message = "Station " + self.channel_url + \
-                    " : received OSC message '%s' with arguments '%d'" % (path, value)
-        self.logger.write_info(message)
+        message = "received OSC message '%s' with arguments '%d'" % (path, value)
+        self._info(message)
 
     def relay_callback(self, path, value):
         value = value[0]
@@ -280,22 +284,19 @@ class Station(Thread):
 
         self.id = 0
         self.next_media = 1
-        message = "Station " + self.channel_url + \
-                    " : received OSC message '%s' with arguments '%d'" % (path, value)
-        self.logger.write_info(message)
-        message = "Station " + self.channel_url + \
-                    " : relaying : %s" % self.relay_url
-        self.logger.write_info(message)
+        message = "received OSC message '%s' with arguments '%d'" % (path, value)
+        self._info(message)
+        message = "relaying : %s" % self.relay_url
+        self._info(message)
 
     def twitter_callback(self, path, value):
         value = value[0]
         self.twitter = Twitter(self.twitter_key, self.twitter_secret)
         self.twitter_mode = value
-        message = "Station " + self.channel_url + \
-                " : received OSC message '%s' with arguments '%d'" % (path, value)
+        message = "received OSC message '%s' with arguments '%d'" % (path, value)
         self.m3u_url = self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1]
         self.feeds_url = self.channel.url + '/rss/' + self.feeds_playlist_file.split(os.sep)[-1]
-        self.logger.write_info(message)
+        self._info(message)
 
     def jingles_callback(self, path, value):
         value = value[0]
@@ -304,9 +305,8 @@ class Station(Thread):
             self.jingles_length = len(self.jingles_list)
             self.jingle_id = 0
         self.jingles_mode = value
-        message = "Station " + self.channel_url + \
-                    " : received OSC message '%s' with arguments '%d'" % (path, value)
-        self.logger.write_info(message)
+        message = "received OSC message '%s' with arguments '%d'" % (path, value)
+        self._info(message)
 
     def record_callback(self, path, value):
         value = value[0]
@@ -324,6 +324,7 @@ class Station(Thread):
                 self.recorder.close()
             except:
                 pass
+                
             if self.type == 'icecast':
                 date = datetime.datetime.now().strftime("%Y")
                 if self.channel.format == 'mp3':
@@ -338,16 +339,14 @@ class Station(Thread):
                 media.write_tags()
 
         self.record_mode = value
-        message = "Station " + self.channel_url + \
-                    " : received OSC message '%s' with arguments '%d'" % (path, value)
-        self.logger.write_info(message)
+        message = "received OSC message '%s' with arguments '%d'" % (path, value)
+        self._info(message)
 
     def player_callback(self, path, value):
         value = value[0]
         self.player_mode = value
-        message = "Station " + self.channel_url + \
-                    " : received OSC message '%s' with arguments '%d'" % (path, value)
-        self.logger.write_info(message)
+        message = "received OSC message '%s' with arguments '%d'" % (path, value)
+        self._info(message)
 
     def get_playlist(self):
         file_list = []
@@ -417,8 +416,7 @@ class Station(Thread):
                 if self.shuffle_mode:
                     random.shuffle(self.playlist)
 
-                self.logger.write_info('Station ' + self.channel_url + \
-                                 ' : generating new playlist (' + str(self.lp) + ' tracks)')
+                self._info('generating new playlist (' + str(self.lp) + ' tracks)')
 
                 if self.feeds_playlist:
                     self.update_feeds(self.media_to_objs(self.playlist), self.feeds_playlist_file, '(playlist)')
@@ -446,8 +444,7 @@ class Station(Thread):
 
                 self.playlist = playlist
 
-                self.logger.write_info('Station ' + self.channel_url + \
-                                 ' : generating new playlist (' + str(self.lp) + ' tracks)')
+                self._info('generating new playlist (' + str(self.lp) + ' tracks)')
 
                 if self.feeds_playlist:
                     self.update_feeds(self.media_to_objs(self.playlist), self.feeds_playlist_file, '(playlist)')
@@ -461,7 +458,7 @@ class Station(Thread):
             return media
         else:
             mess = 'No media in media_dir !'
-            self.logger.write_error(mess)
+            self._err(mess)
             sys.exit(mess)
 
     def media_to_objs(self, media_list):
@@ -576,10 +573,9 @@ class Station(Thread):
     def update_twitter(self, message):
         try:
             self.twitter.post(message.decode('utf8'))
-            self.logger.write_info('Twitting : "' + message + '"')
+            self._info('Twitting : "' + message + '"')
         except:
-            self.logger.write_error('Twitting : "' + message + '"')
-            pass
+            self._err('Twitting : "' + message + '"')
 
     def set_relay_mode(self):
         self.prefix = '#nowplaying #LIVE'
@@ -619,8 +615,8 @@ class Station(Thread):
         self.artist = self.artist.encode('utf-8')
         self.metadata_file = self.metadata_dir + os.sep + self.current_media_obj[0].file_name + '.xml'
         self.update_feeds(self.current_media_obj, self.feeds_current_file, '(currently playing)')
-        self.logger.write_info('DeeFuzzing on %s :  id = %s, name = %s' \
-            % (self.short_name, self.id, self.current_media_obj[0].file_name))
+        self._info('DeeFuzzing:  id = %s, name = %s' \
+            % (self.id, self.current_media_obj[0].file_name))
         self.player.set_media(self.media)
 
         if self.player_mode:
@@ -652,17 +648,16 @@ class Station(Thread):
                 self.q.get(1)
                 server = urllib.urlopen(self.server_url)
                 self.server_ping = True
-                text = 'Station ' + self.channel_url + ' : channel available'
-                self.logger.write_info(text)
+                text = 'channel available'
+                self._info(text)
                 self.q.task_done()
             except:
                 time.sleep(1)
                 if log:
-                    text = 'Station ' + self.channel_url + ' : could not connect the channel'
-                    self.logger.write_error(text)
+                    text = 'could not connect the channel'
+                    self._err(text)
                     log = False
                 self.q.task_done()
-                pass
 
     def icecastloop_nextmedia(self):
         self.q.get(1)
@@ -673,13 +668,12 @@ class Station(Thread):
             self.set_relay_mode()
         elif os.path.exists(self.media) and not os.sep+'.' in self.media:
             if self.lp == 0:
-                self.logger.write_error('Station ' + self.channel_url + \
-                                            ' : has no media to stream !')
-                return false
+                self._err('has no media to stream !')
+                return False
             self.set_read_mode()
         self.q.task_done()
         
-        return true
+        return True
     
     def icecastloop_metadata(self):
         self.q.get(1)
@@ -688,7 +682,7 @@ class Station(Thread):
             self.update_twitter_current()
         self.channel.set_metadata({'song': self.song, 'charset': 'utf-8'})
         self.q.task_done()
-        return true
+        return True
 
                 
     def run(self):
@@ -710,7 +704,7 @@ class Station(Thread):
         if self.type == 'icecast':
             self.q.get(1)
             self.channel_open()
-            self.logger.write_info('Station ' + self.channel_url + ' : channel connected')
+            self._info('channel connected')
             self.q.task_done()
 
             while self.run_mode:
@@ -731,9 +725,7 @@ class Station(Thread):
                                     self.recorder.write(self.chunk)
                                     self.q.task_done()
                                 except:
-                                    self.logger.write_error('Station ' + \
-                                                    self.channel_url + \
-                                                    ' : could not write the buffer to the file')
+                                    self._err('could not write the buffer to the file')
                                     self.q.task_done()
                                     continue
                                     
@@ -743,22 +735,16 @@ class Station(Thread):
                                 self.channel.sync()
                                 self.q.task_done()
                             except:
-                                self.logger.write_error('Station ' + \
-                                                        self.channel_url + \
-                                                        ' : could not send the buffer')
+                                self._err('could not send the buffer')
                                 self.q.task_done()
                                 
                                 try:
                                     self.q.get(1)
                                     self.channel.close()
-                                    self.logger.write_info('Station ' + \
-                                                           self.channel_url + \
-                                                           ' : channel closed')
+                                    self._info('channel closed')
                                     self.q.task_done()
                                 except:
-                                    self.logger.write_error('Station ' + \
-                                                            self.channel_url + \
-                                                            ' : could not close the channel')
+                                    self._err('could not close the channel')
                                     self.q.task_done()
                                     continue
                                     
@@ -767,12 +753,10 @@ class Station(Thread):
                                     self.q.get(1)
                                     self.channel_open()
                                     self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
-                                    self.logger.write_info('Station ' + self.channel_url + \
-                                                            ' : channel restarted')
+                                    self._info('channel restarted')
                                     self.q.task_done()
                                 except:
-                                    self.logger.write_error('Station ' + self.channel_url + \
-                                                        ' : could not restart the channel')
+                                    self._err('could not restart the channel')
                                     self.q.task_done()
                                     continue
                                 continue
