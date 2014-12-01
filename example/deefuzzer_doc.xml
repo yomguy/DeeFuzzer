@@ -151,6 +151,9 @@
     <stationfolder>
         <!-- REQUIRED: The base folder to use when auto-generating stations -->
         <folder>/path/to/media</folder>
+        <!-- OPTIONAL: If '1', stations will be created as folders are added ("watchfolder" capability). If '0', 
+             folders will only be added when the program is started. -->
+        <livecreation>1</livecreation>
         <!-- Station information to use.  At a minimum, the following should be defined:
                 infos.short_name so that mount points will be unique. 
                 media.dir so that the files are loaded from the right place (IMPROVEMENT: should be set in code!)

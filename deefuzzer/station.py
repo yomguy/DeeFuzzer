@@ -59,6 +59,7 @@ class Station(Thread):
     """a DeeFuzzer shouting station thread"""
 
     id = 999999
+    valid = False
     counter = 0
     delay = 0
     start_time = time.time()
@@ -80,12 +81,14 @@ class Station(Thread):
     feeds_playlist = 1
     feeds_showfilepath = 0
     feeds_showfilename = 0
+    short_name = ''
+    channelIsOpen = False
 
-    def __init__(self, station, q, logger, m3u):
+    def __init__(self, station, q, logqueue, m3u):
         Thread.__init__(self)
         self.station = station
         self.q = q
-        self.logger = logger
+        self.logqueue = logqueue
         self.m3u = m3u
 
         if 'station_dir' in self.station:
@@ -130,7 +133,8 @@ class Station(Thread):
             if self.appendtype:
                 self.channel.mount = self.channel.mount + '.' + self.media_format
         else:
-            sys.exit('Not a compatible server type. Choose "stream-m" or "icecast".')
+            self._err('Not a compatible server type. Choose "stream-m" or "icecast".')
+            return
 
         self.channel.url = self.station['infos']['url']
         self.channel.name = self.station['infos']['name']
@@ -185,8 +189,7 @@ class Station(Thread):
         self.feeds_playlist_file = self.base_name + '_playlist'
 
         # Logging
-        self._info('Opening ' + self.short_name + ' - ' + self.channel.name + \
-                ' (' + str(self.lp) + ' tracks)...')
+        self._info('Opening ' + self.short_name + ' - ' + self.channel.name)
 
         self.metadata_relative_dir = 'metadata'
         self.metadata_url = self.channel.url + '/rss/' + self.metadata_relative_dir
@@ -253,12 +256,23 @@ class Station(Thread):
             if self.record_mode:
                 self.record_callback('/record', [1])
 
+        self.valid = True
+        
+    def _log(self, level, msg):
+        try:
+            obj = {}
+            obj['msg'] = 'Station ' + str(self.channel_url) + ': ' + str(msg)
+            obj['level'] = str(level)
+            self.logqueue.put(obj)
+        except:
+            pass
+    
     def _info(self, msg):
-        self.logger.write_info('Station ' + self.channel_url + ': ' + str(msg))
+        self._log('info', msg)
     
     def _err(self, msg):
-        self.logger.write_error('Station ' + self.channel_url + ': ' + str(msg))
-                
+        self._log('err', msg)
+    
     def run_callback(self, path, value):
         value = value[0]
         self.run_mode = value
@@ -359,10 +373,18 @@ class Station(Thread):
                         file_list.append(root + os.sep + file)
             file_list.sort()
         else:
-            f = open(self.m3u_playlist_file, 'r')
-            for path in f.readlines():
-                if '#' != path[0]:
-                    file_list.append(path[:-1])
+            self.q.get(1)
+            try:
+                f = open(self.m3u_playlist_file, 'r')
+                try:
+                    for path in f.readlines():
+                        if '#' != path[0]:
+                            file_list.append(path[:-1])
+                except:
+                    f.close()
+            except:
+                pass
+            self.q.task_done()
         return file_list
 
     def get_jingles(self):
@@ -416,7 +438,7 @@ class Station(Thread):
                 if self.shuffle_mode:
                     random.shuffle(self.playlist)
 
-                self._info('generating new playlist (' + str(self.lp) + ' tracks)')
+                self._info('Generating new playlist (' + str(self.lp) + ' tracks)')
 
                 if self.feeds_playlist:
                     self.update_feeds(self.media_to_objs(self.playlist), self.feeds_playlist_file, '(playlist)')
@@ -459,31 +481,36 @@ class Station(Thread):
         else:
             mess = 'No media in media_dir !'
             self._err(mess)
-            sys.exit(mess)
+            self.run_mode = 0
 
     def media_to_objs(self, media_list):
         media_objs = []
         for media in media_list:
             file_name, file_title, file_ext = get_file_info(media)
-            if file_ext.lower() == 'mp3' or mimetypes.guess_type(media)[0] == 'audio/mpeg':
-                try:
-                    file_meta = Mp3(media)
-                except:
-                    continue
-            elif file_ext.lower() == 'ogg' or mimetypes.guess_type(media)[0] == 'audio/ogg':
-                try:
-                    file_meta = Ogg(media)
-                except:
-                    continue
-            elif file_ext.lower() == 'webm' or mimetypes.guess_type(media)[0] == 'video/webm':
-                try:
-                    file_meta = WebM(media)
-                except:
-                    continue
-            if self.feeds_showfilename:
-                file_meta.metadata['filename'] = file_name.decode( "utf-8" )   #decode needed for some weird filenames
-            if self.feeds_showfilepath:
-                file_meta.metadata['filepath'] = media.decode( "utf-8" )   #decode needed for some weird filenames
+            self.q.get(1)
+            try:
+                if file_ext.lower() == 'mp3' or mimetypes.guess_type(media)[0] == 'audio/mpeg':
+                    try:
+                        file_meta = Mp3(media)
+                    except:
+                        continue
+                elif file_ext.lower() == 'ogg' or mimetypes.guess_type(media)[0] == 'audio/ogg':
+                    try:
+                        file_meta = Ogg(media)
+                    except:
+                        continue
+                elif file_ext.lower() == 'webm' or mimetypes.guess_type(media)[0] == 'video/webm':
+                    try:
+                        file_meta = WebM(media)
+                    except:
+                        continue
+                if self.feeds_showfilename:
+                    file_meta.metadata['filename'] = file_name.decode( "utf-8" )   #decode needed for some weird filenames
+                if self.feeds_showfilepath:
+                    file_meta.metadata['filepath'] = media.decode( "utf-8" )   #decode needed for some weird filenames
+            except:
+                pass
+            self.q.task_done()
             media_objs.append(file_meta)
         return media_objs
 
@@ -554,21 +581,25 @@ class Station(Thread):
                     )
             json_data.append(json_item)
 
-        rss = RSS2(title = channel_subtitle,
-                            link = self.channel.url,
-                            description = self.channel.description.decode('utf-8'),
-                            lastBuildDate = date_now,
+        rss = RSS2(title = channel_subtitle, \
+                            link = self.channel.url, \
+                            description = self.channel.description.decode('utf-8'), \
+                            lastBuildDate = date_now, \
                             items = rss_item_list,)
+        self.q.get(1)
+        try:
+            if self.feeds_rss:
+                f = open(rss_file + '.xml', 'w')
+                rss.write_xml(f, 'utf-8')
+                f.close()
 
-        if self.feeds_rss:
-            f = open(rss_file + '.xml', 'w')
-            rss.write_xml(f, 'utf-8')
-            f.close()
-
-        if self.feeds_json:
-            f = open(rss_file + '.json', 'w')
-            f.write(json.dumps(json_data, separators=(',',':')))
-            f.close()
+            if self.feeds_json:
+                f = open(rss_file + '.json', 'w')
+                f.write(json.dumps(json_data, separators=(',',':')))
+                f.close()
+        except:
+            pass
+        self.q.task_done()
 
     def update_twitter(self, message):
         try:
@@ -619,10 +650,15 @@ class Station(Thread):
             % (self.id, self.current_media_obj[0].file_name))
         self.player.set_media(self.media)
 
-        if self.player_mode:
-            self.stream = self.player.file_read_slow()
-        else:
-            self.stream = self.player.file_read_fast()
+        self.q.get(1)
+        try:
+            if self.player_mode:
+                self.stream = self.player.file_read_slow()
+            else:
+                self.stream = self.player.file_read_fast()
+        except:
+            pass
+        self.q.task_done()
 
     def set_webm_read_mode(self):
         self.channel.set_callback(FileReader(self.media).read_callback)
@@ -637,140 +673,146 @@ class Station(Thread):
         self.update_twitter(message)
 
     def channel_open(self):
-        self.channel.open()
-        self.channel_delay = self.channel.delay()
+        if self.channelIsOpen:
+            return True
+            
+        try:
+            self.channel.open()
+            self.channel_delay = self.channel.delay()
+            self._info('channel connected')
+            self.channelIsOpen = True
+            return True
+        except:
+            self.err('channel could not be opened')
+            
+        return False
+
+    def channel_close(self):
+        self.channelIsOpen = False
+        try:
+            self.channel.close()
+            self._info('channel closed')
+        except:
+            self._err('channel could not be closed')
 
     def ping_server(self):
         log = True
 
         while not self.server_ping:
             try:
-                self.q.get(1)
                 server = urllib.urlopen(self.server_url)
                 self.server_ping = True
-                text = 'channel available'
-                self._info(text)
-                self.q.task_done()
+                self._info('Channel available.')
             except:
                 time.sleep(1)
                 if log:
-                    text = 'could not connect the channel'
-                    self._err(text)
+                    self._err('Could not connect the channel.  Waiting for channel to become available.')
                     log = False
-                self.q.task_done()
 
     def icecastloop_nextmedia(self):
-        self.q.get(1)
-        self.next_media = 0
-        self.media = self.get_next_media()
-        self.counter += 1
-        if self.relay_mode:
-            self.set_relay_mode()
-        elif os.path.exists(self.media) and not os.sep+'.' in self.media:
-            if self.lp == 0:
-                self._err('has no media to stream !')
-                return False
-            self.set_read_mode()
-        self.q.task_done()
-        
-        return True
+        try:
+            self.next_media = 0
+            self.media = self.get_next_media()
+            self.counter += 1
+            if self.relay_mode:
+                self.set_relay_mode()
+            elif os.path.exists(self.media) and not os.sep+'.' in self.media:
+                if self.lp == 0:
+                    self._err('has no media to stream !')
+                    return False
+                self.set_read_mode()
+            
+            return True
+        except Exception, e:
+            self_err('icecastloop_nextmedia: Error: ' + str(e))
+        return False
     
     def icecastloop_metadata(self):
-        self.q.get(1)
-        if (not (self.jingles_mode and (self.counter % 2)) or \
-                            self.relay_mode) and self.twitter_mode:
-            self.update_twitter_current()
-        self.channel.set_metadata({'song': self.song, 'charset': 'utf-8'})
-        self.q.task_done()
-        return True
+        try:
+            if (not (self.jingles_mode and (self.counter % 2)) or \
+                                self.relay_mode) and self.twitter_mode:
+                self.update_twitter_current()
+            self.channel.set_metadata({'song': self.song, 'charset': 'utf-8'})
+            return True
+        except Exception, e:
+            self_err('icecastloop_metadata: Error: ' + str(e))
+        return False
 
-                
     def run(self):
-        self.q.get(1)
         self.ping_server()
-        self.q.task_done()
 
         if self.type == 'stream-m':
-            self.q.get(1)
             if self.relay_mode:
                 self.set_relay_mode()
             else:
                 self.media = self.get_next_media()
                 self.set_webm_read_mode()
-            self.channel_open()
+            if not self.channel_open():
+                return
             self.channel.start()
-            self.q.task_done()
 
         if self.type == 'icecast':
-            self.q.get(1)
-            self.channel_open()
-            self._info('channel connected')
-            self.q.task_done()
-
-            while self.run_mode:
-                try:
+            while True:  # Do this so that the handlers will still restart the stream
+                while self.run_mode:
+                    if not self.channel_open():
+                        return
+                        
                     if not self.icecastloop_nextmedia():
-                        break
-                    if not self.icecastloop_metadata():
-                        break
+                        self._info('Something wrong happened in icecastloop_nextmedia.  Ending.')
+                        return
+                        
+                    self.icecastloop_metadata()
 
+                    # TEST MODE: Jump thru only the first chunk of each file
+                    # first = True
                     for self.chunk in self.stream:
-                        try:
-                            if self.next_media or not self.run_mode:
-                                break
-                                
-                            if self.record_mode:
-                                try:
-                                    self.q.get(1)
-                                    self.recorder.write(self.chunk)
-                                    self.q.task_done()
-                                except:
-                                    self._err('could not write the buffer to the file')
-                                    self.q.task_done()
-                                    continue
-                                    
+                        # if first:
+                        #     first = False
+                        # else:
+                        #     break
+                        
+                        if self.next_media or not self.run_mode:
+                            break
+                        
+                        if self.record_mode:
                             try:
-                                self.q.get(1)
+                                # Record the chunk
+                                self.recorder.write(self.chunk)
+                            except:
+                                self._err('could not write the buffer to the file')
+                                    
+                        try:
+                            # Send the chunk to the stream
+                            self.channel.send(self.chunk)
+                            self.channel.sync()
+                        except:
+                            self._err('could not send the buffer')
+                            self.channel_close()
+                            if not self.channel_open():
+                                self._err('could not restart the channel')
+                                if self.record_mode:
+                                    self.recorder.close()
+                                return
+                            try:
+                                self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
+                                self._info('channel restarted')
                                 self.channel.send(self.chunk)
                                 self.channel.sync()
-                                self.q.task_done()
                             except:
-                                self._err('could not send the buffer')
-                                self.q.task_done()
+                                self._err('could not send data after restarting the channel')
+                                self.channel_close()
+                                if self.record_mode:
+                                    self.recorder.close()
+                                return
                                 
-                                try:
-                                    self.q.get(1)
-                                    self.channel.close()
-                                    self._info('channel closed')
-                                    self.q.task_done()
-                                except:
-                                    self._err('could not close the channel')
-                                    self.q.task_done()
-                                    continue
-                                    
-                                try:
-                                    self.ping_server()
-                                    self.q.get(1)
-                                    self.channel_open()
-                                    self.channel.set_metadata({'song': self.song, 'charset': 'utf8',})
-                                    self._info('channel restarted')
-                                    self.q.task_done()
-                                except:
-                                    self._err('could not restart the channel')
-                                    self.q.task_done()
-                                    continue
-                                continue
-
-                        except: # send chunk loop exception
-                            continue
                     # send chunk loop end
-                    
-                except: # while run_mode exception
-                    continue
-            # while run_mode loop end
-            
-            if self.record_mode:
-                self.recorder.close()
+                # while run_mode loop end
+                
+                self._info("Play mode ended. Stopping stream.")
+                
+                if self.record_mode:
+                    self.recorder.close()
 
-            self.channel.close()
+                self.channel_close()
+                time.sleep(1)
 
