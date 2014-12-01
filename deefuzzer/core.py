@@ -58,6 +58,7 @@ class DeeFuzzer(Thread):
     station_instances = {}
     watchfolder = {}
     logqueue = Queue.Queue()
+    mainLoop = False
 
     def __init__(self, conf_file):
         Thread.__init__(self)
@@ -140,6 +141,15 @@ class DeeFuzzer(Thread):
             # We have no folder specified.  Bail.
             return
 
+        if self.mainLoop:
+            if not 'livecreation' in options.keys():
+                # We have no folder specified.  Bail.
+                return
+            
+            if int(options['livecreation']) == 0:
+                # Livecreation not specified.  Bail.
+                return
+            
         folder = str(options['folder'])
         if not os.path.isdir(folder):
             # The specified path is not a folder.  Bail.
@@ -235,18 +245,20 @@ class DeeFuzzer(Thread):
 
     def run(self):
         q = Queue.Queue(1)
-        ns = -1
+        ns = 0
         p = Producer(q)
         p.start()
-        started = False
         # Keep the Stations running
         while True:
             self.create_stations_fromfolder()
             ns_new = len(self.station_settings)
             if(ns_new > ns):
-                for i in range(ns+1, ns_new):
+                self._info('Loading new stations')
+                for i in range(0, ns_new):
                     try:
                         station = self.station_settings[i]
+                        if 'station_name' in station.keys():
+                            continue
 
                         # Apply station defaults if they exist
                         if 'stationdefaults' in self.conf['deefuzzer']:
@@ -262,7 +274,14 @@ class DeeFuzzer(Thread):
                                     y = y + 1
                                     name = station['infos']['short_name'] + " " + str(y)
 
-                        self.station_instances[name] = Station(station, q, self.logqueue, self.m3u)
+                        self.station_settings[i]['station_name'] = name
+                        new_station = Station(station, q, self.logqueue, self.m3u)
+                        if new_station.valid:
+                            self.station_instances[name] = new_station
+                            self.station_instances[name].start()
+                            self._info('Started station ' + name)
+                        else:
+                            self._err('Error validating station ' + name)
                     except Exception:
                         self._err('Error starting station ' + name)
                         continue
@@ -275,14 +294,11 @@ class DeeFuzzer(Thread):
                 try:
                     if not self.station_instances[i].isAlive():
                         self.station_instances[i].start()
-                        msg = 'Started '
-                        if started:
-                            msg = 'Restarted '
-                        self._info(msg + 'station ' + i)
+                        self._info('Restarted crashed station ' + i)
                 except:
                     pass
             
-            started = False
+            self.mainLoop = True
             time.sleep(5)
             # end main loop
 
