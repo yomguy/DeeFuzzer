@@ -46,6 +46,8 @@ from utils import *
 
 EasyID3.valid_keys["comment"]="COMM::'XXX'"
 EasyID3.valid_keys["copyright"]="TCOP::'XXX'"
+EasyID3.valid_keys["country"]="TXXX:COUNTRY:'XXX'"
+EasyID3.RegisterTXXXKey("country","COUNTRY")
 
 class Mp3:
     """A MP3 file object"""
@@ -62,6 +64,7 @@ class Mp3:
                     'album': 'TALB',
                     'date': 'TDRC',
                     'comment': 'COMM',
+                    'country': 'COUNTRY',
                     'genre': 'TCON',
                     'copyright': 'TCOP',
                     }
@@ -77,6 +80,7 @@ class Mp3:
                     'album': '',
                     'date': '',
                     'comment': '',
+                    'country': '',
                     'genre': '',
                     'copyright': '',
                     }
@@ -109,7 +113,10 @@ class Mp3:
             try:
                 metadata[key] = self.mp3[key][0]
             except:
-                metadata[key] = ''
+                try:
+                    metadata[key] = self.mp3[self.keys2id3[key]][0]
+                except:
+                    metadata[key] = ''
         return metadata
 
     def write_tags(self):
