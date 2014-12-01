@@ -673,16 +673,19 @@ class Station(Thread):
         self.update_twitter(message)
 
     def channel_open(self):
-        if not self.channelIsOpen:
-            try:
-                self.channel.open()
-                self.channel_delay = self.channel.delay()
-                self._info('channel connected')
-                self.channelIsOpen = True
-                return True
-            except:
-                self.err('channel could not be opened')
-                return False
+        if self.channelIsOpen:
+            return True
+            
+        try:
+            self.channel.open()
+            self.channel_delay = self.channel.delay()
+            self._info('channel connected')
+            self.channelIsOpen = True
+            return True
+        except:
+            self.err('channel could not be opened')
+            
+        return False
 
     def channel_close(self):
         self.channelIsOpen = False
