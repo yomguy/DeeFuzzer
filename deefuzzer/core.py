@@ -41,6 +41,7 @@ import shout
 import Queue
 import datetime
 import mimetypes
+import hashlib
 from threading import Thread
 from deefuzzer.station import *
 from deefuzzer.tools import *
@@ -70,9 +71,9 @@ class DeeFuzzer(Thread):
 
         # Get the log setting first (if possible)
         log_file = str(self.conf['deefuzzer'].pop('log', ''))
-        log_dir = os.sep.join(log_file.split(os.sep)[:-1])
-        if not os.path.exists(log_dir) and log_dir:
-            os.makedirs(log_dir)
+        self.log_dir = os.sep.join(log_file.split(os.sep)[:-1])
+        if not os.path.exists(self.log_dir) and self.log_dir:
+            os.makedirs(self.log_dir)
         self.logger = QueueLogger(log_file, self.logqueue)
         self.logger.start()
 
@@ -256,26 +257,28 @@ class DeeFuzzer(Thread):
                 self._info('Loading new stations')
                 for i in range(0, ns_new):
                     try:
-                        station = self.station_settings[i]
-                        if 'station_name' in station.keys():
+                        if 'station_name' in self.station_settings[i].keys():
                             continue
 
                         # Apply station defaults if they exist
                         if 'stationdefaults' in self.conf['deefuzzer']:
                             if isinstance(self.conf['deefuzzer']['stationdefaults'], dict):
-                                station = merge_defaults(station, self.conf['deefuzzer']['stationdefaults'])
+                                self.station_settings[i] = merge_defaults(self.station_settings[i], self.conf['deefuzzer']['stationdefaults'])
 
                         name = 'Station ' + str(i)
-                        if 'info' in station.keys():
-                            if 'short_name' in station['infos']:
-                                name = station['infos']['short_name']
+                        if 'info' in self.station_settings[i].keys():
+                            if 'short_name' in self.station_settings[i]['infos']:
+                                name = self.station_settings[i]['infos']['short_name']
                                 y = 1
                                 while name in self.station_instances.keys():
                                     y = y + 1
-                                    name = station['infos']['short_name'] + " " + str(y)
+                                    name = self.station_settings[i]['infos']['short_name'] + " " + str(y)
 
                         self.station_settings[i]['station_name'] = name
-                        new_station = Station(station, q, self.logqueue, self.m3u)
+                        namehash = hashlib.md5(name).hexdigest()
+                        self.station_settings[i]['station_statusfile'] = os.sep.join([self.log_dir, namehash])
+
+                        new_station = Station(self.station_settings[i], q, self.logqueue, self.m3u)
                         if new_station.valid:
                             self.station_instances[name] = new_station
                             self.station_instances[name].start()
@@ -311,8 +314,9 @@ class Producer(Thread):
         self.q = q
 
     def run(self):
-        i=0
-        q = self.q
         while True:
-            q.put(i,1)
-            i+=1
+            try:
+                self.q.put(True, True)
+            except:
+                pass
+

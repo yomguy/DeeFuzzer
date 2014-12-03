@@ -58,7 +58,7 @@ from tools import *
 class Station(Thread):
     """a DeeFuzzer shouting station thread"""
 
-    id = 999999
+    id = 0
     valid = False
     counter = 0
     delay = 0
@@ -83,6 +83,9 @@ class Station(Thread):
     feeds_showfilename = 0
     short_name = ''
     channelIsOpen = False
+    starting_id = -1
+    jingles_frequency = 2
+    statusfile = ''
 
     def __init__(self, station, q, logqueue, m3u):
         Thread.__init__(self)
@@ -91,6 +94,16 @@ class Station(Thread):
         self.logqueue = logqueue
         self.m3u = m3u
 
+        if 'station_statusfile' in station:
+            self.statusfile = station['station_statusfile']
+            try:
+                if os.path.exists(self.statusfile):
+                    f = open(self.statusfile,'r')
+                    self.starting_id = int(f.read())
+                    f.close()
+            except:
+                pass
+        
         if 'station_dir' in self.station:
             self.station_dir = self.station['station_dir']
 
@@ -219,9 +232,14 @@ class Station(Thread):
 
         # Jingling between each media.
         if 'jingles' in self.station:
-            self.jingles_mode =  int(self.station['jingles']['mode'])
-            self.jingles_shuffle = int(self.station['jingles']['shuffle'])
-            self.jingles_dir = self.station['jingles']['dir']
+            if 'mode' in self.station['jingles']:
+                self.jingles_mode =  int(self.station['jingles']['mode'])
+            if 'shuffle' in self.station['jingles']:
+                self.jingles_shuffle = int(self.station['jingles']['shuffle'])
+            if 'frequency' in self.station['jingles']:
+                self.jingles_frequency = int(self.station['jingles']['frequency'])
+            if 'dir' in self.station['jingles']:
+                self.jingles_dir = self.station['jingles']['dir']
             if self.jingles_mode == 1:
                 self.jingles_callback('/jingles', [1])
 
@@ -431,6 +449,8 @@ class Station(Thread):
 
             if not self.counter:
                 self.id = 0
+                if self.starting_id > -1:
+                    self.id = self.starting_id
                 self.playlist = new_playlist
                 self.lp = lp_new
 
@@ -444,8 +464,11 @@ class Station(Thread):
                     self.update_feeds(self.media_to_objs(self.playlist), self.feeds_playlist_file, '(playlist)')
 
             elif lp_new != self.lp:
-                self.id = 0
-                self.lp = lp_new
+                self.id += 1
+                if self.id >= lp_new:
+                    self.id = 0
+                else:
+                    self.lp = lp_new
 
                 # Twitting new tracks
                 new_playlist_set = set(new_playlist)
@@ -471,15 +494,24 @@ class Station(Thread):
                 if self.feeds_playlist:
                     self.update_feeds(self.media_to_objs(self.playlist), self.feeds_playlist_file, '(playlist)')
 
-            if self.jingles_mode and not (self.counter % 2) and self.jingles_length:
+            if self.jingles_mode and not (self.counter % self.jingles_frequency) and self.jingles_length:
                 media = self.jingles_list[self.jingle_id]
                 self.jingle_id = (self.jingle_id + 1) % self.jingles_length
             else:
                 media = self.playlist[self.id]
                 self.id = (self.id + 1) % self.lp
+                
+            self.q.get(1)
+            try:
+                f = open(self.statusfile, 'w')
+                f.write(str(self.id))
+                f.close()
+            except:
+                pass
+            self.q.task_done()
             return media
         else:
-            mess = 'No media in media_dir !'
+            mess = 'No media in media_dir!'
             self._err(mess)
             self.run_mode = 0
 
@@ -592,7 +624,10 @@ class Station(Thread):
                 f = open(rss_file + '.xml', 'w')
                 rss.write_xml(f, 'utf-8')
                 f.close()
+        except:
+            pass
 
+        try:
             if self.feeds_json:
                 f = open(rss_file + '.json', 'w')
                 f.write(json.dumps(json_data, separators=(',',':')))
@@ -714,6 +749,7 @@ class Station(Thread):
             self.next_media = 0
             self.media = self.get_next_media()
             self.counter += 1
+            self.counter = (self.counter % self.jingles_frequency) + self.jingles_frequency
             if self.relay_mode:
                 self.set_relay_mode()
             elif os.path.exists(self.media) and not os.sep+'.' in self.media:
@@ -729,7 +765,7 @@ class Station(Thread):
     
     def icecastloop_metadata(self):
         try:
-            if (not (self.jingles_mode and (self.counter % 2)) or \
+            if (not (self.jingles_mode and (self.counter % self.jingles_frequency)) or \
                                 self.relay_mode) and self.twitter_mode:
                 self.update_twitter_current()
             self.channel.set_metadata({'song': self.song, 'charset': 'utf-8'})
