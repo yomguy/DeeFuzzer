@@ -66,7 +66,7 @@ class Station(Thread):
     server_ping = False
     playlist = []
     lp = 1
-    player_mode = 0
+    player_mode = 1
     osc_control_mode = 0
     twitter_mode = 0
     jingles_mode = 0
@@ -103,7 +103,7 @@ class Station(Thread):
                     f.close()
             except:
                 pass
-        
+
         if 'station_dir' in self.station:
             self.station_dir = self.station['station_dir']
 
@@ -275,7 +275,7 @@ class Station(Thread):
                 self.record_callback('/record', [1])
 
         self.valid = True
-        
+
     def _log(self, level, msg):
         try:
             obj = {}
@@ -284,13 +284,13 @@ class Station(Thread):
             self.logqueue.put(obj)
         except:
             pass
-    
+
     def _info(self, msg):
         self._log('info', msg)
-    
+
     def _err(self, msg):
         self._log('err', msg)
-    
+
     def run_callback(self, path, value):
         value = value[0]
         self.run_mode = value
@@ -356,7 +356,7 @@ class Station(Thread):
                 self.recorder.close()
             except:
                 pass
-                
+
             if self.type == 'icecast':
                 date = datetime.datetime.now().strftime("%Y")
                 if self.channel.format == 'mp3':
@@ -500,7 +500,7 @@ class Station(Thread):
             else:
                 media = self.playlist[self.id]
                 self.id = (self.id + 1) % self.lp
-                
+
             self.q.get(1)
             try:
                 f = open(self.statusfile, 'w')
@@ -549,7 +549,7 @@ class Station(Thread):
     def update_feeds(self, media_list, rss_file, sub_title):
         if not self.feeds_mode:
             return
-            
+
         rss_item_list = []
         if not os.path.exists(self.feeds_dir):
             os.makedirs(self.feeds_dir)
@@ -570,7 +570,7 @@ class Station(Thread):
 
             media_description = '<table>'
             media_description_item = '<tr><td>%s:   </td><td><b>%s</b></td></tr>'
-            
+
             for key in media.metadata.keys():
                 if media.metadata[key] != '':
                     media_description += media_description_item % (key.capitalize(),
@@ -710,7 +710,7 @@ class Station(Thread):
     def channel_open(self):
         if self.channelIsOpen:
             return True
-            
+
         try:
             self.channel.open()
             self.channel_delay = self.channel.delay()
@@ -719,7 +719,7 @@ class Station(Thread):
             return True
         except:
             self.err('channel could not be opened')
-            
+
         return False
 
     def channel_close(self):
@@ -757,12 +757,12 @@ class Station(Thread):
                     self._err('has no media to stream !')
                     return False
                 self.set_read_mode()
-            
+
             return True
         except Exception, e:
             self_err('icecastloop_nextmedia: Error: ' + str(e))
         return False
-    
+
     def icecastloop_metadata(self):
         try:
             if (not (self.jingles_mode and (self.counter % self.jingles_frequency)) or \
@@ -792,11 +792,11 @@ class Station(Thread):
                 while self.run_mode:
                     if not self.channel_open():
                         return
-                        
+
                     if not self.icecastloop_nextmedia():
                         self._info('Something wrong happened in icecastloop_nextmedia.  Ending.')
                         return
-                        
+
                     self.icecastloop_metadata()
 
                     # TEST MODE: Jump thru only the first chunk of each file
@@ -806,17 +806,17 @@ class Station(Thread):
                         #     first = False
                         # else:
                         #     break
-                        
+
                         if self.next_media or not self.run_mode:
                             break
-                        
+
                         if self.record_mode:
                             try:
                                 # Record the chunk
                                 self.recorder.write(self.chunk)
                             except:
                                 self._err('could not write the buffer to the file')
-                                    
+
                         try:
                             # Send the chunk to the stream
                             self.channel.send(self.chunk)
@@ -840,12 +840,12 @@ class Station(Thread):
                                 if self.record_mode:
                                     self.recorder.close()
                                 return
-                                
+
                     # send chunk loop end
                 # while run_mode loop end
-                
+
                 self._info("Play mode ended. Stopping stream.")
-                
+
                 if self.record_mode:
                     self.recorder.close()
 
