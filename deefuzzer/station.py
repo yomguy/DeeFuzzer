@@ -760,7 +760,7 @@ class Station(Thread):
 
             return True
         except Exception, e:
-            self_err('icecastloop_nextmedia: Error: ' + str(e))
+            self._err('icecastloop_nextmedia: Error: ' + str(e))
         return False
 
     def icecastloop_metadata(self):

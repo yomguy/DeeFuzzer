@@ -67,7 +67,7 @@ class DeeFuzzer(Thread):
         self.conf = get_conf_dict(self.conf_file)
 
         if not 'deefuzzer' in self.conf.keys():
-            return 
+            return
 
         # Get the log setting first (if possible)
         log_file = str(self.conf['deefuzzer'].pop('log', ''))
@@ -114,13 +114,13 @@ class DeeFuzzer(Thread):
             self.logqueue.put(obj)
         except:
             pass
-    
+
     def _info(self, msg):
         self._log('info', msg)
-    
+
     def _err(self, msg):
         self._log('err', msg)
-    
+
     def set_m3u_playlist(self):
         m3u_dir = os.sep.join(self.m3u.split(os.sep)[:-1])
         if not os.path.exists(m3u_dir) and m3u_dir:
@@ -146,11 +146,11 @@ class DeeFuzzer(Thread):
             if not 'livecreation' in options.keys():
                 # We have no folder specified.  Bail.
                 return
-            
+
             if int(options['livecreation']) == 0:
                 # Livecreation not specified.  Bail.
                 return
-            
+
         folder = str(options['folder'])
         if not os.path.isdir(folder):
             # The specified path is not a folder.  Bail.
@@ -179,7 +179,7 @@ class DeeFuzzer(Thread):
         except:
             pass
         return True
-        
+
     def create_station(self, folder, options):
         """Create a station definition for a folder given the specified options."""
 
@@ -210,7 +210,7 @@ class DeeFuzzer(Thread):
             # We have a file specified.  Load just that file.
             self.load_station_config(folder)
             return
-            
+
         if not os.path.isdir(folder):
             # Whatever we have, it's not either a file or folder.  Bail.
             return
@@ -287,12 +287,14 @@ class DeeFuzzer(Thread):
                             self._err('Error validating station ' + name)
                     except Exception:
                         self._err('Error starting station ' + name)
+                        raise
                         continue
+
                 ns = ns_new
 
                 if self.m3u:
                     self.set_m3u_playlist()
-            
+
             for i in self.station_instances.keys():
                 try:
                     if not self.station_instances[i].isAlive():
@@ -300,7 +302,7 @@ class DeeFuzzer(Thread):
                         self._info('Restarted crashed station ' + i)
                 except:
                     pass
-            
+
             self.mainLoop = True
             time.sleep(5)
             # end main loop
