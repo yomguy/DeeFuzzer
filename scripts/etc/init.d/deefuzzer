@@ -11,7 +11,8 @@
 # deefuzzer
 #
 #               Written By Dennis Wallace (github@achbed.org)
-#               Based on code by Miquel van Smoorenburg <miquels@cistron.nl>.
+#               Based on icecast2 by Miquel van Smoorenburg <miquels@cistron.nl>
+.
 #               Modified for Debian
 #               by Ian Murdock <imurdock@gnu.ai.mit.edu>.
 #
@@ -32,9 +33,10 @@ test -x $DAEMON || exit 0
 CONFIGFILE="/etc/deefuzzer/deefuzzer.xml"
 CONFIGDEFAULTFILE="/etc/default/deefuzzer"
 USERID=deefuzzer
-GROUPID=staff
+GROUPID=deefuzzer
 ENABLE="false"
 QUIET="--quiet"
+PIDFILE=/"var/log/deefuzzer/deefuzzer.pid"
 
 # Reads config file (will override defaults above)
 [ -r "$CONFIGDEFAULTFILE" ] && . $CONFIGDEFAULTFILE
@@ -49,20 +51,22 @@ set -e
 case "$1" in
   start)
         echo -n "Starting $DESC: "
-        $DAEMON $CONFIGFILE &
+        start-stop-daemon --start --background -m --oknodo --pidfile ${PIDFILE}
+--exec ${DAEMON} -- ${CONFIGFILE}
         echo "$NAME."
         ;;
   stop)
         echo -n "Stopping $DESC: "
-        # Send TERM after 5 seconds, wait at most 30 seconds.
-        killall $NAME
+        start-stop-daemon --stop --oknodo --pidfile ${PIDFILE}
+        rm -f ${PIDFILE}
         echo "$NAME."
         ;;
   reload|force-reload|restart)
         echo -n "Restarting $DESC: "
-        # Send TERM after 5 seconds, wait at most 30 seconds.
-        killall deefuzzer
-        $DAEMON $CONFIGFILE &
+        start-stop-daemon --stop --oknodo --pidfile ${PIDFILE}
+        rm -f ${PIDFILE}
+        start-stop-daemon --start --background -m --oknodo --pidfile ${PIDFILE}
+--exec ${DAEMON} -- ${CONFIGFILE}
         echo "$NAME."
         ;;
   *)

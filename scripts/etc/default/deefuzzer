@@ -7,7 +7,10 @@
 #
 
 # Full path to the server configuration file
-CONFIGFILE="/srv/pt/patestapes.com/deefuzzer.xml"
+CONFIGFILE="/etc/deefuzzer/deefuzzer.xml"
+
+# Full path to the process ID file
+PIDFILE="/var/log/deefuzzer/deefuzzer.pid"
 
 # Name or ID of the user and group the daemon should run under
 USERID=deefuzzer
