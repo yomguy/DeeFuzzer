@@ -292,7 +292,7 @@ class DeeFuzzer(Thread):
                             self._err('Error validating station ' + name)
                     except Exception:
                         self._err('Error starting station ' + name)
-                        if not ignoreErrors:
+                        if not self.ignoreErrors:
                             raise
                         continue
 
