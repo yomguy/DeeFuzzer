@@ -60,6 +60,7 @@ class DeeFuzzer(Thread):
     watchfolder = {}
     logqueue = Queue.Queue()
     mainLoop = False
+    ignoreErrors = False
 
     def __init__(self, conf_file):
         Thread.__init__(self)
@@ -80,6 +81,10 @@ class DeeFuzzer(Thread):
         for key in self.conf['deefuzzer'].keys():
             if key == 'm3u':
                 self.m3u = str(self.conf['deefuzzer'][key])
+
+            elif key == 'ignoreerrors':
+                # Load station definitions from the main config file
+                self.ignoreErrors = bool(self.conf['deefuzzer'][key])
 
             elif key == 'station':
                 # Load station definitions from the main config file
@@ -287,7 +292,8 @@ class DeeFuzzer(Thread):
                             self._err('Error validating station ' + name)
                     except Exception:
                         self._err('Error starting station ' + name)
-                        raise
+                        if not self.ignoreErrors:
+                            raise
                         continue
 
                 ns = ns_new

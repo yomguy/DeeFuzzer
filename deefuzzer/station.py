@@ -718,8 +718,8 @@ class Station(Thread):
             self.channelIsOpen = True
             return True
         except:
-            self.err('channel could not be opened')
-
+            self._err('channel could not be opened')
+            
         return False
 
     def channel_close(self):
@@ -771,7 +771,7 @@ class Station(Thread):
             self.channel.set_metadata({'song': self.song, 'charset': 'utf-8'})
             return True
         except Exception, e:
-            self_err('icecastloop_metadata: Error: ' + str(e))
+            self._err('icecastloop_metadata: Error: ' + str(e))
         return False
 
     def run(self):

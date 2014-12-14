@@ -1,10 +1,16 @@
 <deefuzzer>
+    <!-- A quick note about XML configuration files - they cannot have empty values.  For 
+          example, <tag></tag> is invalid, while <tag> </tag> is valid (single space as a 
+          value).  An empty tag will crash the entire application.  You have been warned.  -->
     <!-- A path to the log file (need write access rights to the directory) -->
     <log>/path/to/station.log</log>
     <!-- A path to the M3U playlist file (need write access rights to the directory).
          The file is preferably accessible behind an url,
          for example, http://mydomain.com/m3u/mystation.m3u -->
     <m3u>/path/to/station.m3u</m3u>
+    <!-- Whether or not to skip stations that fail instead of dying completely.  0 will raise
+          all errors and report them to the console, 1 will log the error and continue.  -->
+    <ignoreerrors>0</ignoreerrors>
     <stationdefaults>
       <!-- This tag allows a common default configuration to be set for all stations.  This
            is useful when defining many stations that will share many common configuration
