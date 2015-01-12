@@ -61,6 +61,7 @@ class DeeFuzzer(Thread):
     logqueue = Queue.Queue()
     mainLoop = False
     ignoreErrors = False
+    maxretry = 0
 
     def __init__(self, conf_file):
         Thread.__init__(self)
@@ -83,8 +84,12 @@ class DeeFuzzer(Thread):
                 self.m3u = str(self.conf['deefuzzer'][key])
 
             elif key == 'ignoreerrors':
-                # Load station definitions from the main config file
+                # Ignore errors and continue as long as possible
                 self.ignoreErrors = bool(self.conf['deefuzzer'][key])
+
+            elif key == 'maxretry':
+                # Maximum number of attempts to restart the stations on crash.
+                self.maxretry = bool(self.conf['deefuzzer'][key])
 
             elif key == 'station':
                 # Load station definitions from the main config file
@@ -260,56 +265,75 @@ class DeeFuzzer(Thread):
             ns_new = len(self.station_settings)
             if(ns_new > ns):
                 self._info('Loading new stations')
-                for i in range(0, ns_new):
+            
+            for i in range(0, ns_new):
+                try:
+                    name = ''
+                    if 'station_name' in self.station_settings[i].keys():
+                        name = self.station_settings[i]['station_name']
+                    
+                    if not 'retries' in self.station_settings[i].keys():
+                        self.station_settings[i]['retries'] = 0
+                        
                     try:
-                        if 'station_name' in self.station_settings[i].keys():
-                            continue
-
-                        # Apply station defaults if they exist
-                        if 'stationdefaults' in self.conf['deefuzzer']:
-                            if isinstance(self.conf['deefuzzer']['stationdefaults'], dict):
-                                self.station_settings[i] = merge_defaults(self.station_settings[i], self.conf['deefuzzer']['stationdefaults'])
-
-                        name = 'Station ' + str(i)
-                        if 'info' in self.station_settings[i].keys():
-                            if 'short_name' in self.station_settings[i]['infos']:
-                                name = self.station_settings[i]['infos']['short_name']
-                                y = 1
-                                while name in self.station_instances.keys():
-                                    y = y + 1
-                                    name = self.station_settings[i]['infos']['short_name'] + " " + str(y)
-
-                        self.station_settings[i]['station_name'] = name
-                        namehash = hashlib.md5(name).hexdigest()
-                        self.station_settings[i]['station_statusfile'] = os.sep.join([self.log_dir, namehash])
-
-                        new_station = Station(self.station_settings[i], q, self.logqueue, self.m3u)
-                        if new_station.valid:
-                            self.station_instances[name] = new_station
-                            self.station_instances[name].start()
-                            self._info('Started station ' + name)
-                        else:
-                            self._err('Error validating station ' + name)
-                    except Exception:
-                        self._err('Error starting station ' + name)
-                        if not self.ignoreErrors:
+                        if 'station_instance' in self.station_settings[i].keys():
+                            # Check for station running here
+                            if self.station_settings[i]['station_instance'].isAlive():
+                                # Station exists and is alive.  Don't recreate.
+                                self.station_settings[i]['retries'] = 0
+                                continue
+                            
+                            if self.maxretry < 0 or self.station_settings[i]['retries'] <= self.maxretry:
+                                # Station passed the max retries count is will not be reloaded
+                                continue
+                                
+                            self.station_settings[i]['retries'] = self.station_settings[i]['retries'] + 1
+                            self._info('Restarting station ' + name + ' (try ' + str(self.station_settings[i]['retries']) + ')')
+                    except Exception as e:
+                        self._err('Error checking status for ' + name)
+                        self._err(str(e))
+                        if not ignoreErrors:
                             raise
-                        continue
 
-                ns = ns_new
+                    # Apply station defaults if they exist
+                    if 'stationdefaults' in self.conf['deefuzzer']:
+                        if isinstance(self.conf['deefuzzer']['stationdefaults'], dict):
+                            self.station_settings[i] = merge_defaults(self.station_settings[i], self.conf['deefuzzer']['stationdefaults'])
+
+                    if name == '':
+                        name = 'Station ' + str(i)
+                    
+                    if 'info' in self.station_settings[i].keys():
+                        if 'short_name' in self.station_settings[i]['infos']:
+                            name = self.station_settings[i]['infos']['short_name']
+                            y = 1
+                            while name in self.station_instances.keys():
+                                y = y + 1
+                                name = self.station_settings[i]['infos']['short_name'] + " " + str(y)
+
+                    self.station_settings[i]['station_name'] = name
+                    namehash = hashlib.md5(name).hexdigest()
+                    self.station_settings[i]['station_statusfile'] = os.sep.join([self.log_dir, namehash])
+
+                    new_station = Station(self.station_settings[i], q, self.logqueue, self.m3u)
+                    if new_station.valid:
+                        self.station_settings[i]['station_instance'] = new_station
+                        self.station_settings[i]['station_instance'].start()
+                        self._info('Started station ' + name)
+                    else:
+                        self._err('Error validating station ' + name)
+                except Exception:
+                    self._err('Error creating station ' + name)
+                    if not ignoreErrors:
+                        raise
+                    continue
 
                 if self.m3u:
                     self.set_m3u_playlist()
-
-            for i in self.station_instances.keys():
-                try:
-                    if not self.station_instances[i].isAlive():
-                        self.station_instances[i].start()
-                        self._info('Restarted crashed station ' + i)
-                except:
-                    pass
-
+                    
+            ns = ns_new
             self.mainLoop = True
+
             time.sleep(5)
             # end main loop
 

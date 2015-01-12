@@ -11,6 +11,11 @@
     <!-- Whether or not to skip stations that fail instead of dying completely.  0 will raise
           all errors and report them to the console, 1 will log the error and continue.  -->
     <ignoreerrors>0</ignoreerrors>
+    <!-- How many times to attempt to restart a station thread that died for any reason.
+         -1 will attempt to restart unlimited times, 0 will not attempt a restart, and any
+         positive value will attempt to restart that many times.  The counter is reset when
+         the next subsequent check finds the station operational.  Default is 0 (no retry) -->
+    <maxretry>0</maxretry>
     <stationdefaults>
       <!-- This tag allows a common default configuration to be set for all stations.  This
            is useful when defining many stations that will share many common configuration
@@ -29,7 +34,7 @@
             <dir>/path/to/jingles</dir>
             <!-- If '1', some media will be played between each main track of the playlist. '0' does nothing. -->
             <mode>0</mode>
-            <!-- If '1', the jingle playlist will be randomized. '0' for aphanumeric order -->
+            <!-- If '1', the jingle playlist will be randomized. '0' for alphanumeric order -->
             <shuffle>1</shuffle>
         </jingles>
     </stationdefaults>
@@ -60,13 +65,13 @@
             <dir>/path/to/jingles</dir>
             <!-- If '1', some media will be played between each main track of the playlist. '0' does nothing. -->
             <mode>0</mode>
-            <!-- If '1', the jingle playlist will be randomized. '0' for aphanumeric order -->
+            <!-- If '1', the jingle playlist will be randomized. '0' for alphanumeric order -->
             <shuffle>1</shuffle>
         </jingles>
         <media>
             <!-- The mean bitrate of the media -->
             <bitrate>96</bitrate>
-            <!-- The path to the directory containing all the media. It will be analyse recursively. -->
+            <!-- The path to the directory containing all the media. It will be analyzed recursively. -->
             <dir>/path/to/mp3/</dir>
             <!-- The audio format of the media. Can be 'mp3' or 'ogg' -->
             <format>mp3</format>
@@ -74,9 +79,9 @@
             <m3u>/path/to/m3u_file</m3u>
             <!-- The ogg quality of the ogg vorbis media -->
             <ogg_quality>4</ogg_quality>
-            <!-- The samplerate of the media -->
+            <!-- The sample rate of the media -->
             <samplerate>48000</samplerate>
-            <!-- If '1', the playlist will be randomized. '0' for aphanumeric order -->
+            <!-- If '1', the playlist will be randomized. '0' for alphanumeric order -->
             <shuffle>0</shuffle>
             <!-- The number of channels - or voices - of the media. '1' for mono, '2' for stereo. -->
             <voices>2</voices>
@@ -150,7 +155,7 @@
         </twitter>
     </station>
 
-    <!-- Note that you can add many different stations in the same config file, thanks to the multi-threaded architecure ! -->
+    <!-- Note that you can add many different stations in the same config file, thanks to the multi-threaded architecture ! -->
 
     <!-- The stationfolder option allows auto-creation of stations based on a folder structure.  See the readme
          for details. -->

@@ -449,7 +449,7 @@ class Station(Thread):
 
             if not self.counter:
                 self.id = 0
-                if self.starting_id > -1:
+                if self.starting_id > -1 and self.starting_id < lp_new:
                     self.id = self.starting_id
                 self.playlist = new_playlist
                 self.lp = lp_new
@@ -795,6 +795,7 @@ class Station(Thread):
 
                     if not self.icecastloop_nextmedia():
                         self._info('Something wrong happened in icecastloop_nextmedia.  Ending.')
+                        self.channel_close()
                         return
 
                     self.icecastloop_metadata()
