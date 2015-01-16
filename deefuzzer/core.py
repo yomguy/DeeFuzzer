@@ -283,7 +283,7 @@ class DeeFuzzer(Thread):
                                 self.station_settings[i]['retries'] = 0
                                 continue
                             
-                            if self.maxretry < 0 or self.station_settings[i]['retries'] <= self.maxretry:
+                            if self.maxretry >= 0 and self.station_settings[i]['retries'] <= self.maxretry:
                                 # Station passed the max retries count is will not be reloaded
                                 continue
                                 
