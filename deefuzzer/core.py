@@ -285,6 +285,9 @@ class DeeFuzzer(Thread):
                             
                             if self.maxretry >= 0 and self.station_settings[i]['retries'] <= self.maxretry:
                                 # Station passed the max retries count is will not be reloaded
+                                if not 'station_stop_logged' in self.station_settings[i].keys():
+                                    self._err('Station ' + name + ' is stopped and will not be restarted.')
+                                    self.station_settings[i]['station_stop_logged'] = True
                                 continue
                                 
                             self.station_settings[i]['retries'] = self.station_settings[i]['retries'] + 1
@@ -302,18 +305,17 @@ class DeeFuzzer(Thread):
 
                     if name == '':
                         name = 'Station ' + str(i)
-                    
-                    if 'info' in self.station_settings[i].keys():
-                        if 'short_name' in self.station_settings[i]['infos']:
-                            name = self.station_settings[i]['infos']['short_name']
-                            y = 1
-                            while name in self.station_instances.keys():
-                                y = y + 1
-                                name = self.station_settings[i]['infos']['short_name'] + " " + str(y)
+                        if 'info' in self.station_settings[i].keys():
+                            if 'short_name' in self.station_settings[i]['infos']:
+                                name = self.station_settings[i]['infos']['short_name']
+                                y = 1
+                                while name in self.station_instances.keys():
+                                    y = y + 1
+                                    name = self.station_settings[i]['infos']['short_name'] + " " + str(y)
 
-                    self.station_settings[i]['station_name'] = name
-                    namehash = hashlib.md5(name).hexdigest()
-                    self.station_settings[i]['station_statusfile'] = os.sep.join([self.log_dir, namehash])
+                        self.station_settings[i]['station_name'] = name
+                        namehash = hashlib.md5(name).hexdigest()
+                        self.station_settings[i]['station_statusfile'] = os.sep.join([self.log_dir, namehash])
 
                     new_station = Station(self.station_settings[i], q, self.logqueue, self.m3u)
                     if new_station.valid:
@@ -323,7 +325,7 @@ class DeeFuzzer(Thread):
                     else:
                         self._err('Error validating station ' + name)
                 except Exception:
-                    self._err('Error creating station ' + name)
+                    self._err('Error initializing station ' + name)
                     if not ignoreErrors:
                         raise
                     continue
