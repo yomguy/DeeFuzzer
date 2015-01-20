@@ -63,7 +63,8 @@
             <!-- A path to the directory containing jingles media files.
                 The files have to be of the same type of the main media files. -->
             <dir>/path/to/jingles</dir>
-            <!-- If '1', some media will be played between each main track of the playlist. '0' does nothing. -->
+            <!-- If '1', some media will be played between each main track of the 
+                playlist. '0' does nothing. -->
             <mode>0</mode>
             <!-- If '1', the jingle playlist will be randomized. '0' for alphanumeric order -->
             <shuffle>1</shuffle>
@@ -71,12 +72,17 @@
         <media>
             <!-- The mean bitrate of the media -->
             <bitrate>96</bitrate>
-            <!-- The path to the directory containing all the media. It will be analyzed recursively. -->
-            <dir>/path/to/mp3/</dir>
+            <!-- The <m3u> option is depreciated.  Please use the newer <source> option. -->
+            <m3u>/path/to/m3u_file</m3u>
+            <!-- The <dir> option is depreciated.  Please use the newer <source> option.
+                  This option overrides the <m3u> option if both are specified. -->
+            <dir>/path/to/mp3_folder</dir>
+            <!-- The path to the folder containing audio files, or the M3U playlist file to
+                  use as source audio for this  station.  This option overrides both the <dir>
+                  and <m3u> depreciated options if they are specified. -->
+            <source>/path/to/m3u_file_or_folder</source>
             <!-- The audio format of the media. Can be 'mp3' or 'ogg' -->
             <format>mp3</format>
-            <!-- You can also give a M3U playlist file -->
-            <m3u>/path/to/m3u_file</m3u>
             <!-- The ogg quality of the ogg vorbis media -->
             <ogg_quality>4</ogg_quality>
             <!-- The sample rate of the media -->

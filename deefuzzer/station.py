@@ -65,6 +65,7 @@ class Station(Thread):
     start_time = time.time()
     server_ping = False
     playlist = []
+    media_source = None
     lp = 1
     player_mode = 1
     osc_control_mode = 0
@@ -94,7 +95,7 @@ class Station(Thread):
         self.logqueue = logqueue
         self.m3u = m3u
 
-        if 'station_statusfile' in station:
+        if 'station_statusfile' in self.station:
             self.statusfile = station['station_statusfile']
             try:
                 if os.path.exists(self.statusfile):
@@ -108,16 +109,24 @@ class Station(Thread):
             self.station_dir = self.station['station_dir']
 
         # Media
-        self.media_dir = self.station['media']['dir']
+        if 'm3u' in self.station['media'].keys():
+            if not self.station['media']['m3u'].strip() == '':
+                self.media_source = self.station['media']['m3u']
+        
+        if 'dir' in self.station['media'].keys():
+            if not self.station['media']['dir'].strip() == '':
+                self.media_source = self.station['media']['dir']
+        
+        if 'source' in self.station['media'].keys():
+            if not self.station['media']['source'].strip() == '':
+                self.media_source = self.station['media']['source']
+        
         self.media_format = self.station['media']['format']
         self.shuffle_mode = int(self.station['media']['shuffle'])
         self.bitrate = int(self.station['media']['bitrate'])
         self.ogg_quality = int(self.station['media']['ogg_quality'])
         self.samplerate = int(self.station['media']['samplerate'])
         self.voices = int(self.station['media']['voices'])
-        self.m3u_playlist_file = []
-        if 'm3u' in self.station['media'].keys():
-            self.m3u_playlist_file = self.station['media']['m3u']
 
         # Server
         if 'mountpoint' in self.station['server'].keys():
@@ -326,6 +335,9 @@ class Station(Thread):
         self.twitter = Twitter(self.twitter_key, self.twitter_secret)
         self.twitter_mode = value
         message = "received OSC message '%s' with arguments '%d'" % (path, value)
+        
+        # IMPROVEMENT: The URL paths should be configurable because they're 
+        # server-implementation specific
         self.m3u_url = self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1]
         self.feeds_url = self.channel.url + '/rss/' + self.feeds_playlist_file.split(os.sep)[-1]
         self._info(message)
@@ -382,27 +394,38 @@ class Station(Thread):
 
     def get_playlist(self):
         file_list = []
-        if not self.m3u_playlist_file:
-            for root, dirs, files in os.walk(self.media_dir):
-                for file in files:
-                    s = file.split('.')
-                    ext = s[len(s)-1]
-                    if ext.lower() == self.channel.format and not os.sep+'.' in file:
-                        file_list.append(root + os.sep + file)
-            file_list.sort()
-        else:
-            self.q.get(1)
-            try:
-                f = open(self.m3u_playlist_file, 'r')
+        
+        try:
+            if os.path.isdir(self.media_source):
+                self.q.get(1)
                 try:
-                    for path in f.readlines():
-                        if '#' != path[0]:
-                            file_list.append(path[:-1])
+                    for root, dirs, files in os.walk(self.media_source):
+                        for file in files:
+                            s = file.split('.')
+                            ext = s[len(s)-1]
+                            if ext.lower() == self.channel.format and not os.sep+'.' in file:
+                                file_list.append(root + os.sep + file)
+                    file_list.sort()
                 except:
-                    f.close()
-            except:
-                pass
-            self.q.task_done()
+                    pass
+                self.q.task_done()
+                
+            if os.path.isfile(self.media_source):
+                self.q.get(1)
+                try:
+                    f = open(self.media_source, 'r')
+                    try:
+                        for path in f.readlines():
+                            if '#' != path[0]:
+                                file_list.append(path[:-1])
+                    except:
+                        f.close()
+                except:
+                    pass
+                self.q.task_done()
+        except:
+            pass
+        
         return file_list
 
     def get_jingles(self):
@@ -511,7 +534,7 @@ class Station(Thread):
             self.q.task_done()
             return media
         else:
-            mess = 'No media in media_dir!'
+            mess = 'No media in source!'
             self._err(mess)
             self.run_mode = 0
 
