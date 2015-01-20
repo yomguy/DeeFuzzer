@@ -25,9 +25,8 @@ deefuzzer:
               shuffle: 1}
 
     media: {bitrate: 96,
-            dir: /path/to/mp3/,
+            source: /path/to/mp3/or/m3u,
             format: mp3,
-            m3u: /path/to/m3u_file,
             ogg_quality: 4,
             samplerate: 48000,
             shuffle: 0,

@@ -31,9 +31,8 @@
         </jingles>
         <media>
             <bitrate>96</bitrate>
-            <dir>/path/to/mp3/</dir>
+            <source>/path/to/mp3/or/m3u</source>
             <format>mp3</format>
-            <m3u>/path/to/m3u_file</m3u>
             <ogg_quality>4</ogg_quality>
             <samplerate>48000</samplerate>
             <shuffle>0</shuffle>
