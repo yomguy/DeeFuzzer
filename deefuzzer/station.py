@@ -74,7 +74,6 @@ class Station(Thread):
     relay_mode = 0
     record_mode = 0
     run_mode = 1
-    station_dir = None
     appendtype = 1
     feeds_json = 0
     feeds_rss = 1
@@ -87,6 +86,7 @@ class Station(Thread):
     starting_id = -1
     jingles_frequency = 2
     statusfile = ''
+    base_directory = ''
 
     def __init__(self, station, q, logqueue, m3u):
         Thread.__init__(self)
@@ -105,21 +105,21 @@ class Station(Thread):
             except:
                 pass
 
-        if 'station_dir' in self.station:
-            self.station_dir = self.station['station_dir']
-
+        if 'base_dir' in self.station:
+            self.base_directory = self.station['base_dir'].strip()
+        
         # Media
         if 'm3u' in self.station['media'].keys():
             if not self.station['media']['m3u'].strip() == '':
-                self.media_source = self.station['media']['m3u']
+                self.media_source = self._path_add_base(self.station['media']['m3u'])
         
         if 'dir' in self.station['media'].keys():
             if not self.station['media']['dir'].strip() == '':
-                self.media_source = self.station['media']['dir']
+                self.media_source = self._path_add_base(self.station['media']['dir'])
         
         if 'source' in self.station['media'].keys():
             if not self.station['media']['source'].strip() == '':
-                self.media_source = self.station['media']['source']
+                self.media_source = self._path_add_base(self.station['media']['source'])
         
         self.media_format = self.station['media']['format']
         self.shuffle_mode = int(self.station['media']['shuffle'])
@@ -188,7 +188,7 @@ class Station(Thread):
         if 'rss' in self.station:
             if 'mode' in self.station['rss']:
                 self.feeds_mode = int(self.station['rss']['mode'])
-            self.feeds_dir = self.station['rss']['dir']
+            self.feeds_dir = self._path_add_base(self.station['rss']['dir'])
             self.feeds_enclosure = int(self.station['rss']['enclosure'])
             if 'json' in self.station['rss']:
                 self.feeds_json = int(self.station['rss']['json'])
@@ -248,7 +248,7 @@ class Station(Thread):
             if 'frequency' in self.station['jingles']:
                 self.jingles_frequency = int(self.station['jingles']['frequency'])
             if 'dir' in self.station['jingles']:
-                self.jingles_dir = self.station['jingles']['dir']
+                self.jingles_dir = self._path_add_base(self.station['jingles']['dir'])
             if self.jingles_mode == 1:
                 self.jingles_callback('/jingles', [1])
 
@@ -279,12 +279,18 @@ class Station(Thread):
         # Recording
         if 'record' in self.station:
             self.record_mode = int(self.station['record']['mode'])
-            self.record_dir = self.station['record']['dir']
+            self.record_dir = self._path_add_base(self.station['record']['dir'])
             if self.record_mode:
                 self.record_callback('/record', [1])
 
         self.valid = True
-
+        
+    def _path_add_base(self, a):
+        return os.path.join(self.base_directory, a)
+        
+    def _path_m3u_rel(self, a):
+        return os.path.join(os.path.dirname(self.source), a)
+        
     def _log(self, level, msg):
         try:
             obj = {}
@@ -416,8 +422,11 @@ class Station(Thread):
                     f = open(self.media_source, 'r')
                     try:
                         for path in f.readlines():
+                            path = path.strip()
                             if '#' != path[0]:
-                                file_list.append(path[:-1])
+                                fp = self._path_m3u_rel(path)
+                                if os.path.isfile(fp):
+                                    file_list.append(fp)
                     except:
                         f.close()
                 except:
@@ -483,9 +492,6 @@ class Station(Thread):
 
                 self._info('Generating new playlist (' + str(self.lp) + ' tracks)')
 
-                if self.feeds_playlist:
-                    self.update_feeds(self.media_to_objs(self.playlist), self.feeds_playlist_file, '(playlist)')
-
             elif lp_new != self.lp:
                 self.id += 1
                 if self.id >= lp_new:
@@ -512,10 +518,8 @@ class Station(Thread):
 
                 self.playlist = playlist
 
-                self._info('generating new playlist (' + str(self.lp) + ' tracks)')
+                self._info('Generating new playlist (' + str(self.lp) + ' tracks)')
 
-                if self.feeds_playlist:
-                    self.update_feeds(self.media_to_objs(self.playlist), self.feeds_playlist_file, '(playlist)')
 
             if self.jingles_mode and not (self.counter % self.jingles_frequency) and self.jingles_length:
                 media = self.jingles_list[self.jingle_id]
@@ -529,6 +533,8 @@ class Station(Thread):
                 f = open(self.statusfile, 'w')
                 f.write(str(self.id))
                 f.close()
+                if self.feeds_playlist:
+                    self.update_feeds(self.media_to_objs(self.playlist), self.feeds_playlist_file, '(playlist)')
             except:
                 pass
             self.q.task_done()
