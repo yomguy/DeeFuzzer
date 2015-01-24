@@ -25,6 +25,7 @@ setup(
         'mutagen',
         'pyliblo',
         'pycurl',
+        'pyyaml',
   ],
   platforms=['OS Independent'],
   license='CeCILL v2',
