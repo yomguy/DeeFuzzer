@@ -492,9 +492,6 @@ class Station(Thread):
 
                 self._info('Generating new playlist (' + str(self.lp) + ' tracks)')
 
-                if self.feeds_playlist:
-                    self.update_feeds(self.media_to_objs(self.playlist), self.feeds_playlist_file, '(playlist)')
-
             elif lp_new != self.lp:
                 self.id += 1
                 if self.id >= lp_new:
@@ -521,10 +518,8 @@ class Station(Thread):
 
                 self.playlist = playlist
 
-                self._info('generating new playlist (' + str(self.lp) + ' tracks)')
+                self._info('Generating new playlist (' + str(self.lp) + ' tracks)')
 
-                if self.feeds_playlist:
-                    self.update_feeds(self.media_to_objs(self.playlist), self.feeds_playlist_file, '(playlist)')
 
             if self.jingles_mode and not (self.counter % self.jingles_frequency) and self.jingles_length:
                 media = self.jingles_list[self.jingle_id]
@@ -538,6 +533,8 @@ class Station(Thread):
                 f = open(self.statusfile, 'w')
                 f.write(str(self.id))
                 f.close()
+                if self.feeds_playlist:
+                    self.update_feeds(self.media_to_objs(self.playlist), self.feeds_playlist_file, '(playlist)')
             except:
                 pass
             self.q.task_done()
