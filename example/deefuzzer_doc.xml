@@ -39,6 +39,20 @@
         </jingles>
     </stationdefaults>
     <station>
+        <!-- The base directory to be prepended to file paths for this station. This value is prepended
+              to the following parameters:
+              
+                - jingles/dir
+                - media/m3u
+                - media/dir
+                - media/source (except for stations created using the stationfolder method)
+                - record/dir
+                - feeds/dir
+                
+              If the parameter path begins with a slash, it is assumed to be an absolute path and
+              prepending does not occur (see https://docs.python.org/2/library/os.path.html#os.path.join )
+        -->
+        <base_dir>/path/to/station/folder</base_dir>
         <control>
             <!-- If '1', an OSC controller thread is started to allow external commands
                 See README for more info -->
@@ -171,9 +185,7 @@
         <!-- OPTIONAL: If '1', stations will be created as folders are added ("watchfolder" capability). If '0', 
              folders will only be added when the program is started. -->
         <livecreation>1</livecreation>
-        <!-- Station information to use.  At a minimum, the following should be defined:
-                infos.short_name so that mount points will be unique. 
-                media.dir so that the files are loaded from the right place (IMPROVEMENT: should be set in code!)
+        <!-- Station information to use.
              All the same options are available as the station setting, and all stations will also have the global
              stationdefaults applied.  -->
         <infos>
@@ -181,9 +193,6 @@
             <name>[name]</name>
             <genre>[name]</genre>
         </infos>
-        <media>
-            <dir>[path]</dir>
-        </media>
     </stationfolder>
 		
     <!-- The stationfolder option allows specifying a folder to scan for additional configuration files.  Applies only 

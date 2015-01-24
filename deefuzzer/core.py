@@ -169,6 +169,11 @@ class DeeFuzzer(Thread):
         # This makes the log file a lot more verbose.  Commented out since we report on new stations anyway.
         # self._info('Scanning folder ' + folder + ' for stations')
 
+        if not 'infos' in options.keys():
+            options['infos'] = {}
+        if not 'short_name' in options['infos'].keys():
+            options['infos']['short_name'] = '[name]'
+
         files = os.listdir(folder)
         for file in files:
             filepath = os.path.join(folder, file)
@@ -205,6 +210,7 @@ class DeeFuzzer(Thread):
         if not 'media' in s.keys():
             s['media'] = {}
         s['media']['source'] = folder
+        
         self.add_station(s)
 
     def load_stations_fromconfig(self, folder):
