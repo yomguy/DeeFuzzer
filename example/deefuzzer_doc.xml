@@ -48,7 +48,6 @@
                 - media/source (except for stations created using the stationfolder method)
                 - record/dir
                 - feeds/dir
-                - All paths read from the file specified by media/m3u or media/source
                 
               If the parameter path begins with a slash, it is assumed to be an absolute path and
               prepending does not occur (see https://docs.python.org/2/library/os.path.html#os.path.join )

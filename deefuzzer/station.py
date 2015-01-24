@@ -288,6 +288,9 @@ class Station(Thread):
     def _path_add_base(self, a):
         return os.path.join(self.base_directory, a)
         
+    def _path_m3u_rel(self, a):
+        return os.path.join(os.path.dirname(self.source), a)
+        
     def _log(self, level, msg):
         try:
             obj = {}
@@ -419,8 +422,9 @@ class Station(Thread):
                     f = open(self.media_source, 'r')
                     try:
                         for path in f.readlines():
+                            path = path.strip()
                             if '#' != path[0]:
-                                fp = self._path_add_base(path.strip())
+                                fp = self._path_m3u_rel(path)
                                 if os.path.isfile(fp):
                                     file_list.append(fp)
                     except:
