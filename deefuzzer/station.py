@@ -420,7 +420,9 @@ class Station(Thread):
                     try:
                         for path in f.readlines():
                             if '#' != path[0]:
-                                file_list.append(path[:-1])
+                                fp = self._path_add_base(path.strip())
+                                if os.path.isfile(fp):
+                                    file_list.append(fp)
                     except:
                         f.close()
                 except:
