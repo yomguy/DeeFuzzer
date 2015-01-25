@@ -59,7 +59,7 @@ News
  * Added option (ignoreerrors) to log and continue when an error occurs during station setup (@achbed #43)
  * Cleanup, better doucmentation and good ideas (@choiz #15 #16 #17 #23)
  * Various bufixes
- * Many thanks to all participants and espacially to @achbed for his **huge** work, efficiency and easy collaboration
+ * Many thanks to all participants and especially to @achbed for his **huge** work, efficiency and easy collaboration
  * Enjoy!
 
 0.6.6
@@ -75,30 +75,6 @@ News
  * Read yaml configuration files
  * Read m3u playlist files
  * Minor fixes
-
-0.6.4 is out!
-
- * Fix install bug again (add main script to install), sorry :(
- * Reduce streaming buffer length
-
-0.6.3 Fix install bug!
-
- * Setup rewritten
- * Fix MANIFEST
-
-0.6.2 has been released!
-
- * No new functions but bugfixes (including a serious one during install from pypi)
- * Definitely moved the project to `GitHub <https://github.com/yomguy/DeeFuzzer>`_
- * Update various README details
- * update API doc: http://files.parisson.com/doc/deefuzzer/
-
-0.6.1 is out!
-
- * New HTTP steamer based on pycurl to handle streaming over stream-m servers (WebM streaming)
-   see http://code.google.com/p/stream-m/
- * Live webm relaying works good, webm playlist reading NEED testing
- * New <station><server><type> parameter ('icecast or 'stream-m')
 
 
 Installation
