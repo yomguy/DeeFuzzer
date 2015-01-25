@@ -2,8 +2,8 @@
 
 |version| |downloads| |travis_master|
 
-.. |travis_master| image:: https://secure.travis-ci.org/Parisson/DeeFuzzer.png?branch=master
-    :target: https://travis-ci.org/Parisson/DeeFuzzer/
+.. |travis_master| image:: https://secure.travis-ci.org/yomguy/DeeFuzzer.png?branch=master
+    :target: https://travis-ci.org/yomguy/DeeFuzzer/
 
 .. |version| image:: https://pypip.in/version/DeeFuzzer/badge.png
   :target: https://pypi.python.org/pypi/DeeFuzzer/
