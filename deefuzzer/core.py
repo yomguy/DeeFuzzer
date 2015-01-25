@@ -118,9 +118,7 @@ class DeeFuzzer(Thread):
 
     def _log(self, level, msg):
         try:
-            obj = {}
-            obj['msg'] = 'Core: ' + str(msg)
-            obj['level'] = level
+            obj = {'msg': 'Core: ' + str(msg), 'level': level}
             self.logqueue.put(obj)
         except:
             pass
@@ -295,8 +293,8 @@ class DeeFuzzer(Thread):
                                     self._err('Station ' + name + ' is stopped and will not be restarted.')
                                     self.station_settings[i]['station_stop_logged'] = True
                                 continue
-                                
-                            self.station_settings[i]['retries'] = self.station_settings[i]['retries'] + 1
+
+                            self.station_settings[i]['retries'] += 1
                             self._info('Restarting station ' + name + ' (try ' + str(self.station_settings[i]['retries']) + ')')
                     except Exception as e:
                         self._err('Error checking status for ' + name)
@@ -316,7 +314,7 @@ class DeeFuzzer(Thread):
                                 name = self.station_settings[i]['infos']['short_name']
                                 y = 1
                                 while name in self.station_instances.keys():
-                                    y = y + 1
+                                    y += 1
                                     name = self.station_settings[i]['infos']['short_name'] + " " + str(y)
 
                         self.station_settings[i]['station_name'] = name

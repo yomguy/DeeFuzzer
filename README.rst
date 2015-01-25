@@ -30,7 +30,7 @@ Please see example/deefuzzer.xml for an example.
 Because our aim is to get DeeFuzzer as light as possible it is NOT capable of re-encoding or transcoding media files.
 
 News
-=====
+====
 
 0.6.6
 
@@ -144,7 +144,7 @@ or, more specificially::
 
 
 Configuration
-==============
+=============
 
 Some examples of markup configuration files:
 
@@ -178,7 +178,7 @@ from a console or any application (see deefuzzer/scripts/).
 
 
 Twitter (manual and optional)
-================================
+=============================
 
 To get track twitting, please install python-twitter, python-oauth2 and all their dependencies.
 
@@ -261,7 +261,7 @@ API
 http://files.parisson.com/doc/deefuzzer/
 
 Development
-============
+===========
 
 Everybody is welcome to participate to the DeeFuzzer project!
 We use GitHub to collaborate: https://github.com/yomguy/DeeFuzzer
