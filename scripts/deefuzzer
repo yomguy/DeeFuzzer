@@ -42,6 +42,7 @@ def prog_info():
 
     return desc % (deefuzzer.__version__, platform_system, year)
 
+
 def main():
     if len(sys.argv) >= 2:
         d = deefuzzer.core.DeeFuzzer(sys.argv[-1])
@@ -49,6 +50,7 @@ def main():
     else:
         text = prog_info()
         sys.exit(text)
+
 
 if __name__ == '__main__':
     main()
