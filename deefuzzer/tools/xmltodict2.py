@@ -10,18 +10,18 @@ import locale
 from xml.parsers import expat
 
 # If we're in Dabo, get the default encoding.
-#import dabo
-#import dabo.lib.DesignerUtils as desUtil
-#from dabo.dLocalize import _
-#from dabo.lib.utils import resolvePath
-#app = dabo.dAppRef
-#if app is not None:
-    #default_encoding = app.Encoding
-#else:
-        #enc = locale.getlocale()[1]
-        #if enc is None:
-            #enc = dabo.defaultEncoding
-        #default_encoding = enc
+# import dabo
+# import dabo.lib.DesignerUtils as desUtil
+# from dabo.dLocalize import _
+# from dabo.lib.utils import resolvePath
+# app = dabo.dAppRef
+# if app is not None:
+    # default_encoding = app.Encoding
+# else:
+        # enc = locale.getlocale()[1]
+        # if enc is None:
+            # enc = dabo.defaultEncoding
+        # default_encoding = enc
 
 # Python seems to need to compile code with \n linesep:
 code_linesep = "\n"
@@ -44,7 +44,6 @@ class Xml2Obj:
         self._propDict = None
         self._currPropAtt = ""
         self._currPropDict = None
-
 
     def StartElement(self, name, attributes):
         """SAX start element even handler"""
@@ -94,7 +93,6 @@ class Xml2Obj:
                 else:
                     self.root = element
                 self.nodeStack.append(element)
-
 
     def EndElement(self, name):
         """SAX end element event handler"""
@@ -155,7 +153,6 @@ class Xml2Obj:
         # Parse the XML File
         ParserStatus = Parser.Parse(xml, 1)
         return self.root
-
 
     def ParseFromFile(self, filename):
         return self.Parse(open(filename,"r").read())
@@ -274,7 +271,7 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
                     ret += "%s<%s><![CDATA[%s%s]]>%s%s</%s>%s" % (methodTab,
                             mthd, eol, cd, eol,
                             methodTab, mthd, eol)
-                ret += "%s</code>%s"    % ("\t" * (level+1), eol)
+                ret += "%s</code>%s" % ("\t" * (level+1), eol)
 
         if dct.has_key("properties"):
             if len(dct["properties"].keys()):
@@ -287,7 +284,7 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
                         ret += "%s<%s>%s</%s>%s" % (itmTab, propItm, itmVal,
                                 propItm, eol)
                     ret += "%s</%s>%s" % (currTab, prop, eol)
-                ret += "%s</properties>%s"  % ("\t" * (level+1), eol)
+                ret += "%s</properties>%s" % ("\t" * (level+1), eol)
 
         if dct.has_key("children") and len(dct["children"]) > 0:
             ret += eol
@@ -386,12 +383,12 @@ def addInheritedInfo(src, super, updateCode=False):
 
 
 
-#if __name__ == "__main__":
-    #test_dict = {"name": "test", "attributes":{"path": "c:\\temp\\name",
-            #"problemChars": "Welcome to <Jos\xc3\xa9's \ Stuff!>\xc2\xae".decode("latin-1")}}
-    #print "test_dict:", test_dict
-    #xml = dicttoxml(test_dict)
-    #print "xml:", xml
-    #test_dict2 = xmltodict(xml)
-    #print "test_dict2:", test_dict2
-    #print "same?:", test_dict == test_dict2
+# if __name__ == "__main__":
+    # test_dict = {"name": "test", "attributes":{"path": "c:\\temp\\name",
+            # "problemChars": "Welcome to <Jos\xc3\xa9's \ Stuff!>\xc2\xae".decode("latin-1")}}
+    # print "test_dict:", test_dict
+    # xml = dicttoxml(test_dict)
+    # print "xml:", xml
+    # test_dict2 = xmltodict(xml)
+    # print "test_dict2:", test_dict2
+    # print "same?:", test_dict == test_dict2

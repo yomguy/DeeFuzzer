@@ -8,6 +8,7 @@ _generator_name = __name__ + "-" + ".".join(map(str, __version__))
 
 import datetime
 
+
 # Could make this the base class; will need to add 'publish'
 class WriteXmlMixin:
     def __init__(self):

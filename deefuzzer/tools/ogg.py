@@ -128,7 +128,7 @@ class Ogg:
     def get_args(self, options=None):
         """Get process options and return arguments for the encoder"""
         args = []
-        if not options is None:
+        if options is not None:
             self.options = options
             if not ('verbose' in self.options and self.options['verbose'] != '0'):
                 args.append('-Q ')
