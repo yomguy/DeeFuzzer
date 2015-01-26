@@ -26,7 +26,8 @@ setup(
         'python-twitter',
         'mutagen',
         'pyliblo',
-        'pycurl'
+        'pycurl',
+        'pyyaml'
     ],
     platforms=['OS Independent'],
     license='CeCILL v2',

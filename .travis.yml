@@ -6,8 +6,8 @@ virtualenv:
 
 # command to prepare the system to install prerequisites or dependencies
 before_install:
- - sudo apt-get install python-setuptools
- - sudo apt-get install -qq libshout3-dev python-liblo python-mutagen python-pycurl
+ - sudo apt-get install -qq python-setuptools
+ - sudo apt-get install -qq python-pip python-dev libshout3-dev python-liblo python-mutagen python-pycurl liblo-dev libshout3-dev librtmp-dev python-yaml libcurl4-openssl-dev python-mutagen
 
 # command to run tests
 script:
