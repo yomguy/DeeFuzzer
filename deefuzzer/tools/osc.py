@@ -40,10 +40,10 @@ from threading import Thread
 
 
 class OSCController(Thread):
-
     def __init__(self, port):
         Thread.__init__(self)
         import liblo
+
         self.port = port
         try:
             self.server = liblo.Server(self.port)

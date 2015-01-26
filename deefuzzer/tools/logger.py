@@ -22,14 +22,15 @@ class Logger:
     def write_error(self, message):
         self.logger.error(message)
 
+
 class QueueLogger(Thread):
     """A queue-based logging object"""
-    
+
     def __init__(self, file, q):
         Thread.__init__(self)
         self.logger = Logger(file)
         self.q = q
-        
+
     def run(self):
         while True:
             try:
@@ -37,16 +38,15 @@ class QueueLogger(Thread):
                 if not isinstance(msg, dict):
                     self.logger.write_error(str(msg))
                 else:
-                    if not 'msg' in msg.keys():
+                    if 'msg' not in msg.keys():
                         continue
-                    
+
                     if 'level' in msg.keys():
                         if msg['level'] == 'info':
                             self.logger.write_info(msg['msg'])
                         else:
                             self.logger.write_error(msg['msg'])
                     else:
-                         self.logger.write_error(msg['msg'])
+                        self.logger.write_error(msg['msg'])
             except:
                 pass
-                

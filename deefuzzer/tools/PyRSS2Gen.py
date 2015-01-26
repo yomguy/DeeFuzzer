@@ -10,14 +10,18 @@ import datetime
 
 # Could make this the base class; will need to add 'publish'
 class WriteXmlMixin:
-    def write_xml(self, outfile, encoding = "iso-8859-1"):
+    def __init__(self):
+        pass
+
+    def write_xml(self, outfile, encoding="iso-8859-1"):
         from xml.sax import saxutils
+
         handler = saxutils.XMLGenerator(outfile, encoding)
         handler.startDocument()
         self.publish(handler)
         handler.endDocument()
 
-    def to_xml(self, encoding = "iso-8859-1"):
+    def to_xml(self, encoding="iso-8859-1"):
         try:
             import cStringIO as StringIO
         except ImportError:
@@ -27,7 +31,7 @@ class WriteXmlMixin:
         return f.getvalue()
 
 
-def _element(handler, name, obj, d = {}):
+def _element(handler, name, obj, d={}):
     if isinstance(obj, basestring) or obj is None:
         # special-case handling to make the API easier
         # to use for the common case.
@@ -38,6 +42,7 @@ def _element(handler, name, obj, d = {}):
     else:
         # It better know how to emit the correct XML.
         obj.publish(handler)
+
 
 def _opt_element(handler, name, obj):
     if obj is None:
@@ -51,20 +56,20 @@ def _format_date(dt):
     Input date must be in GMT.
     """
     # Looks like:
-    #   Sat, 07 Sep 2002 00:00:01 GMT
+    # Sat, 07 Sep 2002 00:00:01 GMT
     # Can't use strftime because that's locale dependent
     #
     # Isn't there a standard way to do this for Python?  The
     # rfc822 and email.Utils modules assume a timestamp.  The
     # following is based on the rfc822 module.
     return "%s, %02d %s %04d %02d:%02d:%02d GMT" % (
-            ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][dt.weekday()],
-            dt.day,
-            ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][dt.month-1],
-            dt.year, dt.hour, dt.minute, dt.second)
+        ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][dt.weekday()],
+        dt.day,
+        ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][dt.month - 1],
+        dt.year, dt.hour, dt.minute, dt.second)
 
-        
+
 ##
 # A couple simple wrapper objects for the fields which
 # take a simple value other than a string.
@@ -77,13 +82,16 @@ class IntElement:
     to text for XML.)
     """
     element_attrs = {}
+
     def __init__(self, name, val):
         self.name = name
         self.val = val
+
     def publish(self, handler):
         handler.startElement(self.name, self.element_attrs)
         handler.characters(str(self.val))
         handler.endElement(self.name)
+
 
 class DateElement:
     """implements the 'publish' API for a datetime.datetime
@@ -92,26 +100,34 @@ class DateElement:
 
     Converts the datetime to RFC 2822 timestamp (4-digit year).
     """
+
     def __init__(self, name, dt):
         self.name = name
         self.dt = dt
+
     def publish(self, handler):
         _element(handler, self.name, _format_date(self.dt))
+
+
 ####
 
 class Category:
     """Publish a category element"""
-    def __init__(self, category, domain = None):
+
+    def __init__(self, category, domain=None):
         self.category = category
         self.domain = domain
+
     def publish(self, handler):
         d = {}
         if self.domain is not None:
             d["domain"] = self.domain
         _element(handler, "category", self.category, d)
 
+
 class Cloud:
     """Publish a cloud"""
+
     def __init__(self, domain, port, path,
                  registerProcedure, protocol):
         self.domain = domain
@@ -119,6 +135,7 @@ class Cloud:
         self.path = path
         self.registerProcedure = registerProcedure
         self.protocol = protocol
+
     def publish(self, handler):
         _element(handler, "cloud", None, {
             "domain": self.domain,
@@ -127,18 +144,20 @@ class Cloud:
             "registerProcedure": self.registerProcedure,
             "protocol": self.protocol})
 
+
 class Image:
     """Publish a channel Image"""
     element_attrs = {}
+
     def __init__(self, url, title, link,
-                 width = None, height = None, description = None):
+                 width=None, height=None, description=None):
         self.url = url
         self.title = title
         self.link = link
         self.width = width
         self.height = height
         self.description = description
-        
+
     def publish(self, handler):
         handler.startElement("image", self.element_attrs)
 
@@ -150,7 +169,7 @@ class Image:
         if isinstance(width, int):
             width = IntElement("width", width)
         _opt_element(handler, "width", width)
-        
+
         height = self.height
         if isinstance(height, int):
             height = IntElement("height", height)
@@ -160,15 +179,18 @@ class Image:
 
         handler.endElement("image")
 
+
 class Guid:
     """Publish a guid
 
     Defaults to being a permalink, which is the assumption if it's
     omitted.  Hence strings are always permalinks.
     """
-    def __init__(self, guid, isPermaLink = 1):
+
+    def __init__(self, guid, isPermaLink=1):
         self.guid = guid
         self.isPermaLink = isPermaLink
+
     def publish(self, handler):
         d = {}
         if self.isPermaLink:
@@ -177,12 +199,14 @@ class Guid:
             d["isPermaLink"] = "false"
         _element(handler, "guid", self.guid, d)
 
+
 class TextInput:
     """Publish a textInput
 
     Apparently this is rarely used.
     """
     element_attrs = {}
+
     def __init__(self, title, description, name, link):
         self.title = title
         self.description = description
@@ -196,28 +220,34 @@ class TextInput:
         _element(handler, "name", self.name)
         _element(handler, "link", self.link)
         handler.endElement("textInput")
-        
+
 
 class Enclosure:
     """Publish an enclosure"""
+
     def __init__(self, url, length, type):
         self.url = url
         self.length = length
         self.type = type
+
     def publish(self, handler):
         _element(handler, "enclosure", None,
                  {"url": self.url,
                   "length": str(self.length),
                   "type": self.type,
-                  })
+                 })
+
 
 class Source:
     """Publish the item's original source, used by aggregators"""
+
     def __init__(self, name, url):
         self.name = name
         self.url = url
+
     def publish(self, handler):
         _element(handler, "source", self.name, {"url": self.url})
+
 
 class SkipHours:
     """Publish the skipHours
@@ -225,8 +255,10 @@ class SkipHours:
     This takes a list of hours, as integers.
     """
     element_attrs = {}
+
     def __init__(self, hours):
         self.hours = hours
+
     def publish(self, handler):
         if self.hours:
             handler.startElement("skipHours", self.element_attrs)
@@ -234,14 +266,17 @@ class SkipHours:
                 _element(handler, "hour", str(hour))
             handler.endElement("skipHours")
 
+
 class SkipDays:
     """Publish the skipDays
 
     This takes a list of days as strings.
     """
     element_attrs = {}
+
     def __init__(self, days):
         self.days = days
+
     def publish(self, handler):
         if self.days:
             handler.startElement("skipDays", self.element_attrs)
@@ -249,41 +284,43 @@ class SkipDays:
                 _element(handler, "day", day)
             handler.endElement("skipDays")
 
+
 class RSS2(WriteXmlMixin):
     """The main RSS class.
 
     Stores the channel attributes, with the "category" elements under
     ".categories" and the RSS items under ".items".
     """
-    
+
     rss_attrs = {"version": "2.0"}
     element_attrs = {}
+
     def __init__(self,
                  title,
                  link,
                  description,
 
-                 language = None,
-                 copyright = None,
-                 managingEditor = None,
-                 webMaster = None,
-                 pubDate = None,  # a datetime, *in* *GMT*
-                 lastBuildDate = None, # a datetime
-                 
-                 categories = None, # list of strings or Category
-                 generator = _generator_name,
-                 docs = "http://blogs.law.harvard.edu/tech/rss",
-                 cloud = None,    # a Cloud
-                 ttl = None,      # integer number of minutes
+                 language=None,
+                 copyright=None,
+                 managingEditor=None,
+                 webMaster=None,
+                 pubDate=None,  # a datetime, *in* *GMT*
+                 lastBuildDate=None,  # a datetime
 
-                 image = None,     # an Image
-                 rating = None,    # a string; I don't know how it's used
-                 textInput = None, # a TextInput
-                 skipHours = None, # a SkipHours with a list of integers
-                 skipDays = None,  # a SkipDays with a list of strings
+                 categories=None,  # list of strings or Category
+                 generator=_generator_name,
+                 docs="http://blogs.law.harvard.edu/tech/rss",
+                 cloud=None,  # a Cloud
+                 ttl=None,  # integer number of minutes
 
-                 items = None,     # list of RSSItems
-                 ):
+                 image=None,  # an Image
+                 rating=None,  # a string; I don't know how it's used
+                 textInput=None,  # a TextInput
+                 skipHours=None,  # a SkipHours with a list of integers
+                 skipDays=None,  # a SkipDays with a list of strings
+
+                 items=None,  # list of RSSItems
+    ):
         self.title = title
         self.link = link
         self.description = description
@@ -294,7 +331,7 @@ class RSS2(WriteXmlMixin):
         self.webMaster = webMaster
         self.pubDate = pubDate
         self.lastBuildDate = lastBuildDate
-        
+
         if categories is None:
             categories = []
         self.categories = categories
@@ -320,7 +357,7 @@ class RSS2(WriteXmlMixin):
         _element(handler, "description", self.description)
 
         self.publish_extensions(handler)
-        
+
         _opt_element(handler, "language", self.language)
         _opt_element(handler, "copyright", self.copyright)
         _opt_element(handler, "managingEditor", self.managingEditor)
@@ -374,24 +411,24 @@ class RSS2(WriteXmlMixin):
         # output after the three required fields.
         pass
 
-    
-    
+
 class RSSItem(WriteXmlMixin):
     """Publish an RSS Item"""
     element_attrs = {}
+
     def __init__(self,
-                 title = None,  # string
-                 link = None,   # url as string
-                 description = None, # string
-                 author = None,      # email address as string
-                 categories = None,  # list of string or Category
-                 comments = None,  # url as string
-                 enclosure = None, # an Enclosure
-                 guid = None,    # a unique string
-                 pubDate = None, # a datetime
-                 source = None,  # a Source
-                 ):
-        
+                 title=None,  # string
+                 link=None,  # url as string
+                 description=None,  # string
+                 author=None,  # email address as string
+                 categories=None,  # list of string or Category
+                 comments=None,  # url as string
+                 enclosure=None,  # an Enclosure
+                 guid=None,  # a unique string
+                 pubDate=None,  # a datetime
+                 source=None,  # a Source
+    ):
+
         if title is None and description is None:
             raise TypeError(
                 "must define at least one of 'title' or 'description'")
@@ -421,7 +458,7 @@ class RSSItem(WriteXmlMixin):
             if isinstance(category, basestring):
                 category = Category(category)
             category.publish(handler)
-        
+
         _opt_element(handler, "comments", self.comments)
         if self.enclosure is not None:
             self.enclosure.publish(handler)
@@ -434,7 +471,7 @@ class RSSItem(WriteXmlMixin):
 
         if self.source is not None:
             self.source.publish(handler)
-        
+
         handler.endElement("item")
 
     def publish_extensions(self, handler):

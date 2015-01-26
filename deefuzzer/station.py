@@ -806,7 +806,6 @@ class Station(Thread):
             return False
         return True
 
-
     def icecastloop_metadata(self):
         try:
             self.update_twitter_current()

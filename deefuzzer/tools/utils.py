@@ -17,21 +17,23 @@ import mimetypes
 from itertools import chain
 from deefuzzer.tools import *
 
-mimetypes.add_type('application/x-yaml','.yaml')
+mimetypes.add_type('application/x-yaml', '.yaml')
 
-def clean_word(word) :
+
+def clean_word(word):
     """ Return the word without excessive blank spaces, underscores and
     characters causing problem to exporters"""
-    word = re.sub("^[^\w]+","",word)    #trim the beginning
-    word = re.sub("[^\w]+$","",word)    #trim the end
-    word = re.sub("_+","_",word)        #squeeze continuous _ to one _
-    word = re.sub("^[^\w]+","",word)    #trim the beginning _
-    #word = string.replace(word,' ','_')
-    #word = string.capitalize(word)
+    word = re.sub("^[^\w]+", "", word)  # trim the beginning
+    word = re.sub("[^\w]+$", "", word)  # trim the end
+    word = re.sub("_+", "_", word)  # squeeze continuous _ to one _
+    word = re.sub("^[^\w]+", "", word)  # trim the beginning _
+    # word = string.replace(word,' ','_')
+    # word = string.capitalize(word)
     dict = '&[];"*:,'
     for letter in dict:
-        word = string.replace(word,letter,'_')
+        word = string.replace(word, letter, '_')
     return word
+
 
 def get_file_info(media):
     file_name = media.split(os.sep)[-1]
@@ -40,8 +42,10 @@ def get_file_info(media):
     file_ext = file_name.split('.')[-1]
     return file_name, file_title, file_ext
 
+
 def is_absolute_path(path):
     return os.sep == path[0]
+
 
 def merge_defaults(setting, default):
     combined = {}
@@ -58,6 +62,7 @@ def merge_defaults(setting, default):
             combined[key] = default[key]
     return combined
 
+
 def replace_all(option, repl):
     if isinstance(option, list):
         r = []
@@ -72,36 +77,41 @@ def replace_all(option, repl):
     elif isinstance(option, str):
         r = option
         for key in repl.keys():
-          r = r.replace('[' + key + ']', repl[key])
+            r = r.replace('[' + key + ']', repl[key])
         return r
     return option
+
 
 def get_conf_dict(file):
     mime_type = mimetypes.guess_type(file)[0]
 
     # Do the type check first, so we don't load huge files that won't be used
     if 'xml' in mime_type:
-        confile = open(file,'r')
+        confile = open(file, 'r')
         data = confile.read()
         confile.close()
-        return xmltodict(data,'utf-8')
+        return xmltodict(data, 'utf-8')
     elif 'yaml' in mime_type:
         import yaml
+
         def custom_str_constructor(loader, node):
             return loader.construct_scalar(node).encode('utf-8')
+
         yaml.add_constructor(u'tag:yaml.org,2002:str', custom_str_constructor)
-        confile = open(file,'r')
+        confile = open(file, 'r')
         data = confile.read()
         confile.close()
         return yaml.load(data)
     elif 'json' in mime_type:
         import json
-        confile = open(file,'r')
+
+        confile = open(file, 'r')
         data = confile.read()
         confile.close()
         return json.loads(data)
 
     return False
+
 
 def folder_contains_music(folder):
     files = os.listdir(folder)

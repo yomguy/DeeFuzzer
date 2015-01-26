@@ -42,9 +42,9 @@ DEEFUZZER_CONSUMER_SECRET = '1kNEffHgGSXO2gMNTr8HRum5s2ofx3VQnJyfd0es'
 
 
 class Twitter:
-
     def __init__(self, key, secret):
         import twitter
+
         self.consumer_key = DEEFUZZER_CONSUMER_KEY
         self.consumer_secret = DEEFUZZER_CONSUMER_SECRET
         self.access_token_key = key
