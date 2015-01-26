@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import liblo, sys
+import liblo
+import sys
 
 # send all messages to port 1234 on the local machine
 try:

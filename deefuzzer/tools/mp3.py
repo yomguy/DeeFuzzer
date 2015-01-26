@@ -60,14 +60,15 @@ class Mp3:
         self.options = {}
         self.bitrate_default = '192'
         self.cache_dir = os.sep + 'tmp'
-        self.keys2id3 = {'title': 'TIT2',
-                         'artist': 'TPE1',
-                         'album': 'TALB',
-                         'date': 'TDRC',
-                         'comment': 'COMM',
-                         'country': 'COUNTRY',
-                         'genre': 'TCON',
-                         'copyright': 'TCOP',
+        self.keys2id3 = {
+            'title': 'TIT2',
+            'artist': 'TPE1',
+            'album': 'TALB',
+            'date': 'TDRC',
+            'comment': 'COMM',
+            'country': 'COUNTRY',
+            'genre': 'TCON',
+            'copyright': 'TCOP'
         }
         self.mp3 = MP3(self.media, ID3=EasyID3)
         self.info = self.mp3.info
@@ -76,14 +77,15 @@ class Mp3:
         try:
             self.metadata = self.get_file_metadata()
         except:
-            self.metadata = {'title': '',
-                             'artist': '',
-                             'album': '',
-                             'date': '',
-                             'comment': '',
-                             'country': '',
-                             'genre': '',
-                             'copyright': '',
+            self.metadata = {
+                'title': '',
+                'artist': '',
+                'album': '',
+                'date': '',
+                'comment': '',
+                'country': '',
+                'genre': '',
+                'copyright': ''
             }
 
         self.description = self.get_description()
@@ -128,6 +130,7 @@ class Mp3:
         self.mp3.tags['TIT2'] = id3.TIT2(encoding=2, text=u'text')
         self.mp3.save()
 
+        '''
         # media_id3 = id3.ID3(self.media)
         # for tag in self.metadata.keys():
             # if tag in self.dub2id3_dict.keys():
@@ -143,6 +146,7 @@ class Mp3:
             # media_id3.save()
         # except:
             # raise IOError('ExporterError: cannot write tags')
+        '''
 
         media = id3.ID3(self.media)
         media.add(id3.TIT2(encoding=3, text=self.metadata['title'].decode('utf8')))

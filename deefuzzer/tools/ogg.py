@@ -54,13 +54,14 @@ class Ogg:
         self.options = {}
         self.bitrate_default = '192'
         self.cache_dir = os.sep + 'tmp'
-        self.keys2ogg = {'title': 'title',
-                         'artist': 'artist',
-                         'album': 'album',
-                         'date': 'date',
-                         'comment': 'comment',
-                         'genre': 'genre',
-                         'copyright': 'copyright',
+        self.keys2ogg = {
+            'title': 'title',
+            'artist': 'artist',
+            'album': 'album',
+            'date': 'date',
+            'comment': 'comment',
+            'genre': 'genre',
+            'copyright': 'copyright'
         }
         self.info = self.ogg.info
         self.bitrate = int(str(self.info.bitrate)[:-3])

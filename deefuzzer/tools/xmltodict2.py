@@ -9,6 +9,9 @@ import string
 import locale
 from xml.parsers import expat
 
+""" """
+
+'''
 # If we're in Dabo, get the default encoding.
 # import dabo
 # import dabo.lib.DesignerUtils as desUtil
@@ -22,6 +25,7 @@ from xml.parsers import expat
         # if enc is None:
             # enc = dabo.defaultEncoding
         # default_encoding = enc
+'''
 
 # Python seems to need to compile code with \n linesep:
 code_linesep = "\n"
@@ -123,7 +127,6 @@ class Xml2Obj:
         else:
             self.nodeStack = self.nodeStack[:-1]
 
-
     def CharacterData(self, data):
         """SAX character data event handler"""
         if self._inCode or data.strip():
@@ -142,7 +145,6 @@ class Xml2Obj:
                     element["cdata"] = ""
                 element["cdata"] += data
 
-
     def Parse(self, xml):
         # Create a SAX parser
         Parser = expat.ParserCreate()
@@ -155,15 +157,18 @@ class Xml2Obj:
         return self.root
 
     def ParseFromFile(self, filename):
-        return self.Parse(open(filename,"r").read())
+        return self.Parse(open(filename, "r").read())
 
 
-def xmltodict(xml, attsToSkip=[], addCodeFile=False):
+def xmltodict(xml, attsToSkip=None, addCodeFile=False):
     """Given an xml string or file, return a Python dictionary."""
+    if not attsToSkip:
+        attsToSkip = []
     parser = Xml2Obj()
     parser.attsToSkip = attsToSkip
     isPath = os.path.exists(xml)
     errmsg = ""
+    ret = None
     if eol not in xml and isPath:
         # argument was a file
         try:
@@ -206,8 +211,8 @@ def escQuote(val, noEscape=False, noQuote=False):
         qt = ''
     else:
         qt = '"'
-    slsh = "\\"
-#   val = val.replace(slsh, slsh+slsh)
+    # slsh = "\\"
+    # val = val.replace(slsh, slsh+slsh)
     if not noEscape:
         # First escape internal ampersands. We need to double them up due to a
         # quirk in wxPython and the way it displays this character.
@@ -258,8 +263,8 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 
         if dct.has_key("code"):
             if len(dct["code"].keys()):
-                ret += "%s%s<code>%s" % (eol, "\t" * (level+1), eol)
-                methodTab = "\t" * (level+2)
+                ret += "%s%s<code>%s" % (eol, "\t" * (level + 1), eol)
+                methodTab = "\t" * (level + 2)
                 for mthd, cd in dct["code"].items():
                     # Convert \n's in the code to eol:
                     cd = eol.join(cd.splitlines())
@@ -268,28 +273,29 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
                     if not cd.endswith(eol):
                         cd += eol
 
-                    ret += "%s<%s><![CDATA[%s%s]]>%s%s</%s>%s" % (methodTab,
-                            mthd, eol, cd, eol,
-                            methodTab, mthd, eol)
-                ret += "%s</code>%s" % ("\t" * (level+1), eol)
+                    ret += "%s<%s><![CDATA[%s%s]]>%s%s</%s>%s" % (
+                        methodTab, mthd, eol,
+                        cd, eol,
+                        methodTab, mthd, eol
+                    )
+                ret += "%s</code>%s" % ("\t" * (level + 1), eol)
 
         if dct.has_key("properties"):
             if len(dct["properties"].keys()):
-                ret += "%s%s<properties>%s" % (eol, "\t" * (level+1), eol)
-                currTab = "\t" * (level+2)
+                ret += "%s%s<properties>%s" % (eol, "\t" * (level + 1), eol)
+                currTab = "\t" * (level + 2)
                 for prop, val in dct["properties"].items():
                     ret += "%s<%s>%s" % (currTab, prop, eol)
                     for propItm, itmVal in val.items():
-                        itmTab = "\t" * (level+3)
-                        ret += "%s<%s>%s</%s>%s" % (itmTab, propItm, itmVal,
-                                propItm, eol)
+                        itmTab = "\t" * (level + 3)
+                        ret += "%s<%s>%s</%s>%s" % (itmTab, propItm, itmVal, propItm, eol)
                     ret += "%s</%s>%s" % (currTab, prop, eol)
-                ret += "%s</properties>%s" % ("\t" * (level+1), eol)
+                ret += "%s</properties>%s" % ("\t" * (level + 1), eol)
 
         if dct.has_key("children") and len(dct["children"]) > 0:
             ret += eol
             for child in dct["children"]:
-                ret += dicttoxml(child, level+1, linesep=linesep)
+                ret += dicttoxml(child, level + 1, linesep=linesep)
         indnt = ""
         if ret.endswith(eol):
             # Indent the closing tag
@@ -301,8 +307,7 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 
     if level == 0:
         if header is None:
-            header = '<?xml version="1.0" encoding="%s" standalone="no"?>%s' \
-                    % (default_encoding, eol)
+            header = '<?xml version="1.0" encoding="%s" standalone="no"?>%s' % (default_encoding, eol)
         ret = header + ret
 
     return ret
@@ -339,8 +344,11 @@ def flattenClassDict(cd, retDict=None):
             classCode = classCD.get("code", {})
             classKids = classCD.get("children", [])
             currDict = retDict.get(classID, {})
-            retDict[classID] = {"attributes": classAtts, "code": classCode,
-                    "properties": classProps}
+            retDict[classID] = {
+                "attributes": classAtts,
+                "code": classCode,
+                "properties": classProps
+            }
             retDict[classID].update(currDict)
             # Now update the child objects in the dict
             for kid in classKids:
@@ -348,8 +356,11 @@ def flattenClassDict(cd, retDict=None):
         else:
             # Not a file; most likely just a component in another class
             currDict = retDict.get(classID, {})
-            retDict[classID] = {"attributes": atts, "code": code,
-                    "properties": props}
+            retDict[classID] = {
+                "attributes": atts,
+                "code": code,
+                "properties": props
+            }
             retDict[classID].update(currDict)
     if kids:
         for kid in kids:
@@ -381,8 +392,7 @@ def addInheritedInfo(src, super, updateCode=False):
         for kid in kids:
             addInheritedInfo(kid, super, updateCode)
 
-
-
+'''
 # if __name__ == "__main__":
     # test_dict = {"name": "test", "attributes":{"path": "c:\\temp\\name",
             # "problemChars": "Welcome to <Jos\xc3\xa9's \ Stuff!>\xc2\xae".decode("latin-1")}}
@@ -392,3 +402,4 @@ def addInheritedInfo(src, super, updateCode=False):
     # test_dict2 = xmltodict(xml)
     # print "test_dict2:", test_dict2
     # print "same?:", test_dict == test_dict2
+'''

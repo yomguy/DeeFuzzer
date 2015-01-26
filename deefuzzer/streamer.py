@@ -53,7 +53,7 @@ class HTTPStreamer(Thread):
     decription = str
     format = str
     url = str
-    delay = 0
+    _delay = 0
 
     def __init__(self):
         Thread.__init__(self)
@@ -65,7 +65,7 @@ class HTTPStreamer(Thread):
         self.read_callback = read_callback
 
     def delay(self):
-        return self.delay
+        return self._delay
 
     def open(self):
         import pycurl

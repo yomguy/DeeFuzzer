@@ -32,7 +32,9 @@ class WriteXmlMixin:
         return f.getvalue()
 
 
-def _element(handler, name, obj, d={}):
+def _element(handler, name, obj, d=None):
+    if not d:
+        d = {}
     if isinstance(obj, basestring) or obj is None:
         # special-case handling to make the API easier
         # to use for the common case.
@@ -232,11 +234,11 @@ class Enclosure:
         self.type = type
 
     def publish(self, handler):
-        _element(handler, "enclosure", None,
-                 {"url": self.url,
-                  "length": str(self.length),
-                  "type": self.type,
-                 })
+        _element(handler, "enclosure", None, {
+            "url": self.url,
+            "length": str(self.length),
+            "type": self.type
+        })
 
 
 class Source:
@@ -296,31 +298,31 @@ class RSS2(WriteXmlMixin):
     rss_attrs = {"version": "2.0"}
     element_attrs = {}
 
-    def __init__(self,
-                 title,
-                 link,
-                 description,
+    def __init__(
+        self,
+        title,
+        link,
+        description,
 
-                 language=None,
-                 copyright=None,
-                 managingEditor=None,
-                 webMaster=None,
-                 pubDate=None,  # a datetime, *in* *GMT*
-                 lastBuildDate=None,  # a datetime
+        language=None,
+        copyright=None,
+        managingEditor=None,
+        webMaster=None,
+        pubDate=None,  # a datetime, *in* *GMT*
+        lastBuildDate=None,  # a datetime
 
-                 categories=None,  # list of strings or Category
-                 generator=_generator_name,
-                 docs="http://blogs.law.harvard.edu/tech/rss",
-                 cloud=None,  # a Cloud
-                 ttl=None,  # integer number of minutes
+        categories=None,  # list of strings or Category
+        generator=_generator_name,
+        docs="http://blogs.law.harvard.edu/tech/rss",
+        cloud=None,  # a Cloud
+        ttl=None,  # integer number of minutes
 
-                 image=None,  # an Image
-                 rating=None,  # a string; I don't know how it's used
-                 textInput=None,  # a TextInput
-                 skipHours=None,  # a SkipHours with a list of integers
-                 skipDays=None,  # a SkipDays with a list of strings
-
-                 items=None,  # list of RSSItems
+        image=None,  # an Image
+        rating=None,  # a string; I don't know how it's used
+        textInput=None,  # a TextInput
+        skipHours=None,  # a SkipHours with a list of integers
+        skipDays=None,  # a SkipDays with a list of strings
+        items=None  # list of RSSItems
     ):
         self.title = title
         self.link = link
@@ -417,17 +419,18 @@ class RSSItem(WriteXmlMixin):
     """Publish an RSS Item"""
     element_attrs = {}
 
-    def __init__(self,
-                 title=None,  # string
-                 link=None,  # url as string
-                 description=None,  # string
-                 author=None,  # email address as string
-                 categories=None,  # list of string or Category
-                 comments=None,  # url as string
-                 enclosure=None,  # an Enclosure
-                 guid=None,  # a unique string
-                 pubDate=None,  # a datetime
-                 source=None,  # a Source
+    def __init__(
+        self,
+        title=None,  # string
+        link=None,  # url as string
+        description=None,  # string
+        author=None,  # email address as string
+        categories=None,  # list of string or Category
+        comments=None,  # url as string
+        enclosure=None,  # an Enclosure
+        guid=None,  # a unique string
+        pubDate=None,  # a datetime
+        source=None  # a Source
     ):
 
         if title is None and description is None:

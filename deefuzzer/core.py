@@ -68,7 +68,7 @@ class DeeFuzzer(Thread):
         self.conf_file = conf_file
         self.conf = get_conf_dict(self.conf_file)
 
-        if not 'deefuzzer' in self.conf.keys():
+        if 'deefuzzer' not in self.conf.keys():
             return
 
         # Get the log setting first (if possible)
@@ -266,12 +266,12 @@ class DeeFuzzer(Thread):
         while True:
             self.create_stations_fromfolder()
             ns_new = len(self.station_settings)
-            if(ns_new > ns):
+            if ns_new > ns:
                 self._info('Loading new stations')
             
             for i in range(0, ns_new):
+                name = ''
                 try:
-                    name = ''
                     if 'station_name' in self.station_settings[i].keys():
                         name = self.station_settings[i]['station_name']
                     
@@ -294,17 +294,21 @@ class DeeFuzzer(Thread):
                                 continue
 
                             self.station_settings[i]['retries'] += 1
-                            self._info('Restarting station ' + name + ' (try ' + str(self.station_settings[i]['retries']) + ')')
+                            trynum = str(self.station_settings[i]['retries'])
+                            self._info('Restarting station ' + name + ' (try ' + trynum + ')')
                     except Exception as e:
                         self._err('Error checking status for ' + name)
                         self._err(str(e))
-                        if not ignoreErrors:
+                        if not self.ignoreErrors:
                             raise
 
                     # Apply station defaults if they exist
                     if 'stationdefaults' in self.conf['deefuzzer']:
                         if isinstance(self.conf['deefuzzer']['stationdefaults'], dict):
-                            self.station_settings[i] = merge_defaults(self.station_settings[i], self.conf['deefuzzer']['stationdefaults'])
+                            self.station_settings[i] = merge_defaults(
+                                self.station_settings[i],
+                                self.conf['deefuzzer']['stationdefaults']
+                            )
 
                     if name == '':
                         name = 'Station ' + str(i)
@@ -329,7 +333,7 @@ class DeeFuzzer(Thread):
                         self._err('Error validating station ' + name)
                 except Exception:
                     self._err('Error initializing station ' + name)
-                    if not ignoreErrors:
+                    if not self.ignoreErrors:
                         raise
                     continue
 

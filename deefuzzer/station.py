@@ -375,16 +375,18 @@ class Station(Thread):
 
             if self.type == 'icecast':
                 date = datetime.datetime.now().strftime("%Y")
+                media = None
                 if self.channel.format == 'mp3':
                     media = Mp3(self.record_dir + os.sep + self.rec_file)
                 if self.channel.format == 'ogg':
                     media = Ogg(self.record_dir + os.sep + self.rec_file)
-                media.metadata = {'artist': self.artist.encode('utf-8'),
-                                  'title': self.title.encode('utf-8'),
-                                  'album': self.short_name.encode('utf-8'),
-                                  'genre': self.channel.genre.encode('utf-8'),
-                                  'date': date.encode('utf-8'), }
-                media.write_tags()
+                if media:
+                    media.metadata = {'artist': self.artist.encode('utf-8'),
+                                      'title': self.title.encode('utf-8'),
+                                      'album': self.short_name.encode('utf-8'),
+                                      'genre': self.channel.genre.encode('utf-8'),
+                                      'date': date.encode('utf-8'), }
+                    media.write_tags()
 
         self.record_mode = value
         message = "received OSC message '%s' with arguments '%d'" % (path, value)
@@ -452,23 +454,24 @@ class Station(Thread):
             for media_obj in new_tracks_objs:
                 title = ''
                 artist = ''
-                if media_obj.metadata.has_key('title'):
+                if 'title' in media_obj.metadata:
                     title = media_obj.metadata['title']
-                if media_obj.metadata.has_key('artist'):
+                if 'artist' in media_obj.metadata:
                     artist = media_obj.metadata['artist']
                 if not (title or artist):
                     song = str(media_obj.file_name)
                 else:
                     song = artist + ' - ' + title
-                    song = song.encode('utf-8')
-                    artist = artist.encode('utf-8')
 
-                    artist_names = artist.split(' ')
-                    artist_tags = ' #'.join(list(set(artist_names) - {'&', '-'}))
-                    message = '#NEWTRACK ! %s #%s on #%s RSS: ' % \
-                              (song.replace('_', ' '), artist_tags, self.short_name)
-                    message = message[:113] + self.feeds_url
-                    self.update_twitter(message)
+                song = song.encode('utf-8')
+                artist = artist.encode('utf-8')
+
+                artist_names = artist.split(' ')
+                artist_tags = ' #'.join(list(set(artist_names) - {'&', '-'}))
+                message = '#NEWTRACK ! %s #%s on #%s RSS: ' % \
+                          (song.replace('_', ' '), artist_tags, self.short_name)
+                message = message[:113] + self.feeds_url
+                self.update_twitter(message)
 
     def get_next_media(self):
         # Init playlist
@@ -728,7 +731,7 @@ class Station(Thread):
         if not self.__twitter_should_update():
             return
         artist_names = self.artist.split(' ')
-        artist_tags = ' #'.join(list(set(artist_names) - {'&', '-'}))
+        # artist_tags = ' #'.join(list(set(artist_names) - {'&', '-'}))
         message = '%s %s on #%s' % (self.prefix, self.song, self.short_name)
         tags = '#' + ' #'.join(self.twitter_tags)
         message = message + ' ' + tags

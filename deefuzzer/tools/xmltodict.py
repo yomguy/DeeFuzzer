@@ -7,8 +7,7 @@ def haschilds(dom):
     # Checks whether an element has any childs
     # containing real tags opposed to just text.
     for childnode in dom.childNodes:
-        if childnode.nodeName != "#text" and \
-                        childnode.nodeName != "#cdata-section":
+        if childnode.nodeName != "#text" and childnode.nodeName != "#cdata-section":
             return True
     return False
 
