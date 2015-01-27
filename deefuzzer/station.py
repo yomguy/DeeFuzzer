@@ -109,15 +109,15 @@ class Station(Thread):
             self.base_directory = self.station['base_dir'].strip()
 
         # Media
-        if 'm3u' in self.station['media'].keys():
+        if 'm3u' in self.station['media']:
             if not self.station['media']['m3u'].strip() == '':
                 self.media_source = self._path_add_base(self.station['media']['m3u'])
 
-        if 'dir' in self.station['media'].keys():
+        if 'dir' in self.station['media']:
             if not self.station['media']['dir'].strip() == '':
                 self.media_source = self._path_add_base(self.station['media']['dir'])
 
-        if 'source' in self.station['media'].keys():
+        if 'source' in self.station['media']:
             if not self.station['media']['source'].strip() == '':
                 self.media_source = self._path_add_base(self.station['media']['source'])
 
@@ -129,16 +129,16 @@ class Station(Thread):
         self.voices = int(self.station['media']['voices'])
 
         # Server
-        if 'mountpoint' in self.station['server'].keys():
+        if 'mountpoint' in self.station['server']:
             self.mountpoint = self.station['server']['mountpoint']
-        elif 'short_name' in self.station['infos'].keys():
+        elif 'short_name' in self.station['infos']:
             self.mountpoint = self.station['infos']['short_name']
         else:
             self.mountpoint = 'default'
 
         self.short_name = self.mountpoint
 
-        if 'appendtype' in self.station['server'].keys():
+        if 'appendtype' in self.station['server']:
             self.appendtype = int(self.station['server']['appendtype'])
 
         if 'type' in self.station['server']:
@@ -730,7 +730,7 @@ class Station(Thread):
     def update_twitter_current(self):
         if not self.__twitter_should_update():
             return
-        artist_names = self.artist.split(' ')
+        # artist_names = self.artist.split(' ')
         # artist_tags = ' #'.join(list(set(artist_names) - {'&', '-'}))
         message = '%s %s on #%s' % (self.prefix, self.song, self.short_name)
         tags = '#' + ' #'.join(self.twitter_tags)

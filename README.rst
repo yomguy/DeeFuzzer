@@ -20,7 +20,7 @@ live multimedia relays or personal home radios, with metadata management and coo
 
 
 Features
-=========
+========
 
  * MP3, OGG Vorbis file and live streaming over Internet
  * Full metadata encapsulation and management

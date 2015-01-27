@@ -68,7 +68,7 @@ class DeeFuzzer(Thread):
         self.conf_file = conf_file
         self.conf = get_conf_dict(self.conf_file)
 
-        if 'deefuzzer' not in self.conf.keys():
+        if 'deefuzzer' not in self.conf:
             return
 
         # Get the log setting first (if possible)
@@ -145,12 +145,12 @@ class DeeFuzzer(Thread):
         """Scan a folder for subfolders containing media, and make stations from them all."""
 
         options = self.watchfolder
-        if 'folder' not in options.keys():
+        if 'folder' not in options:
             # We have no folder specified.  Bail.
             return
 
         if self.mainLoop:
-            if 'livecreation' not in options.keys():
+            if 'livecreation' not in options:
                 # We have no folder specified.  Bail.
                 return
 
@@ -166,9 +166,9 @@ class DeeFuzzer(Thread):
         # This makes the log file a lot more verbose.  Commented out since we report on new stations anyway.
         # self._info('Scanning folder ' + folder + ' for stations')
 
-        if 'infos' not in options.keys():
+        if 'infos' not in options:
             options['infos'] = {}
-        if 'short_name' not in options['infos'].keys():
+        if 'short_name' not in options['infos']:
             options['infos']['short_name'] = '[name]'
 
         files = os.listdir(folder)
@@ -181,9 +181,9 @@ class DeeFuzzer(Thread):
     def station_exists(self, name):
         try:
             for s in self.station_settings:
-                if 'infos' not in s.keys():
+                if 'infos' not in s:
                     continue
-                if 'short_name' not in s['infos'].keys():
+                if 'short_name' not in s['infos']:
                     continue
                 if s['infos']['short_name'] == name:
                     return True
@@ -204,7 +204,7 @@ class DeeFuzzer(Thread):
         for i in options.keys():
             if 'folder' not in i:
                 s[i] = replace_all(options[i], d)
-        if 'media' not in s.keys():
+        if 'media' not in s:
             s['media'] = {}
         s['media']['source'] = folder
         
@@ -241,7 +241,7 @@ class DeeFuzzer(Thread):
         self._info('Loading station config file ' + file)
         stationdef = get_conf_dict(file)
         if isinstance(stationdef, dict):
-            if 'station' in stationdef.keys():
+            if 'station' in stationdef:
                 if isinstance(stationdef['station'], dict):
                     self.add_station(stationdef['station'])
                 elif isinstance(stationdef['station'], list):
@@ -272,14 +272,14 @@ class DeeFuzzer(Thread):
             for i in range(0, ns_new):
                 name = ''
                 try:
-                    if 'station_name' in self.station_settings[i].keys():
+                    if 'station_name' in self.station_settings[i]:
                         name = self.station_settings[i]['station_name']
                     
-                    if 'retries' not in self.station_settings[i].keys():
+                    if 'retries' not in self.station_settings[i]:
                         self.station_settings[i]['retries'] = 0
                         
                     try:
-                        if 'station_instance' in self.station_settings[i].keys():
+                        if 'station_instance' in self.station_settings[i]:
                             # Check for station running here
                             if self.station_settings[i]['station_instance'].isAlive():
                                 # Station exists and is alive.  Don't recreate.
@@ -288,7 +288,7 @@ class DeeFuzzer(Thread):
                             
                             if self.maxretry >= 0 and self.station_settings[i]['retries'] <= self.maxretry:
                                 # Station passed the max retries count is will not be reloaded
-                                if 'station_stop_logged' not in self.station_settings[i].keys():
+                                if 'station_stop_logged' not in self.station_settings[i]:
                                     self._err('Station ' + name + ' is stopped and will not be restarted.')
                                     self.station_settings[i]['station_stop_logged'] = True
                                 continue
@@ -312,7 +312,7 @@ class DeeFuzzer(Thread):
 
                     if name == '':
                         name = 'Station ' + str(i)
-                        if 'info' in self.station_settings[i].keys():
+                        if 'info' in self.station_settings[i]:
                             if 'short_name' in self.station_settings[i]['infos']:
                                 name = self.station_settings[i]['infos']['short_name']
                                 y = 1

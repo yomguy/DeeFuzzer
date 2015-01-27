@@ -145,7 +145,7 @@ class Ogg:
         for tag in self.metadata.keys():
             value = clean_word(self.metadata[tag])
             args.append('-c %s="%s"' % (tag, value))
-            if tag in self.dub2args_dict.keys():
+            if tag in self.dub2args_dict:
                 arg = self.dub2args_dict[tag]
                 args.append('-c %s="%s"' % (arg, value))
 

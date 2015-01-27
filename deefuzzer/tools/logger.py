@@ -38,10 +38,10 @@ class QueueLogger(Thread):
                 if not isinstance(msg, dict):
                     self.logger.write_error(str(msg))
                 else:
-                    if 'msg' not in msg.keys():
+                    if 'msg' not in msg:
                         continue
 
-                    if 'level' in msg.keys():
+                    if 'level' in msg:
                         if msg['level'] == 'info':
                             self.logger.write_info(msg['msg'])
                         else:

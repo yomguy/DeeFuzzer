@@ -55,7 +55,7 @@ class Xml2Obj:
             # This is code for the parent element
             self._inCode = True
             parent = self.nodeStack[-1]
-            if not parent.has_key("code"):
+            if "code" not in parent:
                 parent["code"] = {}
                 self._codeDict = parent["code"]
 
@@ -65,7 +65,7 @@ class Xml2Obj:
             self._propName = ""
             self._propData = ""
             parent = self.nodeStack[-1]
-            if not parent.has_key("properties"):
+            if "properties" not in parent:
                 parent["properties"] = {}
                 self._propDict = parent["properties"]
 
@@ -84,14 +84,14 @@ class Xml2Obj:
                 element = {"name": name.encode()}
                 if len(attributes) > 0:
                     for att in self.attsToSkip:
-                        if attributes.has_key(att):
+                        if att in attributes:
                             del attributes[att]
                     element["attributes"] = attributes
 
                 # Push element onto the stack and make it a child of parent
                 if len(self.nodeStack) > 0:
                     parent = self.nodeStack[-1]
-                    if not parent.has_key("children"):
+                    if "children" not in parent:
                         parent["children"] = []
                     parent["children"].append(element)
                 else:
@@ -141,7 +141,7 @@ class Xml2Obj:
                 self._propData += data
             else:
                 element = self.nodeStack[-1]
-                if not element.has_key("cdata"):
+                if "cdata" not in element:
                     element["cdata"] = ""
                 element["cdata"] += data
 
@@ -245,7 +245,7 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
     att = ""
     ret = ""
 
-    if dct.has_key("attributes"):
+    if "attributes" in dct:
         for key, val in dct["attributes"].items():
             # Some keys are already handled.
             noEscape = key in ("sizerInfo",)
@@ -253,15 +253,15 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
             att += " %s=%s" % (key, val)
     ret += "%s<%s%s" % ("\t" * level, dct["name"], att)
 
-    if (not dct.has_key("cdata") and not dct.has_key("children")
-            and not dct.has_key("code") and not dct.has_key("properties")):
+    if ("cdata" not in dct and "children" not in dct
+            and "code" not in dct and "properties" not in dct):
         ret += " />%s" % eol
     else:
         ret += ">"
-        if dct.has_key("cdata"):
+        if "cdata" in dct:
             ret += "%s" % dct["cdata"].replace("<", "&lt;")
 
-        if dct.has_key("code"):
+        if "code" in dct:
             if len(dct["code"].keys()):
                 ret += "%s%s<code>%s" % (eol, "\t" * (level + 1), eol)
                 methodTab = "\t" * (level + 2)
@@ -280,7 +280,7 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
                     )
                 ret += "%s</code>%s" % ("\t" * (level + 1), eol)
 
-        if dct.has_key("properties"):
+        if "properties" in dct:
             if len(dct["properties"].keys()):
                 ret += "%s%s<properties>%s" % (eol, "\t" * (level + 1), eol)
                 currTab = "\t" * (level + 2)
@@ -292,10 +292,11 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
                     ret += "%s</%s>%s" % (currTab, prop, eol)
                 ret += "%s</properties>%s" % ("\t" * (level + 1), eol)
 
-        if dct.has_key("children") and len(dct["children"]) > 0:
-            ret += eol
-            for child in dct["children"]:
-                ret += dicttoxml(child, level + 1, linesep=linesep)
+        if "children" in dct:
+            if len(dct["children"]) > 0:
+                ret += eol
+                for child in dct["children"]:
+                    ret += dicttoxml(child, level + 1, linesep=linesep)
         indnt = ""
         if ret.endswith(eol):
             # Indent the closing tag

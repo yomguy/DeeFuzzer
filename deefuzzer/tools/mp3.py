@@ -133,7 +133,7 @@ class Mp3:
         '''
         # media_id3 = id3.ID3(self.media)
         # for tag in self.metadata.keys():
-            # if tag in self.dub2id3_dict.keys():
+            # if tag in self.dub2id3_dict:
                 # frame_text = self.dub2id3_dict[tag]
                 # value = self.metadata[tag]
                 # frame = mutagen.id3.Frames[frame_text](3,value)
