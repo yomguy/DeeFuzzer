@@ -58,7 +58,7 @@ class Mp3:
         self.item_id = ''
         self.source = self.media
         self.options = {}
-        self.bitrate_default = '192'
+        self.bitrate_default = 192
         self.cache_dir = os.sep + 'tmp'
         self.keys2id3 = {
             'title': 'TIT2',
@@ -72,7 +72,11 @@ class Mp3:
         }
         self.mp3 = MP3(self.media, ID3=EasyID3)
         self.info = self.mp3.info
-        self.bitrate = int(str(self.info.bitrate)[:-3])
+        self.bitrate = self.bitrate_default
+        try:
+            self.bitrate = int(self.info.bitrate / 1024)
+        except:
+            pass
         self.length = datetime.timedelta(0, self.info.length)
         try:
             self.metadata = self.get_file_metadata()
