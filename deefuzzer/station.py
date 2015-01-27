@@ -95,6 +95,8 @@ class Station(Thread):
         self.logqueue = logqueue
         self.m3u = m3u
 
+        self.current_media_obj = MediaBase()
+
         if 'station_statusfile' in self.station:
             self.statusfile = station['station_statusfile']
             try:
@@ -452,24 +454,12 @@ class Station(Thread):
         if len(self.new_tracks):
             new_tracks_objs = self.media_to_objs(self.new_tracks)
             for media_obj in new_tracks_objs:
-                title = ''
-                artist = ''
-                if 'title' in media_obj.metadata:
-                    title = media_obj.metadata['title']
-                if 'artist' in media_obj.metadata:
-                    artist = media_obj.metadata['artist']
-                if not (title or artist):
-                    song = str(media_obj.file_name)
-                else:
-                    song = artist + ' - ' + title
-
-                song = song.encode('utf-8')
-                artist = artist.encode('utf-8')
+                title, artist, song = self.get_songmeta(media_obj)
 
                 artist_names = artist.split(' ')
                 artist_tags = ' #'.join(list(set(artist_names) - {'&', '-'}))
-                message = '#NEWTRACK ! %s #%s on #%s RSS: ' % \
-                          (song.replace('_', ' '), artist_tags, self.short_name)
+                message = '#NEWTRACK ! %s %s on #%s' % \
+                          (song, artist_tags.strip(), self.short_name)
                 message = message[:113] + self.feeds_url
                 self.update_twitter(message)
 
@@ -547,30 +537,20 @@ class Station(Thread):
     def media_to_objs(self, media_list):
         media_objs = []
         for media in media_list:
+            file_meta = MediaBase()
             file_name, file_title, file_ext = get_file_info(media)
             self.q.get(1)
             try:
                 if file_ext.lower() == 'mp3' or mimetypes.guess_type(media)[0] == 'audio/mpeg':
-                    try:
-                        file_meta = Mp3(media)
-                    except:
-                        continue
+                    file_meta = Mp3(media)
                 elif file_ext.lower() == 'ogg' or mimetypes.guess_type(media)[0] == 'audio/ogg':
-                    try:
-                        file_meta = Ogg(media)
-                    except:
-                        continue
+                    file_meta = Ogg(media)
                 elif file_ext.lower() == 'webm' or mimetypes.guess_type(media)[0] == 'video/webm':
-                    try:
-                        file_meta = WebM(media)
-                    except:
-                        continue
-                if self.feeds_showfilename:
-                    file_meta.metadata['filename'] = file_name.decode("utf-8")  # decode needed for some weird filenames
-                if self.feeds_showfilepath:
-                    file_meta.metadata['filepath'] = media.decode("utf-8")  # decode needed for some weird filenames
+                    file_meta = WebM(media)
             except:
                 pass
+            file_meta.metadata['filename'] = file_name.decode("utf-8")  # decode needed for some weird filenames
+            file_meta.metadata['filepath'] = media.decode("utf-8")  # decode needed for some weird filenames
             self.q.task_done()
             media_objs.append(file_meta)
         return media_objs
@@ -602,18 +582,16 @@ class Station(Thread):
 
             for key in media.metadata.keys():
                 if media.metadata[key] != '':
+                    if key == 'filepath' and not self.feeds_showfilepath:
+                        continue
+                    if key == 'filename' and not self.feeds_showfilename:
+                        continue
                     media_description += media_description_item % (key.capitalize(),
                                                                    media.metadata[key])
                     json_item[key] = media.metadata[key]
             media_description += '</table>'
 
-            title = media.metadata['title']
-            artist = media.metadata['artist']
-            if not (title or artist):
-                song = str(media.file_title)
-            else:
-                song = artist + ' - ' + title
-
+            title, artist, song = self.get_songmeta(media)
             media_absolute_playtime += media.length
 
             if self.feeds_enclosure == '1':
@@ -674,11 +652,7 @@ class Station(Thread):
 
     def set_relay_mode(self):
         self.prefix = '#nowplaying #LIVE'
-        self.title = self.channel.description.encode('utf-8')
-        self.artist = self.relay_author.encode('utf-8')
-        self.title = self.title.replace('_', ' ')
-        self.artist = self.artist.replace('_', ' ')
-        self.song = self.artist + ' - ' + self.title
+        self.get_currentsongmeta()
 
         if self.type == 'stream-m':
             relay = URLReader(self.relay_url)
@@ -688,28 +662,40 @@ class Station(Thread):
         else:
             self.stream = self.player.relay_read()
 
+    def get_songmeta(self, mediaobj):
+        title = ""
+        artist = ""
+        song = ""
+
+        try:
+            title = mediaobj.get_title()
+            artist = mediaobj.get_artist()
+            song = mediaobj.get_song(True)
+        except:
+            pass
+
+        return title, artist, song
+
+    def get_currentsongmeta(self):
+        self.title = ""
+        self.artist = ""
+        self.song = ""
+        self.current_media_obj = MediaBase()
+
+        try:
+            m = self.media_to_objs([self.media])
+            self.current_media_obj = m[0]
+        except:
+            pass
+
+        self.title, self.artist, self.song = self.get_songmeta(self.current_media_obj)
+
     def set_read_mode(self):
         self.prefix = '#nowplaying'
-        self.current_media_obj = self.media_to_objs([self.media])
-        try:
-            self.title = self.current_media_obj[0].metadata['title']
-            self.artist = self.current_media_obj[0].metadata['artist']
-        except:
-            self.title = 'title'
-            self.artist = 'artist'
+        self.get_currentsongmeta()
 
-        self.title = self.title.replace('_', ' ')
-        self.artist = self.artist.replace('_', ' ')
-
-        if not (self.title or self.artist):
-            song = str(self.current_media_obj[0].file_name)
-        else:
-            song = self.artist + ' - ' + self.title
-
-        self.song = song.encode('utf-8')
-        self.artist = self.artist.encode('utf-8')
         self.metadata_file = self.metadata_dir + os.sep + self.current_media_obj[0].file_name + '.xml'
-        self.update_feeds(self.current_media_obj, self.feeds_current_file, '(currently playing)')
+        self.update_feeds([self.current_media_obj], self.feeds_current_file, '(currently playing)')
         self._info('DeeFuzzing:  id = %s, name = %s'
                    % (self.id, self.current_media_obj[0].file_name))
         self.player.set_media(self.media)
@@ -730,8 +716,6 @@ class Station(Thread):
     def update_twitter_current(self):
         if not self.__twitter_should_update():
             return
-        # artist_names = self.artist.split(' ')
-        # artist_tags = ' #'.join(list(set(artist_names) - {'&', '-'}))
         message = '%s %s on #%s' % (self.prefix, self.song, self.short_name)
         tags = '#' + ' #'.join(self.twitter_tags)
         message = message + ' ' + tags

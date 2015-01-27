@@ -43,55 +43,45 @@ from mutagen.oggvorbis import OggVorbis
 from utils import *
 
 
-class Ogg:
+class Ogg(MediaBase):
     """An OGG file object"""
 
     def __init__(self, media):
+        MediaBase.__init__(self)
+
+        self.description = "OGG Vorbis"
+        self.mime_type = 'audio/ogg'
+        self.extension = 'ogg'
+        self.format = 'OGG'
+
         self.media = media
-        self.ogg = OggVorbis(self.media)
-        self.item_id = ''
+        self.sourceobj = OggVorbis(self.media)
         self.source = self.media
-        self.options = {}
         self.bitrate_default = '192'
-        self.cache_dir = os.sep + 'tmp'
-        self.keys2ogg = {
-            'title': 'title',
-            'artist': 'artist',
-            'album': 'album',
-            'date': 'date',
-            'comment': 'comment',
-            'genre': 'genre',
-            'copyright': 'copyright'
+
+        self.tagdata = {
+            'title': '',
+            'artist': '',
+            'album': '',
+            'date': '',
+            'comment': '',
+            'genre': '',
+            'copyright': ''
         }
-        self.info = self.ogg.info
+
+        self.info = self.sourceobj.info
         self.bitrate = int(str(self.info.bitrate)[:-3])
         self.length = datetime.timedelta(0, self.info.length)
         self.metadata = self.get_file_metadata()
-        self.description = self.get_description()
-        self.mime_type = self.get_mime_type()
         self.media_info = get_file_info(self.media)
         self.file_name = self.media_info[0]
         self.file_title = self.media_info[1]
         self.file_ext = self.media_info[2]
-        self.extension = self.get_file_extension()
         self.size = os.path.getsize(media)
-        # self.args = self.get_args()
-
-    def get_format(self):
-        return 'OGG'
-
-    def get_file_extension(self):
-        return 'ogg'
-
-    def get_mime_type(self):
-        return 'audio/ogg'
-
-    def get_description(self):
-        return 'OGG Vorbis'
 
     def get_file_info(self):
         try:
-            file_out1, file_out2 = os.popen4('ogginfo "' + self.dest + '"')
+            file_out1, file_out2 = os.popen4('ogginfo "' + self.source + '"')
             info = []
             for line in file_out2.readlines():
                 info.append(clean_word(line[:-1]))
@@ -100,31 +90,21 @@ class Ogg:
         except:
             raise IOError('ExporterError: file does not exist.')
 
-    def set_cache_dir(self, path):
-        self.cache_dir = path
-
-    def get_file_metadata(self):
-        metadata = {}
-        for key in self.keys2ogg.keys():
-            try:
-                metadata[key] = self.ogg[key][0]
-            except:
-                metadata[key] = ''
-        return metadata
-
     def decode(self):
+        if not self.item_id:
+            raise IOError('ExporterError: Required item_id parameter not set.')
         try:
-            os.system('oggdec -o "' + self.cache_dir + os.sep + self.item_id +
-                      '.wav" "' + self.source + '"')
-            return self.cache_dir + os.sep + self.item_id + '.wav'
+            p = os.path.join(self.cache_dir, (self.item_id + '.wav'))
+            os.system('oggdec -o "' + p + '" "' + self.source + '"')
+            return p
         except:
             raise IOError('ExporterError: decoder is not compatible.')
 
     def write_tags(self):
         # self.ogg.add_tags()
         for tag in self.metadata.keys():
-            self.ogg[tag] = str(self.metadata[tag])
-        self.ogg.save()
+            self.sourceobj[tag] = str(self.metadata[tag])
+        self.sourceobj.save()
 
     def get_args(self, options=None):
         """Get process options and return arguments for the encoder"""
@@ -145,8 +125,9 @@ class Ogg:
         for tag in self.metadata.keys():
             value = clean_word(self.metadata[tag])
             args.append('-c %s="%s"' % (tag, value))
-            if tag in self.dub2args_dict:
-                arg = self.dub2args_dict[tag]
-                args.append('-c %s="%s"' % (arg, value))
+            if tag in self.tagdata:
+                arg = self.tagdata[tag]
+                if arg:
+                    args.append('-c %s="%s"' % (arg, value))
 
         return args
