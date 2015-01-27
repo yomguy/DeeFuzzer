@@ -38,8 +38,8 @@
 
 from threading import Thread
 
-class HTTPStreamer(Thread):
 
+class HTTPStreamer(Thread):
     protocol = 'http'
     host = str
     port = str
@@ -58,6 +58,7 @@ class HTTPStreamer(Thread):
     def __init__(self):
         Thread.__init__(self)
         import pycurl
+
         self.curl = pycurl.Curl()
 
     def set_callback(self, read_callback):
@@ -68,8 +69,9 @@ class HTTPStreamer(Thread):
 
     def open(self):
         import pycurl
-        self.uri = self.protocol + '://' + self.host + ':' + str(self.port) + \
-                        self.mount + '?' + 'password=' + self.password
+
+        self.uri = self.protocol + '://' + self.host + ':' + str(self.port)
+        self.uri += self.mount + '?' + 'password=' + self.password
         self.curl.setopt(pycurl.URL, self.uri)
         self.curl.setopt(pycurl.UPLOAD, 1)
         self.curl.setopt(pycurl.READFUNCTION, self.read_callback)

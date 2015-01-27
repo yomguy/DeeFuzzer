@@ -1,6 +1,8 @@
-
-import os, sys, yaml
+import os
+import sys
+import yaml
 from deefuzzer.core import DeeFuzzer
+
 
 path = sys.argv[-1]
 d = DeeFuzzer(path)

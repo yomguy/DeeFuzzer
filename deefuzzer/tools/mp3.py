@@ -44,10 +44,11 @@ from mutagen.mp3 import MP3, MPEGInfo
 from mutagen import id3
 from utils import *
 
-EasyID3.valid_keys["comment"]="COMM::'XXX'"
-EasyID3.valid_keys["copyright"]="TCOP::'XXX'"
-EasyID3.valid_keys["country"]="TXXX:COUNTRY:'XXX'"
-EasyID3.RegisterTXXXKey("country","COUNTRY")
+EasyID3.valid_keys["comment"] = "COMM::'XXX'"
+EasyID3.valid_keys["copyright"] = "TCOP::'XXX'"
+EasyID3.valid_keys["country"] = "TXXX:COUNTRY:'XXX'"
+EasyID3.RegisterTXXXKey("country", "COUNTRY")
+
 
 class Mp3:
     """A MP3 file object"""
@@ -59,31 +60,33 @@ class Mp3:
         self.options = {}
         self.bitrate_default = '192'
         self.cache_dir = os.sep + 'tmp'
-        self.keys2id3 = {'title': 'TIT2',
-                    'artist': 'TPE1',
-                    'album': 'TALB',
-                    'date': 'TDRC',
-                    'comment': 'COMM',
-                    'country': 'COUNTRY',
-                    'genre': 'TCON',
-                    'copyright': 'TCOP',
-                    }
+        self.keys2id3 = {
+            'title': 'TIT2',
+            'artist': 'TPE1',
+            'album': 'TALB',
+            'date': 'TDRC',
+            'comment': 'COMM',
+            'country': 'COUNTRY',
+            'genre': 'TCON',
+            'copyright': 'TCOP'
+        }
         self.mp3 = MP3(self.media, ID3=EasyID3)
         self.info = self.mp3.info
         self.bitrate = int(str(self.info.bitrate)[:-3])
-        self.length = datetime.timedelta(0,self.info.length)
+        self.length = datetime.timedelta(0, self.info.length)
         try:
             self.metadata = self.get_file_metadata()
         except:
-            self.metadata = {'title': '',
-                    'artist': '',
-                    'album': '',
-                    'date': '',
-                    'comment': '',
-                    'country': '',
-                    'genre': '',
-                    'copyright': '',
-                    }
+            self.metadata = {
+                'title': '',
+                'artist': '',
+                'album': '',
+                'date': '',
+                'comment': '',
+                'country': '',
+                'genre': '',
+                'copyright': ''
+            }
 
         self.description = self.get_description()
         self.mime_type = self.get_mime_type()
@@ -93,7 +96,7 @@ class Mp3:
         self.file_ext = self.media_info[2]
         self.extension = self.get_file_extension()
         self.size = os.path.getsize(media)
-        #self.args = self.get_args()
+        # self.args = self.get_args()
 
     def get_format(self):
         return 'MP3'
@@ -127,21 +130,23 @@ class Mp3:
         self.mp3.tags['TIT2'] = id3.TIT2(encoding=2, text=u'text')
         self.mp3.save()
 
-        #media_id3 = id3.ID3(self.media)
-        #for tag in self.metadata.keys():
-            #if tag in self.dub2id3_dict.keys():
-                #frame_text = self.dub2id3_dict[tag]
-                #value = self.metadata[tag]
-                #frame = mutagen.id3.Frames[frame_text](3,value)
-            #try:
-                #media_id3.add(frame)
-            #except:
-                #raise IOError('ExporterError: cannot tag "'+tag+'"')
+        '''
+        # media_id3 = id3.ID3(self.media)
+        # for tag in self.metadata.keys():
+            # if tag in self.dub2id3_dict:
+                # frame_text = self.dub2id3_dict[tag]
+                # value = self.metadata[tag]
+                # frame = mutagen.id3.Frames[frame_text](3,value)
+            # try:
+                # media_id3.add(frame)
+            # except:
+                # raise IOError('ExporterError: cannot tag "'+tag+'"')
 
-        #try:
-            #media_id3.save()
-        #except:
-            #raise IOError('ExporterError: cannot write tags')
+        # try:
+            # media_id3.save()
+        # except:
+            # raise IOError('ExporterError: cannot write tags')
+        '''
 
         media = id3.ID3(self.media)
         media.add(id3.TIT2(encoding=3, text=self.metadata['title'].decode('utf8')))

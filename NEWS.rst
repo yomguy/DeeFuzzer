@@ -1,5 +1,5 @@
 Old news
-=========
+========
 
 See README.rst for last news.
 

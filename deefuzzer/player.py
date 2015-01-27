@@ -128,6 +128,8 @@ class URLReader:
         self.recorder = recorder
 
     def read_callback(self, size):
+        chunk = None
+
         try:
             chunk = self.relay.read(size)
         except:
