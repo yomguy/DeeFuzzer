@@ -547,10 +547,10 @@ class Station(Thread):
                     file_meta = Ogg(media)
                 elif file_ext.lower() == 'webm' or mimetypes.guess_type(media)[0] == 'video/webm':
                     file_meta = WebM(media)
-            except:
+            except Exception, e:
+                self._err('Could not get specific media type class for %s' % (media))
+                self._err('Error: %s' % (str(e)))
                 pass
-            file_meta.metadata['filename'] = file_name.decode("utf-8")  # decode needed for some weird filenames
-            file_meta.metadata['filepath'] = media.decode("utf-8")  # decode needed for some weird filenames
             self.q.task_done()
             media_objs.append(file_meta)
         return media_objs
@@ -589,6 +589,12 @@ class Station(Thread):
                     media_description += media_description_item % (key.capitalize(),
                                                                    media.metadata[key])
                     json_item[key] = media.metadata[key]
+            if self.feeds_showfilepath:
+                media_description += media_description_item % ('Filepath', media.media)
+                json_item['filepath'] = media.media
+            if self.feeds_showfilename:
+                media_description += media_description_item % ('Filename', media.file_name)
+                json_item['filename'] = media.file_name
             media_description += '</table>'
 
             title, artist, song = self.get_songmeta(media)
@@ -686,18 +692,24 @@ class Station(Thread):
             m = self.media_to_objs([self.media])
             self.current_media_obj = m[0]
         except:
+            self._info("Failed to get media object for %s" % (self.media))
             pass
 
         self.title, self.artist, self.song = self.get_songmeta(self.current_media_obj)
 
     def set_read_mode(self):
         self.prefix = '#nowplaying'
-        self.get_currentsongmeta()
-
-        self.metadata_file = self.metadata_dir + os.sep + self.current_media_obj[0].file_name + '.xml'
-        self.update_feeds([self.current_media_obj], self.feeds_current_file, '(currently playing)')
-        self._info('DeeFuzzing:  id = %s, name = %s'
-                   % (self.id, self.current_media_obj[0].file_name))
+        
+        try:
+            self.get_currentsongmeta()
+            fn = self.current_media_obj.file_name
+            if fn:
+                self.metadata_file = self.metadata_dir + os.sep + fn + '.xml'
+            self.update_feeds([self.current_media_obj], self.feeds_current_file, '(currently playing)')
+            if fn:
+                self._info('DeeFuzzing:  id = %s, name = %s' % (self.id, fn))
+        except:
+            pass
         self.player.set_media(self.media)
 
         self.q.get(1)

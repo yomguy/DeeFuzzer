@@ -28,24 +28,14 @@ class MediaBase(object):
         # tagdata contains a dictionary of tags to use to gather metadata from the sourceobj
         self.tagdata = {}
 
-        self.media = None
+        self.media = ''
         self.item_id = ''
-        self.source = None
+        self.source = ''
         self.options = {}
         self.bitrate_default = 0
-        self.info = None
+        self.info = {}
         self.bitrate = 0
         self.length = 0
-        self.metadata = {
-            'title': '',
-            'artist': '',
-            'album': '',
-            'date': '',
-            'comment': '',
-            'country': '',
-            'genre': '',
-            'copyright': ''
-        }
 
         # sourceobj contains the metadata information for the referenced object
         self.sourceobj = {}
@@ -55,6 +45,7 @@ class MediaBase(object):
         self.file_title = ''
         self.file_ext = ''
         self.size = 0
+        self.metadata = {}
 
         # A more cross-platform way to do this
         self.cache_dir = tempfile.gettempdir()
@@ -79,47 +70,62 @@ class MediaBase(object):
         """Sets an alternate location for temporary cache files used in this media object"""
         self.cache_dir = path
 
-    def get_file_metadata(self):
-        """Returns the metadata for the media, filtered by the tagdata dictionary for this media type"""
-        metadata = {}
-        for key in self.tagdata.keys():
-            metadata[key] = ''
-            try:
-                metadata[key] = self.sourceobj[key][0]
-            except:
-                try:
-                    if self.tagdata[key] != '':
-                        metadata[key] = self.sourceobj[self.tagdata[key]][0]
-                except:
-                    pass
-        return metadata
+    def get_file_metadata(self, clear_cache=False):
+        """Returns the metadata for the media, filtered by the tagdata dictionary for this media type.  Return value is
+        read from cache if possible (or unless clear_cache is set to True)"""
+        if not self.metadata or clear_cache:
+            self.read_file_metadata()
+        return self.metadata
 
-    def __get_metadata_value(self, key, clean=False):
+    def read_file_metadata(self):
+        """Reads the metadata for the media, filtered by the tagdata dictionary for this media type"""
+        self.metadata = {}
+        for key in self.tagdata.keys():
+            self.metadata[key] = ''
+            try:
+                self.metadata[key] = self.sourceobj[key][0]
+            except:
+                pass
+                
+            try:
+                if self.tagdata[key] != '' and self.metadata[key] == "":
+                    self.metadata[key] = self.sourceobj[self.tagdata[key]][0]
+            except:
+                pass
+
+    def get_metadata_value(self, key, clean=False, clear_cache=False):
         """Returns a metadata value for a give key.  If clean is True, then the resulting string will
-        be cleaned before it is returned.  If the key does not exist, an empty string is returned."""
+        be cleaned before it is returned.  If the key does not exist, an empty string is returned.  Return 
+        value is read from cache if possible (or unless clear_cache is set to True)"""
+        if not self.metadata or clear_cache:
+            self.read_file_metadata()
+            
         if key not in self.metadata:
             return ''
         r = self.metadata[key]
+        if not r:
+            r = "";
         if clean:
             r = r.replace('_',' ').strip()
         return r.encode('utf-8')
 
     def get_title(self):
         """Returns the cleaned title for this media"""
-        return self.__get_metadata_value('title', True)
+        return self.get_metadata_value('title', True)
 
     def get_artist(self):
         """Returns the cleaned artist for this media"""
-        return self.__get_metadata_value('artist', True)
+        return self.get_metadata_value('artist', True)
 
     def get_song(self, usefn=True):
         """Returns a string in the form "artist - title" for this media.  If either artist or title are blank,
         only the non-blank field is returned.  If both fields are blank, and the usefn parameter is True, then
         the filename is returned instead.  Otherwise, an empty string is returned."""
-        a = self.__get_metadata_value('artist', True)
-        t = self.__get_metadata_value('title', True)
+        a = self.get_metadata_value('artist', True)
+        t = self.get_metadata_value('title', True)
         if len(a) == 0 and len(t) == 0 and usefn:
-            a = self.file_name.encode('utf-8')
+            if self.file_name:
+                a = self.file_name.encode('utf-8')
         r = a
         if len(a) > 0 and len(t) > 0:
             r += ' - '

@@ -55,5 +55,4 @@ class WebM(MediaBase):
 
         self.media = media
         self.source = self.media
-        self.metadata = {}
         self.file_name, self.file_title, self.file_ext = get_file_info(media)

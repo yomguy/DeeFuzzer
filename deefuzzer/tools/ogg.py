@@ -72,12 +72,12 @@ class Ogg(MediaBase):
         self.info = self.sourceobj.info
         self.bitrate = int(str(self.info.bitrate)[:-3])
         self.length = datetime.timedelta(0, self.info.length)
-        self.metadata = self.get_file_metadata()
+        self.read_file_metadata()
         self.media_info = get_file_info(self.media)
         self.file_name = self.media_info[0]
         self.file_title = self.media_info[1]
         self.file_ext = self.media_info[2]
-        self.size = os.path.getsize(media)
+        self.size = os.path.getsize(self.media)
 
     def get_file_info(self):
         try:
