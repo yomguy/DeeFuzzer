@@ -37,6 +37,7 @@
 # Author: Guillaume Pellerin <yomguy@parisson.com>
 
 from relay import *
+import time
 
 
 class Player:
@@ -120,7 +121,8 @@ class FileReader:
 class URLReader:
 
     def __init__(self, relay):
-        self.relay = urllib.urlopen(relay)
+        self.__relayparam = relay
+        self.relay = urllib.urlopen(self.__relayparam)
         self.rec_mode = 0
 
     def set_recorder(self, recorder, mode=1):
@@ -135,7 +137,7 @@ class URLReader:
         except:
             while True:
                 try:
-                    self.relay = urllib.urlopen(relay)
+                    self.relay = urllib.urlopen(self.__relayparam)
                     chunk = self.relay.read(size)
                     break
                 except:

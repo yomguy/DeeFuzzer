@@ -694,10 +694,10 @@ class Station(Thread):
         self.prefix = '#nowplaying'
         self.get_currentsongmeta()
 
-        self.metadata_file = self.metadata_dir + os.sep + self.current_media_obj[0].file_name + '.xml'
+        self.metadata_file = self.metadata_dir + os.sep + self.current_media_obj.file_name + '.xml'
         self.update_feeds([self.current_media_obj], self.feeds_current_file, '(currently playing)')
         self._info('DeeFuzzing:  id = %s, name = %s'
-                   % (self.id, self.current_media_obj[0].file_name))
+                   % (self.id, self.current_media_obj.file_name))
         self.player.set_media(self.media)
 
         self.q.get(1)

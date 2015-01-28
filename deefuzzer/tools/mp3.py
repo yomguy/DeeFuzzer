@@ -82,25 +82,13 @@ class Mp3(MediaBase):
         except:
             pass
         self.length = datetime.timedelta(0, self.info.length)
-        try:
-            self.metadata = self.get_file_metadata()
-        except:
-            self.metadata = {
-                'title': '',
-                'artist': '',
-                'album': '',
-                'date': '',
-                'comment': '',
-                'country': '',
-                'genre': '',
-                'copyright': ''
-            }
+        self.__read_file_metadata()
 
         self.media_info = get_file_info(self.media)
         self.file_name = self.media_info[0]
         self.file_title = self.media_info[1]
         self.file_ext = self.media_info[2]
-        self.size = os.path.getsize(mediabase)
+        self.size = os.path.getsize(self.media)
 
     def write_tags(self):
         """Write all ID3v2.4 tags by mapping dub2id3_dict dictionnary with the
