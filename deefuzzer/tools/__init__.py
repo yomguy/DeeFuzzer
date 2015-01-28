@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from xmltodict import *
 from PyRSS2Gen import *
+from mediabase import *
 from mp3 import *
 from ogg import *
 from webm import *

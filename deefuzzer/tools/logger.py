@@ -8,9 +8,9 @@ from threading import Thread
 class Logger:
     """A logging object"""
 
-    def __init__(self, file):
+    def __init__(self, filepath):
         self.logger = logging.getLogger('myapp')
-        self.hdlr = logging.FileHandler(file)
+        self.hdlr = logging.FileHandler(filepath)
         self.formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
         self.hdlr.setFormatter(self.formatter)
         self.logger.addHandler(self.hdlr)
@@ -26,9 +26,9 @@ class Logger:
 class QueueLogger(Thread):
     """A queue-based logging object"""
 
-    def __init__(self, file, q):
+    def __init__(self, filepath, q):
         Thread.__init__(self)
-        self.logger = Logger(file)
+        self.logger = Logger(filepath)
         self.q = q
 
     def run(self):

@@ -50,17 +50,21 @@ EasyID3.valid_keys["country"] = "TXXX:COUNTRY:'XXX'"
 EasyID3.RegisterTXXXKey("country", "COUNTRY")
 
 
-class Mp3:
+class Mp3(MediaBase):
     """A MP3 file object"""
 
-    def __init__(self, media):
-        self.media = media
-        self.item_id = ''
+    def __init__(self, newmedia):
+        MediaBase.__init__(self)
+
+        self.description = "MPEG audio Layer III"
+        self.mime_type = 'audio/mpeg'
+        self.extension = 'mp3'
+        self.format = 'MP3'
+
+        self.media = newmedia
         self.source = self.media
-        self.options = {}
-        self.bitrate_default = '192'
-        self.cache_dir = os.sep + 'tmp'
-        self.keys2id3 = {
+        self.bitrate_default = 192
+        self.tagdata = {
             'title': 'TIT2',
             'artist': 'TPE1',
             'album': 'TALB',
@@ -70,9 +74,13 @@ class Mp3:
             'genre': 'TCON',
             'copyright': 'TCOP'
         }
-        self.mp3 = MP3(self.media, ID3=EasyID3)
-        self.info = self.mp3.info
-        self.bitrate = int(str(self.info.bitrate)[:-3])
+        self.sourceobj = MP3(self.media, ID3=EasyID3)
+        self.info = self.sourceobj.info
+        self.bitrate = self.bitrate_default
+        try:
+            self.bitrate = int(self.info.bitrate / 1024)
+        except:
+            pass
         self.length = datetime.timedelta(0, self.info.length)
         try:
             self.metadata = self.get_file_metadata()
@@ -88,47 +96,19 @@ class Mp3:
                 'copyright': ''
             }
 
-        self.description = self.get_description()
-        self.mime_type = self.get_mime_type()
         self.media_info = get_file_info(self.media)
         self.file_name = self.media_info[0]
         self.file_title = self.media_info[1]
         self.file_ext = self.media_info[2]
-        self.extension = self.get_file_extension()
-        self.size = os.path.getsize(media)
-        # self.args = self.get_args()
-
-    def get_format(self):
-        return 'MP3'
-
-    def get_file_extension(self):
-        return 'mp3'
-
-    def get_mime_type(self):
-        return 'audio/mpeg'
-
-    def get_description(self):
-        return "MPEG audio Layer III"
-
-    def get_file_metadata(self):
-        metadata = {}
-        for key in self.keys2id3.keys():
-            try:
-                metadata[key] = self.mp3[key][0]
-            except:
-                try:
-                    metadata[key] = self.mp3[self.keys2id3[key]][0]
-                except:
-                    metadata[key] = ''
-        return metadata
+        self.size = os.path.getsize(mediabase)
 
     def write_tags(self):
         """Write all ID3v2.4 tags by mapping dub2id3_dict dictionnary with the
             respect of mutagen classes and methods"""
 
-        self.mp3.add_tags()
-        self.mp3.tags['TIT2'] = id3.TIT2(encoding=2, text=u'text')
-        self.mp3.save()
+        self.sourceobj.add_tags()
+        self.sourceobj.tags['TIT2'] = id3.TIT2(encoding=2, text=u'text')
+        self.sourceobj.save()
 
         '''
         # media_id3 = id3.ID3(self.media)
