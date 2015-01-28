@@ -28,12 +28,12 @@ class MediaBase(object):
         # tagdata contains a dictionary of tags to use to gather metadata from the sourceobj
         self.tagdata = {}
 
-        self.media = None
+        self.media = ''
         self.item_id = ''
-        self.source = None
+        self.source = ''
         self.options = {}
         self.bitrate_default = 0
-        self.info = None
+        self.info = {}
         self.bitrate = 0
         self.length = 0
 
@@ -74,10 +74,10 @@ class MediaBase(object):
         """Returns the metadata for the media, filtered by the tagdata dictionary for this media type.  Return value is
         read from cache if possible (or unless clear_cache is set to True)"""
         if not self.metadata or clear_cache:
-            self.__read_file_metadata()
+            self.read_file_metadata()
         return self.metadata
 
-    def __read_file_metadata(self):
+    def read_file_metadata(self):
         """Reads the metadata for the media, filtered by the tagdata dictionary for this media type"""
         self.metadata = {}
         for key in self.tagdata.keys():
@@ -85,18 +85,26 @@ class MediaBase(object):
             try:
                 self.metadata[key] = self.sourceobj[key][0]
             except:
-                try:
-                    if self.tagdata[key] != '':
-                        self.metadata[key] = self.sourceobj[self.tagdata[key]][0]
-                except:
-                    pass
+                pass
+                
+            try:
+                if self.tagdata[key] != '' and self.metadata[key] == "":
+                    self.metadata[key] = self.sourceobj[self.tagdata[key]][0]
+            except:
+                pass
 
-    def get_metadata_value(self, key, clean=False):
+    def get_metadata_value(self, key, clean=False, clear_cache=False):
         """Returns a metadata value for a give key.  If clean is True, then the resulting string will
-        be cleaned before it is returned.  If the key does not exist, an empty string is returned."""
+        be cleaned before it is returned.  If the key does not exist, an empty string is returned.  Return 
+        value is read from cache if possible (or unless clear_cache is set to True)"""
+        if not self.metadata or clear_cache:
+            self.read_file_metadata()
+            
         if key not in self.metadata:
             return ''
         r = self.metadata[key]
+        if not r:
+            r = "";
         if clean:
             r = r.replace('_',' ').strip()
         return r.encode('utf-8')
@@ -116,7 +124,8 @@ class MediaBase(object):
         a = self.get_metadata_value('artist', True)
         t = self.get_metadata_value('title', True)
         if len(a) == 0 and len(t) == 0 and usefn:
-            a = self.file_name.encode('utf-8')
+            if self.file_name:
+                a = self.file_name.encode('utf-8')
         r = a
         if len(a) > 0 and len(t) > 0:
             r += ' - '
