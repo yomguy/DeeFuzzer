@@ -57,8 +57,8 @@ News
  * Better thread management (@achbed #36 #37 #38)
  * Improved stability avoiding crashes with automatic station restart methods (@achbed #39 #45)
  * Added option (ignoreerrors) to log and continue when an error occurs during station setup (@achbed #43)
- * Cleanup, better doucmentation and good ideas (@choiz #15 #16 #17 #23)
- * Various bufixes
+ * Cleanup, better documentation and good ideas (@choiz #15 #16 #17 #23)
+ * Various bugfixes
  * Many thanks to all participants and especially to @achbed for his **huge** work, efficiency and easy collaboration
  * Enjoy!
 
