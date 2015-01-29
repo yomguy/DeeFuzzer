@@ -24,7 +24,7 @@ Features
 
  * MP3, OGG Vorbis file and live streaming over Internet
  * Full metadata encapsulation and management
- * RSS podcast generator (current tracks and playlists)
+ * RSS or JSON podcast generator (current tracks and playlists)
  * M3U playlist generator
  * Recursive, random (shuffled) or pre-defined playlists
  * Multi-threaded architecture: multiple station streaming with one config file
@@ -33,6 +33,7 @@ Features
  * OSC controller: control the main functions from a distant terminal
  * Relaying: relay and stream live sessions!
  * WebM video relaying support
+ * Automatic mountpoint creation based on media subfolders
  * Very light and optimized streaming process
  * Fully written in Python
  * Works with Icecast2, ShoutCast, Stream-m
@@ -45,7 +46,7 @@ News
 
 0.7
 
- * Huge refactoring which should be compatible with old setups, but please read the `updated example <https://github.com/yomguy/DeeFuzzer/blob/dev/example/deefuzzer_doc.xml>`_ before going on
+ * Huge refactoring which should be compatible with old setups, but before updating **please read** the `updated example <https://github.com/yomguy/DeeFuzzer/blob/dev/example/deefuzzer_doc.xml>`_ and the following news.
  * Reworked the RSS feed handling to allow JSON output as well and more configuration options (@achbed #27 #28)
  * Add an init.d script to act as a deamon (@achbed)
  * Add stationdefaults preference (apply default settings to all stations) (@achbed #31)
@@ -86,11 +87,15 @@ an install inside Gygwin should work well.
 
 To install it, say on Debian, do::
 
-    sudo apt-get install python-pip python-dev libshout3-dev python-liblo python-mutagen \
-                         python-pycurl liblo-dev libshout3-dev librtmp-dev \
-                         python-yaml libcurl4-openssl-dev python-mutagen icecast2
+    sudo apt-get install python-pip python-dev python-liblo \
+                         python-mutagen python-pycurl python-yaml \
+                         libshout3-dev librtmp-dev liblo-dev libcurl4-openssl-dev
 
-Now, the easiest way to install the DeeFuzzer from a shell::
+Now update distribute and setuptools::
+
+    sudo pip install -U distribute setuptools
+
+Then::
 
     sudo pip install deefuzzer
 
@@ -98,7 +103,13 @@ To upgrade::
 
     sudo pip install -U deefuzzer
 
+If you have some version problems with the installation, please try in a virtualenv.
+
 For more informations, please see on `GitHub <https://github.com/yomguy/DeeFuzzer>`_ or tweet to @yomguy
+
+As a streaming client, the DeeFuzzer needs a local or remote streaming server like Icecast2 to do something::
+
+    sudo apt-get install icecast2
 
 
 Usage
