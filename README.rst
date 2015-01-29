@@ -24,7 +24,7 @@ Features
 
  * MP3, OGG Vorbis file and live streaming over Internet
  * Full metadata encapsulation and management
- * RSS podcast generator (current tracks and playlists)
+ * RSS or JSON podcast generator (current tracks and playlists)
  * M3U playlist generator
  * Recursive, random (shuffled) or pre-defined playlists
  * Multi-threaded architecture: multiple station streaming with one config file
@@ -33,6 +33,7 @@ Features
  * OSC controller: control the main functions from a distant terminal
  * Relaying: relay and stream live sessions!
  * WebM video relaying support
+ * Automatic mountpoint creation based on media subfolders
  * Very light and optimized streaming process
  * Fully written in Python
  * Works with Icecast2, ShoutCast, Stream-m
@@ -90,13 +91,19 @@ To install it, say on Debian, do::
                          python-pycurl liblo-dev libshout3-dev librtmp-dev \
                          python-yaml libcurl4-openssl-dev python-mutagen icecast2
 
-Now, the easiest way to install the DeeFuzzer from a shell::
+Now update distribute and setuptools::
+
+    sudo pip install -U distribute setuptools
+
+Then::
 
     sudo pip install deefuzzer
 
 To upgrade::
 
     sudo pip install -U deefuzzer
+
+If you have some version problems with the installation, please try in a virtualenv.
 
 For more informations, please see on `GitHub <https://github.com/yomguy/DeeFuzzer>`_ or tweet to @yomguy
 
