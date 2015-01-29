@@ -49,7 +49,7 @@ News
  * Reworked the RSS feed handling to allow JSON output as well and more configuration options (@achbed #27 #28)
  * Add an init.d script to act as a deamon (@achbed)
  * Add stationdefaults preference (apply default settings to all stations) (@achbed #31)
- * Add stationfolder preference (generate stations automagically from a folder structure) (@achbed #31) 
+ * Add stationfolder preference (generate stations automatically from a folder structure) (@achbed #31) 
  * Add stationconfig preference (load other preference files as stations) (@achbed #31)
  * Add new station.server.appendtype option
  * Add new base_dir parameter to station definition
