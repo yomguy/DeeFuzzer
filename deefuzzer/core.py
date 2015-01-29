@@ -89,7 +89,7 @@ class DeeFuzzer(Thread):
 
             elif key == 'maxretry':
                 # Maximum number of attempts to restart the stations on crash.
-                self.maxretry = bool(self.conf['deefuzzer'][key])
+                self.maxretry = int(self.conf['deefuzzer'][key])
 
             elif key == 'station':
                 # Load station definitions from the main config file
