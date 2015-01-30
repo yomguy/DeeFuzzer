@@ -22,18 +22,16 @@ live multimedia relays or personal home radios, with metadata management and coo
 Features
 ========
 
- * MP3, OGG Vorbis file and live streaming over Internet
+ * Streaming MP3, OGG Vorbis files over Internet
+ * Live streaming for any kind of format (WebM compatible)
  * Full metadata encapsulation and management
- * RSS or JSON podcast generator (current tracks and playlists)
- * M3U playlist generator
- * Recursive, random (shuffled) or pre-defined playlists
- * Multi-threaded architecture: multiple station streaming with one config file
- * Auto twitting the current playing track and new tracks
+ * Recursive folders, random or M3U playlists management
+ * M3U, RSS and JSON podcast generators for URLs, current tracks and playlists
+ * Automagic mountpoint creation based on media subfolders
+ * Multiple station streaming with only one config file
+ * Auto twitting #nowplaying tracks
  * Auto jingling between tracks
- * OSC controller: control the main functions from a distant terminal
- * Relaying: relay and stream live sessions!
- * WebM video relaying support
- * Automatic mountpoint creation based on media subfolders
+ * OSC controller for a fex commands
  * Very light and optimized streaming process
  * Fully written in Python
  * Works with Icecast2, ShoutCast, Stream-m
@@ -46,7 +44,7 @@ News
 
 0.7
 
- * Huge refactoring which should be compatible with old setups, but before updating **please read** the `updated example <https://github.com/yomguy/DeeFuzzer/blob/dev/example/deefuzzer_doc.xml>`_ and the following news.
+ * **Huge** refactoring which should be compatible with old setups, but before updating **please read** the `updated example <https://github.com/yomguy/DeeFuzzer/blob/dev/example/deefuzzer_doc.xml>`_ and the following news.
  * Reworked the RSS feed handling to allow JSON output as well and more configuration options (@achbed #27 #28)
  * Add an init.d script to act as a deamon (@achbed)
  * Add stationdefaults preference (apply default settings to all stations) (@achbed #31)
@@ -59,7 +57,7 @@ News
  * Improved stability avoiding crashes with automatic station restart methods (@achbed #39 #45)
  * Added option (ignoreerrors) to log and continue when an error occurs during station setup (@achbed #43)
  * Cleanup, better doucmentation and good ideas (@choiz #15 #16 #17 #23)
- * Various bufixes
+ * Many bufixes
  * Many thanks to all participants and especially to @achbed for his **huge** work, efficiency and easy collaboration
  * Enjoy!
 
@@ -143,7 +141,7 @@ or, more specificially::
     pkill -9 -f "deefuzzer example/deefuzzer.yaml"
 
 
-Configuration
+doucmentation
 =============
 
 Some examples of markup configuration files:
@@ -152,107 +150,6 @@ Some examples of markup configuration files:
  * `generic XML for testing <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.xml>`_
  * `OGG Vorbis and MP3 together <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_mp3_ogg.xml>`_
  * `generic YAML <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.yaml>`_
-
-
-OSC Control
-===========
-
-Some of the DeeFuzzer function parameters can be control through the great OSC protocol.
-The OSC server is only active if the <control><mode> tag is set up to "1"
-in the config file (see example/deefuzzer.xml again..).
-
-The available parameters are:
-
-    * playing: next track
-    * twitting: start and stop
-    * relaying: start and stop
-    * jingling: start and stop
-    * recording: start and stop
-
-See `examples here. <https://github.com/yomguy/DeeFuzzer/blob/master/scripts/>`_
-
-Then any OSC remote (PureDate, Monome, TouchOSC, etc..) can a become controller! :)
-
-We provide some client python scripts as some examples about how to control the parameters
-from a console or any application (see deefuzzer/scripts/).
-
-
-Twitter (manual and optional)
-=============================
-
-To get track twitting, please install python-twitter, python-oauth2 and all their dependencies.
-
-Install or make sure python-oauth2 and python-twitter are installed::
-
-    sudo easy_install oauth2
-    sudo pip install python-twitter
-
-As Twitter access requires oauth keys since 07/2010, you need to get your own access token key pair.
-Please run the dedicated script to do this from the main deefuzzer app directory::
-
-    python tools/get_access_token.py
-
-You will be invited to copy/paste an URL in your browser to get a pin code.
-Then copy/paste this code into the console and press ENTER.
-The script gives you a pair of keys: one access token key and one access token secret key.
-
-Change the <twitter> block options in your deefuzzer XML config file, giving the 2 keys.
-For example::
-
-    <twitter>
-            <mode>1</mode>
-            <key>85039615-H6yAtXXCx7NobF5W40FV0c8epGZsQGkE7MG6XRjD2</key>
-            <secret>A1YW3llB9H9qVbjH8zOQTOkMlhVqh2a7LnA9Lt0b6Gc</secret>
-            <tags>Music Groove</tags>
-    </twitter>
-
-Your DeeFuzzer will now tweet the currently playing track and new tracks on your profile.
-
-
-Station Folders
-===============
-
-Station folders are a specific way of setting up your file system so that you can auto-create many stations
-based on only a few settings.  The feature requires a single main folder, with one or more subfolders.  Each
-subfolder is scanned for the presence of media files (audio-only at the moment).  If files are found, then a
-station is created using the parameters in the <stationfolder> block.  Substitution is performed to fill in
-some detail to the stationfolder parameters, and all stationdefaults are also applied.
-
-The base folder is specified by the <folder> block.  No substitution is done on this parameter.
-
-Subsitution is done for [name] and [path] - [name] is replaced with the name of the subfolder, and [path] is
-replaced with the subfolder's complete path.
-
-Consider the following example.  We have a block with the following settings:
-
-		<stationfolder>
-				<folder>/path/to/media</folder>
-				<infos>
-						<short_name>[name]</short_name>
-						<name>[name]</name>
-						<genre>[name]</genre>
-				</infos>
-				<media>
-						<dir>[path]</dir>
-				</media>
-		</stationfolder>
-
-The folder structure is as follows:
-
-		/path/to/media
-				+ one
-						- song1.mp3
-						- song2.mp3
-				+ two
-						- song3.ogg
-				+ three
-						- presentation.pdf
-				+ four
-						- song4.mp3
-
-In this case, three stations are created:  one, two, and four.  Each will have their short name (and thus their
-icecast mount point) set to their respective folder names.  Subfolder three is skipped, as there are no audio files
-present - just a PDF file.
 
 
 API
@@ -265,9 +162,10 @@ Development
 ===========
 
 Everybody is welcome to participate to the DeeFuzzer project!
-We use GitHub to collaborate: https://github.com/yomguy/DeeFuzzer
 
-Clone it, star it, join us!
+We use GitHub to collaborate: https://github.com/yomguy/DeeFuzzer 
+
+Clone it, star it and join us!
 
 
 Authors
@@ -301,7 +199,4 @@ Contact / Infos
 ===============
 
 Twitter: @yomguy @parisson_studio
-
-GitHub: https://github.com/yomguy/DeeFuzzer
-
 Expertise, Business, Sponsoring: http://parisson.com
