@@ -291,7 +291,7 @@ class Station(Thread):
         return os.path.join(self.base_directory, a)
 
     def _path_m3u_rel(self, a):
-        return os.path.join(os.path.dirname(self.source), a)
+        return os.path.join(os.path.dirname(self.media_source), a)
 
     def _log(self, level, msg):
         try:
