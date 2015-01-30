@@ -127,34 +127,19 @@ To make the deefuzzer act as a deamon, just play it in the background::
     deefuzzer example/deefuzzer.yaml &
 
 Note that you must edit the config file with right parameters before playing.
-You can find an example for a draft XML file in the "example" directory of the source code.
-
-WARNING: because we need the DeeFuzzer to be a very stable streaming process with multiple channel management,
-the multi-threaded implementation of deefuzzer instances avoids shutting down the process with a CTRL+C.
-You have to kill them manually, after a CTRL+Z, making this::
-
-    pkill -9 deefuzzer
-
-or, more specificially::
-
-    pkill -9 -f "deefuzzer example/deefuzzer.yaml"
 
 
-doucmentation
+Documentation
 =============
 
-Some examples of markup configuration files:
-
- * `generic and documented XML <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_doc.xml>`_
- * `generic XML for testing <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.xml>`_
- * `OGG Vorbis and MP3 together <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_mp3_ogg.xml>`_
- * `generic YAML <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.yaml>`_
-
-
-API
-===
-
-http://files.parisson.com/doc/deefuzzer/
+ * `Wiki <https://github.com/yomguy/DeeFuzzer/wiki>`_
+ * `API <http://files.parisson.com/doc/deefuzzer/>`_ 
+ * `Documented XML configuration <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_doc.xml>`_
+ * Configuration examples:
+     
+     * `Dummy XML for testing <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.xml>`_
+     * `OGG Vorbis and MP3 together <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_mp3_ogg.xml>`_
+     * `Generic YAML <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.yaml>`_
 
 
 Development
