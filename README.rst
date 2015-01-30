@@ -31,7 +31,7 @@ Features
  * Multiple station streaming with only one config file
  * Auto twitting #nowplaying tracks
  * Auto jingling between tracks
- * OSC controller for a fex commands
+ * OSC controller for a few commands
  * Very light and optimized streaming process
  * Fully written in Python
  * Works with Icecast2, ShoutCast, Stream-m
