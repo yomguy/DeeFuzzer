@@ -50,16 +50,15 @@ News
  * Reworked the RSS feed handling to allow JSON output as well and more configuration options (@achbed #27 #28)
  * Add an init.d script to act as a deamon (@achbed)
  * Add stationdefaults preference (apply default settings to all stations) (@achbed #31)
- * Add stationfolder preference (generate stations automagically from a folder structure) (@achbed #31) 
+ * Add stationfolder preference (generate stations automatically from a folder structure) (@achbed #31) 
  * Add stationconfig preference (load other preference files as stations) (@achbed #31)
  * Add new station.server.appendtype option
  * Add new base_dir parameter to station definition
- * New stationdefaults parameter (provides a mechanism to give default values for all stations) (@achbed #29)
  * Better thread management (@achbed #36 #37 #38)
  * Improved stability avoiding crashes with automatic station restart methods (@achbed #39 #45)
- * Added option (ignoreerrors) to log and continue when an error occurs during station setup (@achbed #43)
- * Cleanup, better doucmentation and good ideas (@choiz #15 #16 #17 #23)
- * Various bufixes
+ * Added option (ignoreerrors) to log and continue when an error occurs during station initialization (@achbed #43)
+ * Cleanup, better documentation and good ideas (@choiz #15 #16 #17 #23)
+ * Various bugfixes
  * Many thanks to all participants and especially to @achbed for his **huge** work, efficiency and easy collaboration
  * Enjoy!
 

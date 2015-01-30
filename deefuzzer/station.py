@@ -74,7 +74,7 @@ class Station(Thread):
     relay_mode = 0
     record_mode = 0
     run_mode = 1
-    appendtype = 1
+    appendtype = 0
     feeds_json = 0
     feeds_rss = 1
     feeds_mode = 1
