@@ -130,7 +130,7 @@ Note that you must edit the config file with right parameters before playing.
 Documentation
 =============
 
- * `Wiki <https://github.com/yomguy/DeeFuzzer/wiki>`_
+ * `FAQ and Wiki <https://github.com/yomguy/DeeFuzzer/wiki>`_
  * `API <http://files.parisson.com/doc/deefuzzer/>`_ 
  * `Documented XML configuration <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_doc.xml>`_
  * Configuration examples:
