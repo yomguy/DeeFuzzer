@@ -1,5 +1,5 @@
-<!-- This is an example of a station definition file loaded via the stationconfig option.  One or more station 
-     definitions can be defied here.  No other blocks will be loaded if they are present.  All stations will 
+<!-- This is an example of a station definition file loaded via the stationconfig option.  One or more station
+     definitions can be defied here.  No other blocks will be loaded if they are present.  All stations will
      have the global stationdefaults applied.  -->
 <station>
     <infos>

@@ -1,6 +1,6 @@
 <deefuzzer>
-    <!-- A quick note about XML configuration files - they cannot have empty values.  For 
-          example, <tag></tag> is invalid, while <tag> </tag> is valid (single space as a 
+    <!-- A quick note about XML configuration files - they cannot have empty values.  For
+          example, <tag></tag> is invalid, while <tag> </tag> is valid (single space as a
           value).  An empty tag will crash the entire application.  You have been warned.  -->
     <!-- A path to the log file (need write access rights to the directory) -->
     <log>/path/to/station.log</log>
@@ -19,7 +19,7 @@
     <stationdefaults>
       <!-- This tag allows a common default configuration to be set for all stations.  This
            is useful when defining many stations that will share many common configuration
-           settings.  If a setting is specified here and in a station tag, the station tag 
+           settings.  If a setting is specified here and in a station tag, the station tag
            will override this one.  Available options are the same as the station tag. -->
         <control>
             <!-- If '1', an OSC controller thread is started to allow external commands
@@ -41,14 +41,14 @@
     <station>
         <!-- The base directory to be prepended to file paths for this station. This value is prepended
               to the following parameters:
-              
+
                 - jingles/dir
                 - media/m3u
                 - media/dir
                 - media/source (except for stations created using the stationfolder method)
                 - record/dir
                 - feeds/dir
-                
+
               If the parameter path begins with a slash, it is assumed to be an absolute path and
               prepending does not occur (see https://docs.python.org/2/library/os.path.html#os.path.join )
         -->
@@ -77,7 +77,7 @@
             <!-- A path to the directory containing jingles media files.
                 The files have to be of the same type of the main media files. -->
             <dir>/path/to/jingles</dir>
-            <!-- If '1', some media will be played between each main track of the 
+            <!-- If '1', some media will be played between each main track of the
                 playlist. '0' does nothing. -->
             <mode>0</mode>
             <!-- If '1', the jingle playlist will be randomized. '0' for alphanumeric order -->
@@ -159,7 +159,7 @@
             <sourcepassword>icecast_source_password</sourcepassword>
             <!-- The type of the server (icecast or stream-m) -->
             <type>icecast</type>
-            <!-- If '1', the media format will be appended to the mount name (ie, /mount.mp3 instead of /mount).  
+            <!-- If '1', the media format will be appended to the mount name (ie, /mount.mp3 instead of /mount).
                  '0' will leave the mount name alone.  Used only for icecast streams -->
             <appendtype>1</appendtype>
         </server>
@@ -182,7 +182,7 @@
     <stationfolder>
         <!-- REQUIRED: The base folder to use when auto-generating stations -->
         <folder>/path/to/media</folder>
-        <!-- OPTIONAL: If '1', stations will be created as folders are added ("watchfolder" capability). If '0', 
+        <!-- OPTIONAL: If '1', stations will be created as folders are added ("watchfolder" capability). If '0',
              folders will only be added when the program is started. -->
         <livecreation>1</livecreation>
         <!-- Station information to use.
@@ -194,8 +194,8 @@
             <genre>[name]</genre>
         </infos>
     </stationfolder>
-		
-    <!-- The stationfolder option allows specifying a folder to scan for additional configuration files.  Applies only 
+
+    <!-- The stationfolder option allows specifying a folder to scan for additional configuration files.  Applies only
 				 those that are station blocks.  Can specify multiple stationoption blocks.  -->
 		<stationconfig>/path/to/configs</stationconfig>
 		<stationconfig>/path/to/configs2</stationconfig>

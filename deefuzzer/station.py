@@ -342,7 +342,7 @@ class Station(Thread):
         self.twitter_mode = value
         message = "received OSC message '%s' with arguments '%d'" % (path, value)
 
-        # IMPROVEMENT: The URL paths should be configurable because they're 
+        # IMPROVEMENT: The URL paths should be configurable because they're
         # server-implementation specific
         self.m3u_url = self.channel.url + '/m3u/' + self.m3u.split(os.sep)[-1]
         self.feeds_url = self.channel.url + '/rss/' + self.feeds_playlist_file.split(os.sep)[-1]
@@ -699,7 +699,7 @@ class Station(Thread):
 
     def set_read_mode(self):
         self.prefix = '#nowplaying'
-        
+
         try:
             self.get_currentsongmeta()
             fn = self.current_media_obj.file_name
