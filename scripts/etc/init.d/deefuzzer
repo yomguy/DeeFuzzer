@@ -1,0 +1,78 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          deefuzzer
+# Required-Start:    $remote_fs $network
+# Required-Stop:     $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Starts the deefuzzer streaming player
+### END INIT INFO
+#
+# deefuzzer
+#
+#               Written By Dennis Wallace (github@achbed.org)
+#               Based on icecast2 by Miquel van Smoorenburg <miquels@cistron.nl>
+.
+#               Modified for Debian
+#               by Ian Murdock <imurdock@gnu.ai.mit.edu>.
+#
+#               Further modified by Keegan Quinn <ice@thebasement.org>
+#               for use with Icecast 2
+#
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON=/usr/local/bin/deefuzzer
+NAME=deefuzzer
+DESC=deefuzzer
+
+test -x $DAEMON || exit 0
+
+. /lib/lsb/init-functions
+
+# Defaults
+CONFIGFILE="/etc/deefuzzer/deefuzzer.xml"
+CONFIGDEFAULTFILE="/etc/default/deefuzzer"
+USERID=deefuzzer
+GROUPID=deefuzzer
+ENABLE="false"
+QUIET="--quiet"
+PIDFILE=/"var/log/deefuzzer/deefuzzer.pid"
+
+# Reads config file (will override defaults above)
+[ -r "$CONFIGDEFAULTFILE" ] && . $CONFIGDEFAULTFILE
+
+if [ "$ENABLE" != "true" ]; then
+        echo "$NAME daemon disabled - read $CONFIGDEFAULTFILE."
+        exit 0
+fi
+
+set -e
+
+case "$1" in
+  start)
+        echo -n "Starting $DESC: "
+        start-stop-daemon --start --background -m --oknodo --pidfile ${PIDFILE}
+--exec ${DAEMON} -- ${CONFIGFILE}
+        echo "$NAME."
+        ;;
+  stop)
+        echo -n "Stopping $DESC: "
+        start-stop-daemon --stop --oknodo --pidfile ${PIDFILE}
+        rm -f ${PIDFILE}
+        echo "$NAME."
+        ;;
+  reload|force-reload|restart)
+        echo -n "Restarting $DESC: "
+        start-stop-daemon --stop --oknodo --pidfile ${PIDFILE}
+        rm -f ${PIDFILE}
+        start-stop-daemon --start --background -m --oknodo --pidfile ${PIDFILE}
+--exec ${DAEMON} -- ${CONFIGFILE}
+        echo "$NAME."
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|restart|reload|force-reload}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0

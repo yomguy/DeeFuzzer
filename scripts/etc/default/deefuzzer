@@ -1,0 +1,25 @@
+# Defaults for deefuzzer initscript
+# sourced by /etc/init.d/deefuzzer
+# installed at /etc/default/deefuzzer by the maintainer scripts
+
+#
+# This is a POSIX shell fragment
+#
+
+# Full path to the server configuration file
+CONFIGFILE="/etc/deefuzzer/deefuzzer.xml"
+
+# Full path to the process ID file
+PIDFILE="/var/log/deefuzzer/deefuzzer.pid"
+
+# Name or ID of the user and group the daemon should run under
+USERID=deefuzzer
+GROUPID=staff
+
+# Edit /etc/deefuzzer.xml to match your environment.
+# Change this to true when done to enable the init.d script
+ENABLE=false
+
+# Uncomment below to make the service startup more verbose
+QUIET="--verbose"
+

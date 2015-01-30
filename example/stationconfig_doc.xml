@@ -1,0 +1,35 @@
+<!-- This is an example of a station definition file loaded via the stationconfig option.  One or more station 
+     definitions can be defied here.  No other blocks will be loaded if they are present.  All stations will 
+     have the global stationdefaults applied.  -->
+<station>
+    <infos>
+        <description>My personal best funky playlist ever!</description>
+        <name>My best funky station</name>
+        <short_name>My_station</short_name>
+        <url>http://parisson.com</url>
+        <genre>Various Funk Groove</genre>
+    </infos>
+    <jingles>
+        <dir>/path/to/jingles</dir>
+        <mode>0</mode>
+        <shuffle>1</shuffle>
+    </jingles>
+    <media>
+        <bitrate>96</bitrate>
+        <source>/path/to/mp3/or/m3u</source>
+        <format>mp3</format>
+        <ogg_quality>4</ogg_quality>
+        <samplerate>48000</samplerate>
+        <shuffle>0</shuffle>
+        <voices>2</voices>
+    </media>
+    <server>
+        <host>127.0.0.1</host>
+        <mountpoint>monitor</mountpoint>
+        <port>8000</port>
+        <public>0</public>
+        <sourcepassword>icecast_source_password</sourcepassword>
+        <type>icecast</type>
+        <appendtype>1</appendtype>
+    </server>
+</station>

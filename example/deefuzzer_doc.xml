@@ -1,112 +1,202 @@
 <deefuzzer>
+    <!-- A quick note about XML configuration files - they cannot have empty values.  For 
+          example, <tag></tag> is invalid, while <tag> </tag> is valid (single space as a 
+          value).  An empty tag will crash the entire application.  You have been warned.  -->
     <!-- A path to the log file (need write access rights to the directory) -->
-    <log>/path/to/log/mystation.log</log>
+    <log>/path/to/station.log</log>
     <!-- A path to the M3U playlist file (need write access rights to the directory).
          The file is preferably accessible behind an url,
          for example, http://mydomain.com/m3u/mystation.m3u -->
-    <m3u>/path/to/m3u/mystation.m3u</m3u>
-
-    <station>
-        <infos>
-            <!-- The short name of the station. It will define the mount point,
-                 for example http://mydomain.com:8000/my_station.mp3 -->
-            <short_name>my_station</short_name>
-            <!-- The name (title) of the station -->
-            <name>My best funky station</name>
-            <!-- The description of the station -->
-            <description>My personal best funky playlist ever !</description>
-            <!-- The website of the station (for metadata) -->
-            <url>http://mydomain.com</url>
-            <!-- The genres of the audio streams -->
-            <genre>Various Funk Groove</genre>
-        </infos>
-        <server>
-            <!-- The type of the server (icecast or stream-m) -->
-            <type>icecast</type>
-            <!-- The host to send the stream (domain or IP) -->
-            <host>mydomain.com</host>
-            <!-- The port of the Icecast2 server on the host -->
-            <port>8000</port>
-            <!-- The source password of the Icecast2 server on the host -->
-            <sourcepassword>icecast_source_password</sourcepassword>
-            <!-- If '1', the mount point will be publish on yp.icecast.org, '0' for private streams -->
-            <public>1</public>
-        </server>
-        <media>
-            <!-- The path to the directory containing all the media. It will be analyse recursively. -->
-            <dir>/path/to/mp3/</dir>
-            <!-- The audio format of the media. Can be 'mp3' or 'ogg' -->
-            <format>mp3</format>
-            <!-- The mean bitrate of the media -->
-            <bitrate>192</bitrate>
-            <!-- The ogg quality of the ogg vorbis media -->
-            <ogg_quality>7</ogg_quality>
-            <!-- The samplerate of the media -->
-            <samplerate>44100</samplerate>
-            <!-- The number of channels - or voices - of the media. '1' for mono, '2' for stereo. -->
-            <voices>2</voices>
-            <!-- If '1', the playlist will be randomized. '0' for aphanumeric order -->
-            <shuffle>1</shuffle>
-            <!-- You can also give a M3U playlist file -->
-            <m3u>/path/to/m3u_file</m3u>
-        </media>
-        <rss>
-            <!-- A path to the directory containing RSS (XML) files that is 'currently playing'
-                and 'playlist' feeds (need write access rights to the directory).
-                The file is preferably accessible behind an url,
-                for example, http://mydomain.com/rss/mystation.xml -->
-            <dir>/path/to/rss/</dir>
-            <!-- If '1', the RSS feeds will contain an enclosure to become a podcast feed.
-                '0' for simple RSS feed without enclosure -->
-            <enclosure>1</enclosure>
-            <!-- the base URL of all media items (optional).
-                 Default is station url /media -->
-            <media_url>http://my.domain.com/media/</media_url>
-        </rss>
-        <twitter>
-            <!-- If '1', deefuzzer will tweet #nowplaying, new tracks and other things to Twitter. 'O' does nothing. -->
-            <mode>0</mode>
-            <!-- Your twitter username -->
-            <key>your access token key</key>
-            <!-- Your twitter password -->
-            <secret>your access token secret key</secret>
-            <!-- These tags will be added to each twitter message -->
-            <tags>bla bla</tags>
-        </twitter>
-        <jingles>
-            <!-- If '1', some media will be played between each main track of the playlist. '0' does nothing. -->
-            <mode>0</mode>
-            <!-- A path to the directory containing jingles media files.
-                The files have to be of the same type of the main media files. -->
-            <dir>/path/to/jingles</dir>
-            <!-- If '1', the jingle playlist will be randomized. '0' for aphanumeric order -->
-            <shuffle>1</shuffle>
-        </jingles>
+    <m3u>/path/to/station.m3u</m3u>
+    <!-- Whether or not to skip stations that fail instead of dying completely.  0 will raise
+          all errors and report them to the console, 1 will log the error and continue.  -->
+    <ignoreerrors>0</ignoreerrors>
+    <!-- How many times to attempt to restart a station thread that died for any reason.
+         -1 will attempt to restart unlimited times, 0 will not attempt a restart, and any
+         positive value will attempt to restart that many times.  The counter is reset when
+         the next subsequent check finds the station operational.  Default is 0 (no retry) -->
+    <maxretry>0</maxretry>
+    <stationdefaults>
+      <!-- This tag allows a common default configuration to be set for all stations.  This
+           is useful when defining many stations that will share many common configuration
+           settings.  If a setting is specified here and in a station tag, the station tag 
+           will override this one.  Available options are the same as the station tag. -->
         <control>
             <!-- If '1', an OSC controller thread is started to allow external commands
                 See README for more info -->
             <mode>0</mode>
             <!-- The port of the OSC server -->
-            <port>1234</port>
+            <port>16001</port>
         </control>
+        <jingles>
+            <!-- A path to the directory containing jingles media files.
+                The files have to be of the same type of the main media files. -->
+            <dir>/path/to/jingles</dir>
+            <!-- If '1', some media will be played between each main track of the playlist. '0' does nothing. -->
+            <mode>0</mode>
+            <!-- If '1', the jingle playlist will be randomized. '0' for alphanumeric order -->
+            <shuffle>1</shuffle>
+        </jingles>
+    </stationdefaults>
+    <station>
+        <!-- The base directory to be prepended to file paths for this station. This value is prepended
+              to the following parameters:
+              
+                - jingles/dir
+                - media/m3u
+                - media/dir
+                - media/source (except for stations created using the stationfolder method)
+                - record/dir
+                - feeds/dir
+                
+              If the parameter path begins with a slash, it is assumed to be an absolute path and
+              prepending does not occur (see https://docs.python.org/2/library/os.path.html#os.path.join )
+        -->
+        <base_dir>/path/to/station/folder</base_dir>
+        <control>
+            <!-- If '1', an OSC controller thread is started to allow external commands
+                See README for more info -->
+            <mode>0</mode>
+            <!-- The port of the OSC server -->
+            <port>16001</port>
+        </control>
+        <infos>
+            <!-- The description of the station -->
+            <description>My personal best funky playlist ever!</description>
+            <!-- The name (title) of the station -->
+            <name>My best funky station</name>
+            <!-- The short name of the station. It will define the mount point,
+                 for example http://mydomain.com:8000/my_station.mp3 -->
+            <short_name>My_station</short_name>
+            <!-- The website of the station (for metadata) -->
+            <url>http://parisson.com</url>
+            <!-- The genres of the audio streams -->
+            <genre>Various Funk Groove</genre>
+        </infos>
+        <jingles>
+            <!-- A path to the directory containing jingles media files.
+                The files have to be of the same type of the main media files. -->
+            <dir>/path/to/jingles</dir>
+            <!-- If '1', some media will be played between each main track of the 
+                playlist. '0' does nothing. -->
+            <mode>0</mode>
+            <!-- If '1', the jingle playlist will be randomized. '0' for alphanumeric order -->
+            <shuffle>1</shuffle>
+        </jingles>
+        <media>
+            <!-- The mean bitrate of the media -->
+            <bitrate>96</bitrate>
+            <!-- The <m3u> option is depreciated.  Please use the newer <source> option. -->
+            <m3u>/path/to/m3u_file</m3u>
+            <!-- The <dir> option is depreciated.  Please use the newer <source> option.
+                  This option overrides the <m3u> option if both are specified. -->
+            <dir>/path/to/mp3_folder</dir>
+            <!-- The path to the folder containing audio files, or the M3U playlist file to
+                  use as source audio for this  station.  This option overrides both the <dir>
+                  and <m3u> depreciated options if they are specified. -->
+            <source>/path/to/m3u_file_or_folder</source>
+            <!-- The audio format of the media. Can be 'mp3' or 'ogg' -->
+            <format>mp3</format>
+            <!-- The ogg quality of the ogg vorbis media -->
+            <ogg_quality>4</ogg_quality>
+            <!-- The sample rate of the media -->
+            <samplerate>48000</samplerate>
+            <!-- If '1', the playlist will be randomized. '0' for alphanumeric order -->
+            <shuffle>0</shuffle>
+            <!-- The number of channels - or voices - of the media. '1' for mono, '2' for stereo. -->
+            <voices>2</voices>
+        </media>
+        <record>
+            <!-- The directory where files will be recorded -->
+            <dir>/path/to/archives</dir>
+            <!-- If '1', the stream will be recorded, '0' does nothing -->
+            <mode>0</mode>
+        </record>
         <relay>
+            <!-- The default author of the relay streams -->
+            <author>Unknown</author>
             <!-- If '1', the station will relay another _existing_ stream.
             Wonderful for commuting to live sessions. '0' does nothing -->
             <mode>0</mode>
             <!-- The URL of the station to relay -->
-            <url>http://anotherdomain.com:8000/stream.mp3</url>
-            <!-- The default author of the relay streams -->
-            <author>Me</author>
+            <url>http://127.0.0.1:8000/telecaster_live.mp3</url>
         </relay>
-        <record>
-            <!-- If '1', the stream will be recorded, '0' does nothing -->
+        <feeds>
+            <!-- If '1', the feeds will output, '0' will do nothing.  Default: '1' -->
+            <mode>1</mode>
+            <!-- If '1', the feeds will output in RSS format, '0' will not.  Default: '1' -->
+            <rss>1</rss>
+            <!-- If '1', the feeds will output in JSON format, '0' will not.  Default: '0' -->
+            <json>0</json>
+            <!-- If '1', the feeds will output a 'playlist' feed, '0' will not.  Default: '1' -->
+            <playlist>1</playlist>
+            <!-- REQUIRED: A path to the directory containing RSS (XML) files that is 'currently playing'
+                and 'playlist' feeds (need write access rights to the directory).
+                The file is preferably accessible behind an url,
+                for example, http://mydomain.com/rss/mystation.xml -->
+            <dir>/path/to/rss/</dir>
+            <!-- REQUIRED: If '1', the RSS feeds will contain an enclosure to become a podcast feed.
+                '0' for simple RSS feed without enclosure -->
+            <enclosure>1</enclosure>
+            <!-- the base URL of all media items.
+                 Default is station url /media -->
+            <media_url>http://localhost/media/</media_url>
+            <!-- Include the full name of the file in the feed -->
+            <showfilename>1</showfilename>
+            <!-- Include the full server path of the file in the feed -->
+            <showfilepath>0</showfilepath>
+        </feeds>
+        <server>
+            <!-- The host to send the stream (domain or IP) -->
+            <host>127.0.0.1</host>
+            <!-- The mountpoint stream -->
+            <mountpoint>monitor</mountpoint>
+            <!-- The port of the Icecast2 server on the host -->
+            <port>8000</port>
+            <!-- If '1', the mount point will be publish on yp.icecast.org, '0' for private streams -->
+            <public>0</public>
+            <!-- The source password of the Icecast2 server on the host -->
+            <sourcepassword>icecast_source_password</sourcepassword>
+            <!-- The type of the server (icecast or stream-m) -->
+            <type>icecast</type>
+            <!-- If '1', the media format will be appended to the mount name (ie, /mount.mp3 instead of /mount).  
+                 '0' will leave the mount name alone.  Default is 0.  Used only for icecast streams -->
+            <appendtype>0</appendtype>
+        </server>
+        <twitter>
+            <!-- Your twitter username -->
+            <key>your access token key</key>
+            <!-- If '1', deefuzzer will tweet #nowplaying, new tracks and other things to Twitter. 'O' does nothing. -->
             <mode>0</mode>
-            <!-- The directory where files will be recorded -->
-            <dir>/path/to/archives</dir>
-        </record>
+            <!-- Your twitter password -->
+            <secret>your access token secret key</secret>
+            <!-- These tags will be added to each twitter message -->
+            <tags>parisson deefuzzer</tags>
+        </twitter>
     </station>
 
-    <!-- Note that you can add many different stations in the same config file, thanks to the multi-threaded architecure ! -->
+    <!-- Note that you can add many different stations in the same config file, thanks to the multi-threaded architecture ! -->
+
+    <!-- The stationfolder option allows auto-creation of stations based on a folder structure.  See the readme
+         for details. -->
+    <stationfolder>
+        <!-- REQUIRED: The base folder to use when auto-generating stations -->
+        <folder>/path/to/media</folder>
+        <!-- OPTIONAL: If '1', stations will be created as folders are added ("watchfolder" capability). If '0', 
+             folders will only be added when the program is started. -->
+        <livecreation>1</livecreation>
+        <!-- Station information to use.
+             All the same options are available as the station setting, and all stations will also have the global
+             stationdefaults applied.  -->
+        <infos>
+            <short_name>[name]</short_name>
+            <name>[name]</name>
+            <genre>[name]</genre>
+        </infos>
+    </stationfolder>
+		
+    <!-- The stationfolder option allows specifying a folder to scan for additional configuration files.  Applies only 
+				 those that are station blocks.  Can specify multiple stationoption blocks.  -->
+		<stationconfig>/path/to/configs</stationconfig>
+		<stationconfig>/path/to/configs2</stationconfig>
 </deefuzzer>
-
-

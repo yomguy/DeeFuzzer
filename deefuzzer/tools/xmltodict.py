@@ -7,10 +7,10 @@ def haschilds(dom):
     # Checks whether an element has any childs
     # containing real tags opposed to just text.
     for childnode in dom.childNodes:
-        if childnode.nodeName != "#text" and \
-            childnode.nodeName != "#cdata-section":
+        if childnode.nodeName != "#text" and childnode.nodeName != "#cdata-section":
             return True
     return False
+
 
 def indexchilds(dom, enc):
     childsdict = dict()
@@ -31,6 +31,7 @@ def indexchilds(dom, enc):
         else:
             childsdict[name] = v
     return childsdict
+
 
 def xmltodict(data, enc=None):
     dom = xml.dom.minidom.parseString(data.strip())

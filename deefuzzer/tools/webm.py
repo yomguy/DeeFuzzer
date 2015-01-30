@@ -42,15 +42,17 @@ import datetime
 from utils import *
 
 
-class WebM(object):
+class WebM(MediaBase):
     """An WebM file object"""
 
     def __init__(self, media):
-        self.media = media
-        self.item_id = ''
-        self.source = self.media
+        MediaBase.__init__(self)
+
+        self.description = "WebM"
         self.mime_type = 'video/webm'
         self.extension = 'webm'
-        self.description = 'WebM'
-        self.metadata = {}
+        self.format = 'WebM'
+
+        self.media = media
+        self.source = self.media
         self.file_name, self.file_title, self.file_ext = get_file_info(media)

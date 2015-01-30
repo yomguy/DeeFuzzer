@@ -1,67 +1,78 @@
 .. image:: https://github.com/yomguy/DeeFuzzer/raw/master/doc/img/logo_deefuzzer.png
 
-Introduction
-============
+|version| |downloads| |travis_master|
 
-DeeFuzzer is an open, light and instant software made for streaming audio and video over internet.
-It is dedicated to media streaming communities who wants to create web radios, web televisions,
-live multimedia relaying or even as a personal home radio, with rich media contents including track metadata.
+.. |travis_master| image:: https://secure.travis-ci.org/yomguy/DeeFuzzer.png?branch=master
+    :target: https://travis-ci.org/yomguy/DeeFuzzer/
 
-Here are the main features of the deefuzzer:
+.. |version| image:: https://pypip.in/version/DeeFuzzer/badge.png
+  :target: https://pypi.python.org/pypi/DeeFuzzer/
+  :alt: Version
 
- * MP3, OGG Vorbis file and live streaming over internet
+.. |downloads| image:: https://pypip.in/download/DeeFuzzer/badge.svg
+    :target: https://pypi.python.org/pypi/DeeFuzzer/
+    :alt: Downloads
+
+
+DeeFuzzer is a light and instant application for streaming audio and video over internet.
+It is dedicated to communities who wants to easily create web radios, web TVs,
+live multimedia relays or personal home radios, with metadata management and cool features.
+
+
+Features
+========
+
+ * Streaming MP3, OGG Vorbis files over Internet
+ * Live streaming for any kind of format (WebM compatible)
  * Full metadata encapsulation and management
- * RSS podcast generator (current tracks and playlists)
- * M3U playlist generator
- * Recursive, random (shuffled) or pre-defined playlists
- * Multi-threaded architecture : multiple station streaming with one config file
- * Auto Twitter posting of the current playing and new tracks
- * Jingling between main tracks
- * OSC controller : control the main functions from a distant terminal
- * Relaying : relay and stream *LIVE* sessions !
+ * Recursive folders, random or M3U playlists management
+ * M3U, RSS and JSON podcast generators for URLs, current tracks and playlists
+ * Automagic mountpoint creation based on media subfolders
+ * Multiple station streaming with only one config file
+ * Auto twitting #nowplaying tracks
+ * Auto jingling between tracks
+ * OSC controller for a fex commands
  * Very light and optimized streaming process
  * Fully written in Python
  * Works with Icecast2, ShoutCast, Stream-m
- * EXPERIMENTAL: WebM video streaming support
 
-It is only neccessary to provide a config file which sets all needed parameters.
-Please see example/deefuzzer.xml for an example.
+Because our aim is to get DeeFuzzer as light as possible it is NOT capable of re-encoding or transcoding media files for the moment.
 
-Because our aim is to get DeeFuzzer as light as possible it is NOT capable of re-encoding or transcoding media files.
 
 News
-=====
+====
+
+0.7
+
+ * **Huge** refactoring which should be compatible with old setups, but before updating **please read** the `updated example <https://github.com/yomguy/DeeFuzzer/blob/dev/example/deefuzzer_doc.xml>`_ and the following news.
+ * Reworked the RSS feed handling to allow JSON output as well and more configuration options (@achbed #27 #28)
+ * Add an init.d script to act as a deamon (@achbed)
+ * Add stationdefaults preference (apply default settings to all stations) (@achbed #31)
+ * Add stationfolder preference (generate stations automatically from a folder structure) (@achbed #31) 
+ * Add stationconfig preference (load other preference files as stations) (@achbed #31)
+ * Add new station.server.appendtype option
+ * Add new base_dir parameter to station definition
+ * Better thread management (@achbed #36 #37 #38)
+ * Improved stability avoiding crashes with automatic station restart methods (@achbed #39 #45)
+ * Added option (ignoreerrors) to log and continue when an error occurs during station initialization (@achbed #43)
+ * Cleanup, better documentation and good ideas (@choiz #15 #16 #17 #23)
+ * Various bugfixes
+ * Many thanks to all participants and especially to @achbed for his **huge** work, efficiency and easy collaboration
+ * Enjoy!
+
+0.6.6
+
+ * Update station name (remove ": http://url")
+ * Update mountpoint name (remove .mp3 or .ogg)
+ * Update metadata (replace " : " by " - " between Artist and Track)
+ * Remove "ogg_quality" on mp3 streams
 
 0.6.5
 
- * stable WebM live streaming through Stream-m server
- * read yaml configuration files
- * read m3u playlist files
- * minor fixes
-
-0.6.4 is out!
-
- * Fix install bug again (add main script to install), sorry :(
- * reduce streaming buffer length
-
-0.6.3 Fix install bug !
-
- * setup rewritten
- * fix MANIFEST
-
-0.6.2 has been released !
-
- * No new functions but bugfixes (including a serious one during install from pypi)
- * Definitely moved the project to `GitHub <https://github.com/yomguy/DeeFuzzer>`_
- * Update various README details
- * update API doc: http://files.parisson.com/doc/deefuzzer/
-
-0.6.1 is out !
-
- * new HTTP steamer based on pycurl to handle streaming over stream-m servers (WebM streaming)
-   see http://code.google.com/p/stream-m/
- * live webm relaying works good, webm playlist reading NEED testing
- * new <station><server><type> parameter ('icecast or 'stream-m')
+ * Stable WebM live streaming through Stream-m server
+ * Read yaml configuration files
+ * Read m3u playlist files
+ * Minor fixes
 
 
 Installation
@@ -73,42 +84,33 @@ an install inside Gygwin should work well.
 
 To install it, say on Debian, do::
 
-    sudo apt-get install python-pip python-dev libshout3-dev python-liblo python-mutagen \
-                         python-pycurl liblo-dev libshout3-dev librtmp-dev \
-                         python-yaml libcurl4-openssl-dev python-mutagen
+    sudo apt-get install python-pip python-dev python-liblo \
+                         python-mutagen python-pycurl python-yaml \
+                         libshout3-dev librtmp-dev liblo-dev libcurl4-openssl-dev
 
-Now, the easiest way to install the DeeFuzzer from a shell::
+Now update distribute and setuptools::
+
+    sudo pip install -U distribute setuptools
+
+Then::
 
     sudo pip install deefuzzer
 
-or::
+To upgrade::
 
-    sudo easy_install deefuzzer
+    sudo pip install -U deefuzzer
 
-to upgrade::
+If you have some version problems with the installation, please also try in a virtualenv.
 
-    sudo pip install --upgrade deefuzzer
+As a streaming client, the DeeFuzzer needs a local or remote streaming server like Icecast2 to do something::
 
-To install the DeeFuzzer from sources, download the last archive `there <http://pypi.python.org/pypi/DeeFuzzer>`_
+    sudo apt-get install icecast2
 
-Uncompress, go to the deefuzzer app directory and run install as root. For example::
-
-    tar xzf DeeFuzzer-0.6.5.tar.gz
-    cd DeeFuzzer-0.6.5
-    sudo python setup.py install
-
-Follow the related package list to install optional or recommended applications:
-
- * **depends**: python, python-dev, python-shout (from pypi.python.org) | shout-python, libshout3, libshout3-dev, python-mutagen, python-pycurl | pycurl
- * **optional**: python-twitter, python-liblo | pyliblo (>= 0.26), python-yaml
- * **recommends**: icecast2, python-setuptools, stream-m
-
-For more informations, please see on `GitHub <https://github.com/yomguy/DeeFuzzer>`_ or twitt a message to @parisson_studio
 
 Usage
 =====
 
-Usage : deefuzzer CONFIGFILE
+deefuzzer CONFIGFILE
 
 where CONFIGFILE is the path for a XML or YAML config file. For example::
 
@@ -123,104 +125,38 @@ To make the deefuzzer act as a deamon, just play it in the background::
     deefuzzer example/deefuzzer.yaml &
 
 Note that you must edit the config file with right parameters before playing.
-You can find an example for a draft XML file in the "example" directory of the source code.
-
-WARNING: because we need the DeeFuzer to be a very stable streaming process with multiple channel management,
-the multi-threaded implementation of deefuzzer instances avoids shutting down the process with a CTRL+C.
-You have to kill them manually, after a CTRL+Z, making this::
-
-    pkill -9 deefuzzer
-
-or, more specificially::
-
-    pkill -9 -f "deefuzzer example/deefuzzer.yaml"
 
 
-Configuration
-==============
+Documentation
+=============
 
-Some examples of markup configuration files:
+ * `FAQ and Wiki <https://github.com/yomguy/DeeFuzzer/wiki>`_
+ * `API <http://files.parisson.com/doc/deefuzzer/>`_ 
+ * `Documented XML configuration <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_doc.xml>`_
+ * Configuration examples:
+     
+     * `Dummy XML for testing <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.xml>`_
+     * `OGG Vorbis and MP3 together <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_mp3_ogg.xml>`_
+     * `Generic YAML <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.yaml>`_
 
- * `generic XML <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.xml>`_
- * `generic and documented XML <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_doc.xml>`_
- * `OGG Vorbis and MP3 together <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_mp3_ogg.xml>`_
- * `generic YAML <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.yaml>`_
-
-
-OSC Control
-===========
-
-Some of the DeeFuzzer function parameters can be control through the great OSC protocol.
-The OSC server is only active if the <control><mode> tag is set up to "1"
-in the config file (see example/deefuzzer.xml again..).
-
-The available parameters are:
-
-    * playing: next track
-    * twitting: start and stop
-    * relaying: start and stop
-    * jingling: start and stop
-    * recording: start and stop
-
-See `examples here. <https://github.com/yomguy/DeeFuzzer/blob/master/scripts/>`_
-
-Then any OSC remote (PureDate, Monome, TouchOSC, etc..) can a become controller ! :)
-
-We provide some client python scripts as some examples about how to control the parameters
-from a console or any application (see deefuzzer/scripts/).
-
-Twitter (manual and optional)
-================================
-
-To get track twitting, please install python-twitter, python-oauth2 and all their dependencies.
-
-Install or make sure python-oauth2 and python-twitter are installed::
-
-    sudo easy_install oauth2
-    sudo pip install python-twitter
-
-As Twitter access requires oauth keys since 07/2010, you need to get your own access token key pair.
-Please run the dedicated script to do this from the main deefuzzer app directory::
-
-    python tools/get_access_token.py
-
-You will be invited to copy/paste an URL in your browser to get a pin code.
-Then copy/paste this code into the console and press ENTER.
-The script gives you a pair of keys : one access token key and one access token secret key.
-
-Change the <twitter> block options in your deefuzzer XML config file, giving the 2 keys.
-For example::
-
-    <twitter>
-            <mode>1</mode>
-            <key>85039615-H6yAtXXCx7NobF5W40FV0c8epGZsQGkE7MG6XRjD2</key>
-            <secret>A1YW3llB9H9qVbjH8zOQTOkMlhVqh2a7LnA9Lt0b6Gc</secret>
-            <tags>Music Groove</tags>
-    </twitter>
-
-Your DeeFuzzer will now tweet the currently playing track and new tracks on your profile.
-
-API
-===
-
-http://files.parisson.com/doc/deefuzzer/
 
 Development
-============
+===========
 
-Everybody is welcome to participate to the DeeFuzzer project !
-We use GitHub to collaborate: https://github.com/yomguy/DeeFuzzer
+Everybody is welcome to participate to the DeeFuzzer project!
 
-Join us!
+We use GitHub to collaborate: https://github.com/yomguy/DeeFuzzer 
 
-Author
-======
+Clone it, star it and join us!
 
-YomguY aka Guillaume Pellerin:
 
- * twitter   @yomguy @parisson_studio
- * g+        +Guillaume Pellerin
- * email     <yomguy@parisson.com>
+Authors
+=======
+
+ * @yomguy +GuillaumePellerin yomguy@parisson.com
+ * @achbed +achbed github@achbed.org
+ * @choiz
+
 
 License
 =======
@@ -228,22 +164,21 @@ License
 This software is released under the terms of the CeCILL license (GPLv2 compatible).
 as described in the file LICENSE.txt in the source directory or online https://github.com/yomguy/DeeFuzzer/blob/master/LICENSE.txt
 
+
 Aknowledgements
 ===============
 
-This work is inspired by the great - C coded - Oddsock's streaming program : Ezstream.
+This work is inspired by the great - C coded - Oddsock's streaming program: Ezstream.
 Since I needed to patch it in order to modify the playlist (randomize for example)
 and make external batch tools to create multiple channels, I decided to rewrite it
 from scratch in python.
 
-Some parts of this work are also taken from another Parisson's project : Telemeta
+Some parts of this work are also taken from another Parisson's project: Telemeta
 (see http://telemeta.org).
+
 
 Contact / Infos
 ===============
 
 Twitter: @yomguy @parisson_studio
-
-GitHub : https://github.com/yomguy/DeeFuzzer
-
 Expertise, Business, Sponsoring: http://parisson.com

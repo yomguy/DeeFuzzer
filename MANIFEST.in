@@ -1,6 +1,6 @@
-include CHANGELOG
 include *.txt
 include *.rst
+include *.md
 exclude *.cfg
 recursive-include doc *
 recursive-include example *

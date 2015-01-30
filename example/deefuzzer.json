@@ -1,60 +1,87 @@
 {
     "deefuzzer": {
-        "log": "mystation.log", 
-        "m3u": "mystation.m3u", 
+        "log": "/path/to/station.log",
+        "m3u": "/path/to/station.m3u",
+        "stationdefaults": {
+            "control": {
+                "mode": 0,
+                "port": 16001
+            },
+            "jingles": {
+                "dir": "/path/to/jingles",
+                "mode": 0,
+                "shuffle": 1
+            }
+        },
         "station": {
             "control": {
-                "mode": 0, 
+                "mode": 0,
                 "port": 16001
-            }, 
-            "infos": {
-                "description": "my_station", 
-                "genre": "music", 
-                "name": "my_station", 
-                "url": "http://parisson.com"
-            }, 
+            },
             "jingles": {
-                "dir": "/path/to/jingles", 
-                "mode": 0, 
+                "dir": "/path/to/jingles",
+                "mode": 0,
                 "shuffle": 1
-            }, 
+            }
+        },
+        "station": {
+            "control": {
+                "mode": 0,
+                "port": 16001
+            },
+            "infos": {
+                "description": "My personal best funky playlist ever !",
+                "genre": "Various Funk Groove",
+                "name": "My best funky station",
+                "short_name": "My_station",
+                "url": "http://parisson.com"
+            },
+            "jingles": {
+                "dir": "/path/to/jingles",
+                "mode": 0,
+                "shuffle": 1
+            },
             "media": {
-                "bitrate": 96, 
-                "dir": "/path/to/mp3/", 
-                "format": "mp3", 
-                "m3u": "/path/to/m3u_file", 
-                "ogg_quality": 4, 
-                "samplerate": 48000, 
-                "shuffle": 0, 
+                "bitrate": 96,
+                "source": "/path/to/mp3/or/m3u",
+                "format": "mp3",
+                "ogg_quality": 4,
+                "samplerate": 48000,
+                "shuffle": 0,
                 "voices": "2"
-            }, 
+            },
             "record": {
-                "dir": "/home/telecaster/archives/mp3", 
+                "dir": "/path/to/archives",
                 "mode": 0
-            }, 
+            },
             "relay": {
-                "author": "Inconnu", 
-                "mode": 0, 
+                "author": "Unknown",
+                "mode": 0,
                 "url": "http://127.0.0.1:8000/telecaster_live.mp3"
-            }, 
-            "rss": {
-                "dir": "/var/www/rss", 
-                "enclosure": 0, 
-                "media_url": "http://localhost/rss/"
-            }, 
+            },
+            "feeds": {
+                "mode": 1,
+                "rss": 1,
+                "json": 0,
+                "playlist": 0,
+                "dir": "/path/to/rss",
+                "enclosure": 1,
+                "media_url": "http://localhost/media/"
+            },
             "server": {
-                "host": "127.0.0.1", 
-                "mountpoint": "monitor", 
-                "port": 8000, 
-                "public": 0, 
-                "sourcepassword": "source2parisson", 
-                "type": "icecast"
-            }, 
+                "host": "127.0.0.1",
+                "mountpoint": "monitor",
+                "port": 8000,
+                "public": 0,
+                "sourcepassword": "icecast_source_password",
+                "type": "icecast",
+                "appendtype": 1
+            },
             "twitter": {
-                "key": "76728330-OjKgbHtn4II86Ad7pNUGEzfNAkGTW5Wvw38qUmLE", 
-                "mode": 0, 
-                "secret": "4egZs1dSM37XVY8zXa016Yueku2fleXF2bx8k25V4", 
-                "tags": "bla bla"
+                "key": "you access token key",
+                "mode": 0,
+                "secret": "your access token secret key",
+                "tags": "parisson deefuzzer"
             }
         }
     }

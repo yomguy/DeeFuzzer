@@ -44,97 +44,77 @@ from mutagen.mp3 import MP3, MPEGInfo
 from mutagen import id3
 from utils import *
 
-EasyID3.valid_keys["comment"]="COMM::'XXX'"
-EasyID3.valid_keys["copyright"]="TCOP::'XXX'"
+EasyID3.valid_keys["comment"] = "COMM::'XXX'"
+EasyID3.valid_keys["copyright"] = "TCOP::'XXX'"
+EasyID3.valid_keys["country"] = "TXXX:COUNTRY:'XXX'"
+EasyID3.RegisterTXXXKey("country", "COUNTRY")
 
-class Mp3:
+
+class Mp3(MediaBase):
     """A MP3 file object"""
 
-    def __init__(self, media):
-        self.media = media
-        self.item_id = ''
-        self.source = self.media
-        self.options = {}
-        self.bitrate_default = '192'
-        self.cache_dir = os.sep + 'tmp'
-        self.keys2id3 = {'title': 'TIT2',
-                    'artist': 'TPE1',
-                    'album': 'TALB',
-                    'date': 'TDRC',
-                    'comment': 'COMM',
-                    'genre': 'TCON',
-                    'copyright': 'TCOP',
-                    }
-        self.mp3 = MP3(self.media, ID3=EasyID3)
-        self.info = self.mp3.info
-        self.bitrate = int(str(self.info.bitrate)[:-3])
-        self.length = datetime.timedelta(0,self.info.length)
-        try:
-            self.metadata = self.get_file_metadata()
-        except:
-            self.metadata = {'title': '',
-                    'artist': '',
-                    'album': '',
-                    'date': '',
-                    'comment': '',
-                    'genre': '',
-                    'copyright': '',
-                    }
+    def __init__(self, newmedia):
+        MediaBase.__init__(self)
 
-        self.description = self.get_description()
-        self.mime_type = self.get_mime_type()
+        self.description = "MPEG audio Layer III"
+        self.mime_type = 'audio/mpeg'
+        self.extension = 'mp3'
+        self.format = 'MP3'
+
+        self.media = newmedia
+        self.source = self.media
+        self.bitrate_default = 192
+        self.tagdata = {
+            'title': 'TIT2',
+            'artist': 'TPE1',
+            'album': 'TALB',
+            'date': 'TDRC',
+            'comment': 'COMM',
+            'country': 'COUNTRY',
+            'genre': 'TCON',
+            'copyright': 'TCOP'
+        }
+        self.sourceobj = MP3(self.media, ID3=EasyID3)
+        self.info = self.sourceobj.info
+        self.bitrate = self.bitrate_default
+        try:
+            self.bitrate = int(self.info.bitrate / 1024)
+        except:
+            pass
+
         self.media_info = get_file_info(self.media)
         self.file_name = self.media_info[0]
         self.file_title = self.media_info[1]
         self.file_ext = self.media_info[2]
-        self.extension = self.get_file_extension()
-        self.size = os.path.getsize(media)
-        #self.args = self.get_args()
-
-    def get_format(self):
-        return 'MP3'
-
-    def get_file_extension(self):
-        return 'mp3'
-
-    def get_mime_type(self):
-        return 'audio/mpeg'
-
-    def get_description(self):
-        return "MPEG audio Layer III"
-
-    def get_file_metadata(self):
-        metadata = {}
-        for key in self.keys2id3.keys():
-            try:
-                metadata[key] = self.mp3[key][0]
-            except:
-                metadata[key] = ''
-        return metadata
+        self.size = os.path.getsize(self.media)
+        self.length = datetime.timedelta(0, self.info.length)
+        self.read_file_metadata()
 
     def write_tags(self):
         """Write all ID3v2.4 tags by mapping dub2id3_dict dictionnary with the
             respect of mutagen classes and methods"""
 
-        self.mp3.add_tags()
-        self.mp3.tags['TIT2'] = id3.TIT2(encoding=2, text=u'text')
-        self.mp3.save()
+        self.sourceobj.add_tags()
+        self.sourceobj.tags['TIT2'] = id3.TIT2(encoding=2, text=u'text')
+        self.sourceobj.save()
 
-        #media_id3 = id3.ID3(self.media)
-        #for tag in self.metadata.keys():
-            #if tag in self.dub2id3_dict.keys():
-                #frame_text = self.dub2id3_dict[tag]
-                #value = self.metadata[tag]
-                #frame = mutagen.id3.Frames[frame_text](3,value)
-            #try:
-                #media_id3.add(frame)
-            #except:
-                #raise IOError('ExporterError: cannot tag "'+tag+'"')
+        '''
+        # media_id3 = id3.ID3(self.media)
+        # for tag in self.metadata.keys():
+            # if tag in self.dub2id3_dict:
+                # frame_text = self.dub2id3_dict[tag]
+                # value = self.metadata[tag]
+                # frame = mutagen.id3.Frames[frame_text](3,value)
+            # try:
+                # media_id3.add(frame)
+            # except:
+                # raise IOError('ExporterError: cannot tag "'+tag+'"')
 
-        #try:
-            #media_id3.save()
-        #except:
-            #raise IOError('ExporterError: cannot write tags')
+        # try:
+            # media_id3.save()
+        # except:
+            # raise IOError('ExporterError: cannot write tags')
+        '''
 
         media = id3.ID3(self.media)
         media.add(id3.TIT2(encoding=3, text=self.metadata['title'].decode('utf8')))
