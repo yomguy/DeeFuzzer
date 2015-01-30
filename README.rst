@@ -100,9 +100,7 @@ To upgrade::
 
     sudo pip install -U deefuzzer
 
-If you have some version problems with the installation, please try in a virtualenv.
-
-For more informations, please see on `GitHub <https://github.com/yomguy/DeeFuzzer>`_ or tweet to @yomguy
+If you have some version problems with the installation, please also try in a virtualenv.
 
 As a streaming client, the DeeFuzzer needs a local or remote streaming server like Icecast2 to do something::
 
