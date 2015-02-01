@@ -55,7 +55,7 @@ News
  * Better thread management (@achbed #36 #37 #38)
  * Improved stability avoiding crashes with automatic station restart methods (@achbed #39 #45)
  * Added option (ignoreerrors) to log and continue when an error occurs during station initialization (@achbed #43)
- * Cleanup, better documentation and good ideas (@choiz #15 #16 #17 #23)
+ * Cleanup, better documentation and good ideas (@ChoiZ #15 #16 #17 #23)
  * Various bugfixes
  * Many thanks to all participants and especially to @achbed for his **huge** work, efficiency and easy collaboration
  * Enjoy!
@@ -155,7 +155,7 @@ Authors
 
  * @yomguy +GuillaumePellerin yomguy@parisson.com
  * @achbed +achbed github@achbed.org
- * @choiz
+ * @ChoiZ +FrançoisLASSERRE choiz@me.com
 
 
 License
