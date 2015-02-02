@@ -48,7 +48,7 @@ News
  * Reworked the RSS feed handling to allow JSON output as well and more configuration options (@achbed #27 #28)
  * Add an init.d script to act as a deamon (@achbed)
  * Add stationdefaults preference (apply default settings to all stations) (@achbed #31)
- * Add stationfolder preference (generate stations automatically from a folder structure) (@achbed #31) 
+ * Add stationfolder preference (generate stations automatically from a folder structure) (@achbed #31)
  * Add stationconfig preference (load other preference files as stations) (@achbed #31)
  * Add new station.server.appendtype option
  * Add new base_dir parameter to station definition
@@ -131,10 +131,10 @@ Documentation
 =============
 
  * `FAQ and Wiki <https://github.com/yomguy/DeeFuzzer/wiki>`_
- * `API <http://files.parisson.com/doc/deefuzzer/>`_ 
+ * `API <http://files.parisson.com/doc/deefuzzer/>`_
  * `Documented XML configuration <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_doc.xml>`_
  * Configuration examples:
-     
+
      * `Dummy XML for testing <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.xml>`_
      * `OGG Vorbis and MP3 together <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_mp3_ogg.xml>`_
      * `Generic YAML <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.yaml>`_
@@ -145,7 +145,7 @@ Development
 
 Everybody is welcome to participate to the DeeFuzzer project!
 
-We use GitHub to collaborate: https://github.com/yomguy/DeeFuzzer 
+We use GitHub to collaborate: https://github.com/yomguy/DeeFuzzer
 
 Clone it, star it and join us!
 
