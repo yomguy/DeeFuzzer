@@ -136,7 +136,6 @@ Documentation
  * Configuration examples:
 
      * `Dummy XML for testing <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.xml>`_
-     * `OGG Vorbis and MP3 together <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer_mp3_ogg.xml>`_
      * `Generic YAML <https://github.com/yomguy/DeeFuzzer/blob/master/example/deefuzzer.yaml>`_
 
 
