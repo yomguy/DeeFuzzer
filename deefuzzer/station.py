@@ -811,7 +811,7 @@ class Station(Thread):
         try:
             self.update_twitter_current()
             if self.song:
-            self.channel.set_metadata({'song': self.song, 'charset': 'utf-8'})
+                self.channel.set_metadata({'song': self.song, 'charset': 'utf-8'})
             return True
         except Exception, e:
             self._err('icecastloop_metadata: Error: ' + str(e))
