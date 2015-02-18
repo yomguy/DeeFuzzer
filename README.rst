@@ -42,6 +42,11 @@ Because our aim is to get DeeFuzzer as light as possible it is NOT capable of re
 News
 ====
 
+0.7.1
+
+ * Bugfix release
+ * Fix no metadata for stream-m relaying
+
 0.7
 
  * **Huge** refactoring which should be compatible with old setups, but before updating **please read** the `updated example <https://github.com/yomguy/DeeFuzzer/blob/dev/example/deefuzzer_doc.xml>`_ and the following news.
