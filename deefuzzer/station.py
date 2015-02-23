@@ -733,7 +733,7 @@ class Station(Thread):
         message = '%s %s on #%s' % (self.prefix, self.song, self.short_name)
         tags = '#' + ' #'.join(self.twitter_tags)
         message = message + ' ' + tags
-        message = message[:108] + ' ' + self.m3u_url
+        message = message[:108] + ' > ' + self.m3u_url
         self.update_twitter(message)
 
     def channel_open(self):
