@@ -46,6 +46,7 @@ import shout
 import urllib
 import mimetypes
 import json
+import hashlib
 
 from threading import Thread
 from player import *
@@ -438,6 +439,9 @@ class Station(Thread):
             pass
 
         return file_list
+        
+    def get_array_hash(self, s):
+        return hashlib.md5(str(s)).hexdigest()
 
     def get_jingles(self):
         file_list = []
@@ -483,7 +487,10 @@ class Station(Thread):
 
                 self._info('Generating new playlist (' + str(self.lp) + ' tracks)')
 
-            elif lp_new != self.lp:
+            # use a hash check instead to detect when a filename changes as well as playlist length
+            # Also, recompute the hash every time for the built-in playlist so we can catch when that
+            # changes as well
+            elif self.get_array_hash(new_playlist) != self.get_array_hash(self.playlist):
                 self.id += 1
                 if self.id >= lp_new:
                     self.id = 0
