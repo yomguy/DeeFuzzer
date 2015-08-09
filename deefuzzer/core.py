@@ -134,10 +134,10 @@ class DeeFuzzer(Thread):
             os.makedirs(m3u_dir)
         m3u = open(self.m3u, 'w')
         m3u.write('#EXTM3U\n')
-        for k in self.station_instances.keys():
-            s = self.station_instances[k]
-            m3u.write('#EXTINF:%s,%s - %s\n' % ('-1', s.short_name, s.channel.name))
-            m3u.write('http://' + s.channel.host + ':' + str(s.channel.port) + s.channel.mount + '\n')
+        for station in self.station_settings:
+            m3u.write('#EXTINF:%s,%s\n' % ('-1', station['infos']['name']))
+            m3u.write('http://' + station['server']['host'] + ':' + \
+                str(station['server']['port']) + '/' + station['server']['mountpoint'] + '\n')
         m3u.close()
         self._info('Writing M3U file to : ' + self.m3u)
 
@@ -207,7 +207,7 @@ class DeeFuzzer(Thread):
         if 'media' not in s:
             s['media'] = {}
         s['media']['source'] = folder
-        
+
         self.add_station(s)
 
     def load_stations_fromconfig(self, folder):
@@ -268,16 +268,16 @@ class DeeFuzzer(Thread):
             ns_new = len(self.station_settings)
             if ns_new > ns:
                 self._info('Loading new stations')
-            
+
             for i in range(0, ns_new):
                 name = ''
                 try:
                     if 'station_name' in self.station_settings[i]:
                         name = self.station_settings[i]['station_name']
-                    
+
                     if 'retries' not in self.station_settings[i]:
                         self.station_settings[i]['retries'] = 0
-                        
+
                     try:
                         if 'station_instance' in self.station_settings[i]:
                             # Check for station running here
@@ -285,7 +285,7 @@ class DeeFuzzer(Thread):
                                 # Station exists and is alive.  Don't recreate.
                                 self.station_settings[i]['retries'] = 0
                                 continue
-                            
+
                             if self.maxretry >= 0 and self.station_settings[i]['retries'] <= self.maxretry:
                                 # Station passed the max retries count is will not be reloaded
                                 if 'station_stop_logged' not in self.station_settings[i]:
@@ -339,7 +339,7 @@ class DeeFuzzer(Thread):
 
                 if self.m3u:
                     self.set_m3u_playlist()
-                    
+
             ns = ns_new
             self.mainLoop = True
 
