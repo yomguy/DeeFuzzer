@@ -439,7 +439,7 @@ class Station(Thread):
             pass
 
         return file_list
-        
+
     def get_array_hash(self, s):
         return hashlib.md5(str(s)).hexdigest()
 
@@ -582,7 +582,8 @@ class Station(Thread):
             media_date = time.strftime("%a, %d %b %Y %H:%M:%S +0200", media_date)
             media.metadata['Duration'] = str(media.length).split('.')[0]
             media.metadata['Bitrate'] = str(media.bitrate) + ' kbps'
-            media.metadata['Next play'] = str(media_absolute_playtime).split('.')[0]
+            media.metadata['StartTime'] = str(media_absolute_playtime).split('.')[0]
+            media.metadata['EndTime'] = str(media_absolute_playtime+media.length).split('.')[0]
 
             media_description = '<table>'
             media_description_item = '<tr><td>%s:   </td><td><b>%s</b></td></tr>'
