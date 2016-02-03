@@ -57,11 +57,11 @@ class DeeFuzzer(Thread):
     rss = None
     station_settings = []
     station_instances = {}
-    watchfolder = {}
-    logqueue = Queue.Queue()
-    mainLoop = False
-    ignoreErrors = False
-    maxretry = 0
+    watch_folder = {}
+    log_queue = Queue.Queue()
+    main_loop = False
+    ignore_errors = False
+    max_retry = 0
 
     def __init__(self, conf_file):
         Thread.__init__(self)
@@ -76,20 +76,20 @@ class DeeFuzzer(Thread):
         self.log_dir = os.sep.join(log_file.split(os.sep)[:-1])
         if not os.path.exists(self.log_dir) and self.log_dir:
             os.makedirs(self.log_dir)
-        self.logger = QueueLogger(log_file, self.logqueue)
+        self.logger = QueueLogger(log_file, self.log_queue)
         self.logger.start()
-
+        print self.conf['deefuzzer']
         for key in self.conf['deefuzzer'].keys():
             if key == 'm3u':
                 self.m3u = str(self.conf['deefuzzer'][key])
 
             elif key == 'ignoreerrors':
                 # Ignore errors and continue as long as possible
-                self.ignoreErrors = bool(self.conf['deefuzzer'][key])
+                self.ignore_errors = bool(self.conf['deefuzzer'][key])
 
-            elif key == 'maxretry':
+            elif key == 'max_retry':
                 # Maximum number of attempts to restart the stations on crash.
-                self.maxretry = int(self.conf['deefuzzer'][key])
+                self.max_retry = int(self.conf['deefuzzer'][key])
 
             elif key == 'station':
                 # Load station definitions from the main config file
@@ -106,7 +106,7 @@ class DeeFuzzer(Thread):
             elif key == 'stationfolder':
                 # Create stations automagically from a folder structure
                 if isinstance(self.conf['deefuzzer'][key], dict):
-                    self.watchfolder = self.conf['deefuzzer'][key]
+                    self.watch_folder = self.conf['deefuzzer'][key]
             else:
                 setattr(self, key, self.conf['deefuzzer'][key])
 
@@ -118,7 +118,7 @@ class DeeFuzzer(Thread):
     def _log(self, level, msg):
         try:
             obj = {'msg': 'Core: ' + str(msg), 'level': level}
-            self.logqueue.put(obj)
+            self.log_queue.put(obj)
         except:
             pass
 
@@ -144,12 +144,12 @@ class DeeFuzzer(Thread):
     def create_stations_fromfolder(self):
         """Scan a folder for subfolders containing media, and make stations from them all."""
 
-        options = self.watchfolder
+        options = self.watch_folder
         if 'folder' not in options:
             # We have no folder specified.  Bail.
             return
 
-        if self.mainLoop:
+        if self.main_loop:
             if 'livecreation' not in options:
                 # We have no folder specified.  Bail.
                 return
@@ -266,6 +266,7 @@ class DeeFuzzer(Thread):
         while True:
             self.create_stations_fromfolder()
             ns_new = len(self.station_settings)
+            print ns_new
             if ns_new > ns:
                 self._info('Loading new stations')
 
@@ -286,7 +287,7 @@ class DeeFuzzer(Thread):
                                 self.station_settings[i]['retries'] = 0
                                 continue
 
-                            if self.maxretry >= 0 and self.station_settings[i]['retries'] <= self.maxretry:
+                            if self.max_retry >= 0 and self.station_settings[i]['retries'] <= self.max_retry:
                                 # Station passed the max retries count is will not be reloaded
                                 if 'station_stop_logged' not in self.station_settings[i]:
                                     self._err('Station ' + name + ' is stopped and will not be restarted.')
@@ -299,7 +300,7 @@ class DeeFuzzer(Thread):
                     except Exception as e:
                         self._err('Error checking status for ' + name)
                         self._err(str(e))
-                        if not self.ignoreErrors:
+                        if not self.ignore_errors:
                             raise
 
                     # Apply station defaults if they exist
@@ -324,7 +325,7 @@ class DeeFuzzer(Thread):
                         namehash = hashlib.md5(name).hexdigest()
                         self.station_settings[i]['station_statusfile'] = os.sep.join([self.log_dir, namehash])
 
-                    new_station = Station(self.station_settings[i], q, self.logqueue, self.m3u)
+                    new_station = Station(self.station_settings[i], q, self.log_queue, self.m3u)
                     if new_station.valid:
                         self.station_settings[i]['station_instance'] = new_station
                         self.station_settings[i]['station_instance'].start()
@@ -333,7 +334,7 @@ class DeeFuzzer(Thread):
                         self._err('Error validating station ' + name)
                 except Exception:
                     self._err('Error initializing station ' + name)
-                    if not self.ignoreErrors:
+                    if not self.ignore_errors:
                         raise
                     continue
 
@@ -341,7 +342,7 @@ class DeeFuzzer(Thread):
                     self.set_m3u_playlist()
 
             ns = ns_new
-            self.mainLoop = True
+            self.main_loop = True
 
             time.sleep(5)
             # end main loop
@@ -360,4 +361,3 @@ class Producer(Thread):
                 self.q.put(True, True)
             except:
                 pass
-

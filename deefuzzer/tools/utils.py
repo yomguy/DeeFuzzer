@@ -91,7 +91,8 @@ def get_conf_dict(file):
         data = confile.read()
         confile.close()
         return xmltodict(data, 'utf-8')
-    elif 'yaml' in mime_type:
+
+    elif 'yaml' in mime_type or 'yml' in mime_type:
         import yaml
 
         def custom_str_constructor(loader, node):
@@ -102,6 +103,7 @@ def get_conf_dict(file):
         data = confile.read()
         confile.close()
         return yaml.load(data)
+
     elif 'json' in mime_type:
         import json
 
