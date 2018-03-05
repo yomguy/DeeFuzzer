@@ -5,11 +5,11 @@
 .. |travis_master| image:: https://secure.travis-ci.org/yomguy/DeeFuzzer.png?branch=master
     :target: https://travis-ci.org/yomguy/DeeFuzzer/
 
-.. |version| image:: https://pypip.in/version/DeeFuzzer/badge.png
+.. |version| image:: https://img.shields.io/pypi/v/DeeFuzzer.svg
   :target: https://pypi.python.org/pypi/DeeFuzzer/
   :alt: Version
 
-.. |downloads| image:: https://pypip.in/download/DeeFuzzer/badge.svg
+.. |downloads| image:: https://img.shields.io/pypi/dm/DeeFuzzer.svg
     :target: https://pypi.python.org/pypi/DeeFuzzer/
     :alt: Downloads
 
