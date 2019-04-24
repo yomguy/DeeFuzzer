@@ -440,11 +440,17 @@ class Station(Thread):
                                       port = self.mdb_port,
                                       use_unicode = True)
                     cur = con.cursor()
-                    cur.execute("SELECT %s FROM %s".format(self.mdb_field, self.mdb_table))
-                    file_list = cur.fetchall()
+                    cur.execute("SELECT %s FROM %s" % (self.mdb_field, self.mdb_table))
+                    rows = cur.fetchall()
+                    for row in rows:
+                        file_list.append(row[0])
 
                 except mdb.Error, e:
                     self._err('Could not get playlist from MySQLdb, Error %d: %s' % (e.args[0], e.args[1]))
+
+                finally:
+                    if con:
+                        con.close()
 
             # Directory
             elif os.path.isdir(self.media_source):
