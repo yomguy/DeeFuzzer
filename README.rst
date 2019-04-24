@@ -35,6 +35,7 @@ Features
  * Very light and optimized streaming process
  * Fully written in Python
  * Works with Icecast2, ShoutCast, Stream-m
+ * (NEW) Works with MySQL playlists
 
 Because our aim is to get DeeFuzzer as light as possible it is NOT capable of re-encoding or transcoding media files for the moment.
 
