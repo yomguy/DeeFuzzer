@@ -111,7 +111,7 @@
                     "database": "database_name",
                     "table": "playlist_table",
                     "field": "absolute_path"
-				}
+                }
             }
         }
     }
