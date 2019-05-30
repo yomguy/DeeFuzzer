@@ -47,6 +47,7 @@ import urllib
 import mimetypes
 import json
 import hashlib
+import MySQLdb as mdb
 
 from threading import Thread
 from player import *
@@ -88,6 +89,13 @@ class Station(Thread):
     jingles_frequency = 2
     statusfile = ''
     base_directory = ''
+    mdb_host = '127.0.0.1'
+    mdb_port = 3306
+    mdb_user = ''
+    mdb_password = ''
+    mdb_database = ''
+    mdb_table = ''
+    mdb_field = ''
 
     def __init__(self, station, q, logqueue, m3u):
         Thread.__init__(self)
@@ -124,6 +132,23 @@ class Station(Thread):
             if not self.station['media']['source'].strip() == '':
                 self.media_source = self._path_add_base(self.station['media']['source'])
 
+        # MySQL
+        if 'mysql' in self.station['media']:
+            if 'host' in self.station['media']['mysql']:
+                self.mdb_host = self.station['media']['mysql']['host']
+            if 'port' in self.station['media']['mysql']:
+                self.mdb_port = self.station['media']['mysql']['port']
+            if 'user' in self.station['media']['mysql']:
+                self.mdb_user = self.station['media']['mysql']['user']
+            if 'password' in self.station['media']['mysql']:
+                self.mdb_password = self.station['media']['mysql']['password']
+            if 'database' in self.station['media']['mysql']:
+                self.mdb_database = self.station['media']['mysql']['database']
+            if 'table' in self.station['media']['mysql']:
+                self.mdb_table = self.station['media']['mysql']['table']
+            if 'field' in self.station['media']['mysql']:
+                self.mdb_field = self.station['media']['mysql']['field']
+
         self.media_format = self.station['media']['format']
         self.shuffle_mode = int(self.station['media']['shuffle'])
         self.bitrate = int(self.station['media']['bitrate'])
@@ -151,25 +176,26 @@ class Station(Thread):
 
         if 'stream-m' in self.type:
             self.channel = HTTPStreamer()
-            self.channel.mount = '/publish/' + self.mountpoint
+            self.channel.mount = '/publish/' + str(self.mountpoint)
         elif 'icecast' in self.type:
             self.channel = shout.Shout()
-            self.channel.mount = '/' + self.mountpoint
+            self.channel.mount = '/' + str(self.mountpoint)
             if self.appendtype:
-                self.channel.mount = self.channel.mount + '.' + self.media_format
+                self.channel.mount = str(self.channel.mount) + '.' + str(self.media_format)
         else:
             self._err('Not a compatible server type. Choose "stream-m" or "icecast".')
             return
 
-        self.channel.url = self.station['infos']['url']
-        self.channel.name = self.station['infos']['name']
-        self.channel.genre = self.station['infos']['genre']
-        self.channel.description = self.station['infos']['description']
-        self.channel.format = self.media_format
-        self.channel.host = self.station['server']['host']
+        # Shout requires non-unicode strings
+        self.channel.url = str(self.station['infos']['url'])
+        self.channel.name = str(self.station['infos']['name'])
+        self.channel.genre = str(self.station['infos']['genre'])
+        self.channel.description = str(self.station['infos']['description'])
+        self.channel.format = str(self.media_format)
+        self.channel.host = str(self.station['server']['host'])
         self.channel.port = int(self.station['server']['port'])
         self.channel.user = 'source'
-        self.channel.password = self.station['server']['sourcepassword']
+        self.channel.password = str(self.station['server']['sourcepassword'])
         self.channel.public = int(self.station['server']['public'])
         if self.channel.format == 'mp3':
             self.channel.audio_info = {'bitrate': str(self.bitrate),
@@ -181,7 +207,7 @@ class Station(Thread):
                                        'quality': str(self.ogg_quality),
                                        'channels': str(self.voices), }
 
-        self.server_url = 'http://' + self.channel.host + ':' + str(self.channel.port)
+        self.server_url = 'http://' + str(self.channel.host) + ':' + str(self.channel.port)
         self.channel_url = self.server_url + self.channel.mount
 
         # RSS
@@ -405,7 +431,30 @@ class Station(Thread):
         file_list = []
 
         try:
-            if os.path.isdir(self.media_source):
+            # MySQLdb
+            if 'mysql' in self.station['media']:
+                try:
+                    con = mdb.connect(host = self.mdb_host,
+                                      user = self.mdb_user,
+                                      passwd = self.mdb_password,
+                                      db = self.mdb_database,
+                                      port = self.mdb_port,
+                                      use_unicode = True)
+                    cur = con.cursor()
+                    cur.execute("SELECT %s FROM %s" % (self.mdb_field, self.mdb_table))
+                    rows = cur.fetchall()
+                    for row in rows:
+                        file_list.append(row[0])
+
+                except mdb.Error, e:
+                    self._err('Could not get playlist from MySQLdb, Error %d: %s' % (e.args[0], e.args[1]))
+
+                finally:
+                    if con:
+                        con.close()
+
+            # Directory
+            elif os.path.isdir(self.media_source):
                 self.q.get(1)
                 try:
                     for root, dirs, files in os.walk(self.media_source):
@@ -419,7 +468,8 @@ class Station(Thread):
                     pass
                 self.q.task_done()
 
-            if os.path.isfile(self.media_source):
+            # File
+            elif os.path.isfile(self.media_source):
                 self.q.get(1)
                 try:
                     f = open(self.media_source, 'r')
@@ -903,4 +953,3 @@ class Station(Thread):
 
                 self.channel_close()
                 time.sleep(1)
-

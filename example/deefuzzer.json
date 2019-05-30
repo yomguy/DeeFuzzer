@@ -48,7 +48,7 @@
                 "ogg_quality": 4,
                 "samplerate": 48000,
                 "shuffle": 0,
-                "voices": "2"
+                "voices": 2
             },
             "record": {
                 "dir": "/path/to/archives",
@@ -82,6 +82,36 @@
                 "mode": 0,
                 "secret": "your access token secret key",
                 "tags": "parisson deefuzzer"
+            }
+        },
+        "station": {
+            "control": {
+                "mode": 0,
+                "port": 16001
+            },
+            "infos": {
+                "description": "MySQL funky playlist",
+                "genre": "Various Funk Groove",
+                "name": "My best funky station managed with MySQL",
+                "short_name": "MySQL_station",
+                "url": "http://parisson.com"
+            },
+            "media": {
+                "bitrate": 96,
+                "format": "mp3",
+                "ogg_quality": 4,
+                "samplerate": 48000,
+                "shuffle": 0,
+                "voices": 2,
+                "mysql": {
+                    "host": "127.0.0.1",
+                    "port": 3306,
+                    "user": "username",
+                    "password": "password",
+                    "database": "database_name",
+                    "table": "playlist_table",
+                    "field": "absolute_path"
+                }
             }
         }
     }
