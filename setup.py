@@ -28,7 +28,7 @@ setup(
         'pyliblo',
         'pycurl',
         'pyyaml',
-        'mysql'
+        'mysqlclient',
     ],
     platforms=['OS Independent'],
     license='CeCILL v2',
