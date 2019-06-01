@@ -78,9 +78,9 @@ class Station(Thread):
     run_mode = 1
     appendtype = 0
     feeds_json = 0
-    feeds_rss = 1
-    feeds_mode = 1
-    feeds_playlist = 1
+    feeds_rss = 0
+    feeds_mode = 0
+    feeds_playlist = 0
     feeds_showfilepath = 0
     feeds_showfilename = 0
     short_name = ''
@@ -245,7 +245,8 @@ class Station(Thread):
         self.metadata_relative_dir = 'metadata'
         self.metadata_url = self.channel.url + '/rss/' + self.metadata_relative_dir
         self.metadata_dir = self.feeds_dir + os.sep + self.metadata_relative_dir
-        if not os.path.exists(self.metadata_dir):
+
+        if self.feeds_mode and not os.path.exists(self.metadata_dir):
             os.makedirs(self.metadata_dir)
 
         # The station's player
