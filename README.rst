@@ -43,6 +43,12 @@ Because our aim is to get DeeFuzzer as light as possible it is NOT capable of re
 News
 ====
 
+0.7.2
+
+ * Add MySQL module and connection routine to get the playlist from a database (thanks to doomy23)
+ * Prepare the Python3 switch
+ * Tested against libshout 2.4.1 and python-shout 0.2.1
+
 0.7.1
 
  * Bugfix release
@@ -92,7 +98,8 @@ To install it, say on Debian, do::
 
     sudo apt-get install python-pip python-dev python-liblo \
                          python-mutagen python-pycurl python-yaml \
-                         libshout3-dev librtmp-dev liblo-dev libcurl4-openssl-dev
+                         libshout3-dev librtmp-dev liblo-dev \
+                         libcurl4-openssl-dev libmysqlclient-dev
 
 Now update distribute and setuptools::
 

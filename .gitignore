@@ -29,3 +29,6 @@ pip-log.txt
 
 #PyCharm IDE
 .idea
+
+#vim
+*.swp

@@ -9,7 +9,8 @@ CLASSIFIERS = [
     'Programming Language :: Python',
     'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     'Topic :: Multimedia :: Sound/Audio',
-    'Topic :: Multimedia :: Sound/Audio :: Players'
+    'Topic :: Multimedia :: Sound/Audio :: Players',
+    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
 ]
 
 setup(
@@ -31,10 +32,10 @@ setup(
         'mysqlclient',
     ],
     platforms=['OS Independent'],
-    license='CeCILL v2',
+    license='GPL v3',
     scripts=['scripts/deefuzzer'],
     classifiers=CLASSIFIERS,
     packages=find_packages(),
     include_package_data=True,
-    zip_safe=False
+    zip_safe=False,
 )
