@@ -102,7 +102,9 @@ def get_conf_dict(file):
         confile = open(file, 'r')
         data = confile.read()
         confile.close()
-        return yaml.load(data)
+        for c in yaml.load_all(data):
+            conf = c
+        return conf
 
     elif 'json' in mime_type:
         import json

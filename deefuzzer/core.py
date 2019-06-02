@@ -78,7 +78,8 @@ class DeeFuzzer(Thread):
             os.makedirs(self.log_dir)
         self.logger = QueueLogger(log_file, self.log_queue)
         self.logger.start()
-        #print(self.conf['deefuzzer'])
+        #print(self.conf)
+
         for key in self.conf['deefuzzer'].keys():
             if key == 'm3u':
                 self.m3u = str(self.conf['deefuzzer'][key])

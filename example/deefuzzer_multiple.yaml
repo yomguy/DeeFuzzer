@@ -1,0 +1,112 @@
+deefuzzer: 
+ log: "/tmp/station.log"
+ m3u: "/tmp/station.m3u"
+ stationdefaults: 
+  control: 
+   mode: 0
+   port: 16001
+  jingles: 
+   dir: "/path/to/jingles"
+   mode: 0
+   shuffle: 1
+ station: 
+  - 
+   control: 
+    mode: 0
+    port: 16001
+   infos: 
+    description: "My personal best funky playlist ever !"
+    genre: "Various Funk Groove"
+    name: "My best funky station"
+    short_name: My_station
+    url: "http://parisson.com"
+   jingles: 
+    dir: "/path/to/jingles"
+    mode: 0
+    shuffle: 1
+   media: 
+    bitrate: 96
+    source: "/home/yomguy/Musique/MP3"
+    format: mp3
+    ogg_quality: 4
+    samplerate: 48000
+    shuffle: 0
+    voices: 2
+   record: 
+    dir: "/path/to/archives"
+    mode: 0
+   relay: 
+    author: Unknown
+    mode: 0
+    url: "http://127.0.0.1:8000/telecaster_live.mp3"
+   feeds: 
+    mode: 0
+    rss: 1
+    json: 0
+    playlist: 1
+    dir: "/path/to/rss/"
+    enclosure: 1
+    media_url: "http://localhost/media/"
+   server: 
+    host: "127.0.0.1"
+    mountpoint: monitor0
+    port: 8000
+    public: 0
+    sourcepassword: hackme
+    type: icecast
+    appendtype: 1
+   twitter: 
+    key: "your access token key"
+    mode: 0
+    secret: "your access token secret key"
+    tags: "parisson deefuzzer"
+  - 
+   control: 
+    mode: 0
+    port: 16001
+   infos: 
+    description: "My personal best funky playlist ever !"
+    genre: "Various Funk Groove"
+    name: "My best funky station"
+    short_name: My_station
+    url: "http://parisson.com"
+   jingles: 
+    dir: "/path/to/jingles"
+    mode: 0
+    shuffle: 1
+   media: 
+    bitrate: 96
+    source: "/home/yomguy/Musique/MP3"
+    format: mp3
+    ogg_quality: 4
+    samplerate: 48000
+    shuffle: 0
+    voices: 2
+   record: 
+    dir: "/path/to/archives"
+    mode: 0
+   relay: 
+    author: Unknown
+    mode: 0
+    url: "http://127.0.0.1:8000/telecaster_live.mp3"
+   feeds: 
+    mode: 0
+    rss: 1
+    json: 0
+    playlist: 1
+    dir: "/path/to/rss/"
+    enclosure: 1
+    media_url: "http://localhost/media/"
+   server: 
+    host: "127.0.0.1"
+    mountpoint: monitor1
+    port: 8000
+    public: 0
+    sourcepassword: hackme
+    type: icecast
+    appendtype: 1
+   twitter: 
+    key: "your access token key"
+    mode: 0
+    secret: "your access token secret key"
+    tags: "parisson deefuzzer"
