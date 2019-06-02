@@ -49,6 +49,7 @@ News
  * Prepare the Python3 switch
  * Tested against libshout 2.4.1 and python-shout 0.2.1
  * As been used in relay mode in production for almost 5000+ hours
+ * Improve conf YAML format support
 
 0.7.1
 
