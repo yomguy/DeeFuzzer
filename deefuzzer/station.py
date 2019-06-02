@@ -132,6 +132,8 @@ class Station(Thread):
             if not self.station['media']['source'].strip() == '':
                 self.media_source = self._path_add_base(self.station['media']['source'])
 
+        assert os.path.exists(self.media_source), 'The source directory or file does not exist.'
+
         # MySQL
         if 'mysql' in self.station['media']:
             if 'host' in self.station['media']['mysql']:
