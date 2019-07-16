@@ -175,7 +175,7 @@ Authors
 License
 =======
 
-This software is released under the terms of the CeCILL license (GPLv2 compatible).
+This software is released under the terms of the GNU GPL v3.
 as described in the file LICENSE.txt in the source directory or online https://github.com/yomguy/DeeFuzzer/blob/master/LICENSE.txt
 
 
