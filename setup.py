@@ -23,7 +23,7 @@ setup(
     version='0.7.2',
     install_requires=[
         'setuptools',
-        'python-shout',
+        'python-shout==0.2.5',
         'python-twitter',
         'mutagen',
         'pyliblo',
