@@ -96,6 +96,7 @@ class Station(Thread):
     mdb_database = ''
     mdb_table = ''
     mdb_field = ''
+    feeds_dir = ''
 
     def __init__(self, station, q, logqueue, m3u):
         Thread.__init__(self)
@@ -217,10 +218,12 @@ class Station(Thread):
             self.station['rss'] = self.station['feeds']
 
         if 'rss' in self.station:
+
             if 'mode' in self.station['rss']:
                 self.feeds_mode = int(self.station['rss']['mode'])
-            self.feeds_dir = self._path_add_base(self.station['rss']['dir'])
-            self.feeds_enclosure = int(self.station['rss']['enclosure'])
+                if self.feeds_mode:
+                    self.feeds_dir = self._path_add_base(self.station['rss']['dir'])
+                    self.feeds_enclosure = int(self.station['rss']['enclosure'])
             if 'json' in self.station['rss']:
                 self.feeds_json = int(self.station['rss']['json'])
             if 'rss' in self.station['rss']:
@@ -237,7 +240,11 @@ class Station(Thread):
                 if not self.station['rss']['media_url'] == '':
                     self.feeds_media_url = self.station['rss']['media_url']
 
-        self.base_name = self.feeds_dir + os.sep + self.short_name + '_' + self.channel.format
+        if self.feeds_dir:
+            self.base_name = self.feeds_dir + os.sep + self.short_name + '_' + self.channel.format
+        else:
+             self.base_name = self.short_name + '_' + self.channel.format
+
         self.feeds_current_file = self.base_name + '_current'
         self.feeds_playlist_file = self.base_name + '_playlist'
 
