@@ -101,7 +101,7 @@ To install it, say on Debian, do::
     sudo apt-get install python-pip python-dev python-liblo \
                          python-mutagen python-pycurl python-yaml \
                          libshout3-dev librtmp-dev liblo-dev \
-                         libcurl4-openssl-dev libmysqlclient-dev
+                         libcurl4-openssl-dev libmariadbclient-dev
 
 Now update distribute and setuptools::
 
