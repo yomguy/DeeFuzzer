@@ -43,18 +43,18 @@ import datetime
 import string
 import random
 import shout
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import mimetypes
 import json
 import hashlib
 import MySQLdb as mdb
 
 from threading import Thread
-from player import *
-from recorder import *
-from relay import *
-from streamer import *
-from tools import *
+from .player import *
+from .recorder import *
+from .relay import *
+from .streamer import *
+from .tools import *
 
 
 class Station(Thread):
@@ -456,7 +456,7 @@ class Station(Thread):
                     for row in rows:
                         file_list.append(row[0])
 
-                except mdb.Error, e:
+                except mdb.Error as e:
                     self._err('Could not get playlist from MySQLdb, Error %d: %s' % (e.args[0], e.args[1]))
 
                 finally:
@@ -501,7 +501,7 @@ class Station(Thread):
         return file_list
 
     def get_array_hash(self, s):
-        return hashlib.md5(str(s)).hexdigest()
+        return hashlib.md5(str(s).encode('utf-8')).hexdigest()
 
     def get_jingles(self):
         file_list = []
@@ -614,7 +614,7 @@ class Station(Thread):
                     file_meta = Ogg(media)
                 elif file_ext.lower() == 'webm' or mimetypes.guess_type(media)[0] == 'video/webm':
                     file_meta = WebM(media)
-            except Exception, e:
+            except Exception as e:
                 self._err('Could not get specific media type class for %s' % (media))
                 self._err('Error: %s' % (str(e)))
                 pass
@@ -648,7 +648,7 @@ class Station(Thread):
             media_description = '<table>'
             media_description_item = '<tr><td>%s:   </td><td><b>%s</b></td></tr>'
 
-            for key in media.metadata.keys():
+            for key in list(media.metadata.keys()):
                 if media.metadata[key] != '':
                     if key == 'filepath' and not self.feeds_showfilepath:
                         continue
@@ -749,7 +749,8 @@ class Station(Thread):
             song = mediaobj.get_song(True)
         except:
             pass
-
+        
+        print(title, artist, song)
         return title, artist, song
 
     def get_currentsongmeta(self):
@@ -832,7 +833,7 @@ class Station(Thread):
 
         while not self.server_ping:
             try:
-                server = urllib.urlopen(self.server_url)
+                server = urllib.request.urlopen(self.server_url)
                 self.server_ping = True
                 self._info('Channel available.')
             except:
@@ -856,7 +857,7 @@ class Station(Thread):
                 self.set_read_mode()
 
             return True
-        except Exception, e:
+        except Exception as e:
             self._err('icecastloop_nextmedia: Error: ' + str(e))
         return False
 
@@ -879,9 +880,9 @@ class Station(Thread):
         try:
             self.update_twitter_current()
             if self.song:
-                self.channel.set_metadata({'song': self.song, 'charset': 'utf-8'})
+                self.channel.set_metadata({'song': str(self.song), 'charset': 'utf-8'})
             return True
-        except Exception, e:
+        except Exception as e:
             self._err('icecastloop_metadata: Error: ' + str(e))
         return False
 

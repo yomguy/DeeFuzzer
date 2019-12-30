@@ -39,7 +39,7 @@
 import os
 import string
 import datetime
-from utils import *
+from .utils import *
 
 
 class WebM(MediaBase):

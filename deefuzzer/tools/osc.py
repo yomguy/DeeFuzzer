@@ -47,8 +47,8 @@ class OSCController(Thread):
         self.port = port
         try:
             self.server = liblo.Server(self.port)
-        except liblo.ServerError, err:
-            print str(err)
+        except liblo.ServerError as err:
+            print(str(err))
 
     def add_method(self, path, type, method):
         self.server.add_method(path, type, method)

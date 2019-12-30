@@ -36,12 +36,14 @@
 
 # Author: Guillaume Pellerin <yomguy@parisson.com>
 
+
 import os
 import shout
-import Queue
+import queue
 import datetime
 import mimetypes
 import hashlib
+import platform
 from threading import Thread
 from deefuzzer.station import *
 from deefuzzer.tools import *
@@ -58,7 +60,7 @@ class DeeFuzzer(Thread):
     station_settings = []
     station_instances = {}
     watch_folder = {}
-    log_queue = Queue.Queue()
+    log_queue = queue.Queue()
     main_loop = False
     ignore_errors = False
     max_retry = 0
@@ -67,9 +69,11 @@ class DeeFuzzer(Thread):
         Thread.__init__(self)
         self.conf_file = conf_file
         self.conf = get_conf_dict(self.conf_file)
-
-        if 'deefuzzer' not in self.conf:
-            return
+        
+        print(self.conf)
+        
+        if 'deefuzzer' not in self.conf :
+            raise('This is not a standard deefuzzer config file')
 
         # Get the log setting first (if possible)
         log_file = str(self.conf['deefuzzer'].pop('log', ''))
@@ -78,9 +82,8 @@ class DeeFuzzer(Thread):
             os.makedirs(self.log_dir)
         self.logger = QueueLogger(log_file, self.log_queue)
         self.logger.start()
-        #print(self.conf)
 
-        for key in self.conf['deefuzzer'].keys():
+        for key in list(self.conf['deefuzzer'].keys()):
             if key == 'm3u':
                 self.m3u = str(self.conf['deefuzzer'][key])
 
@@ -113,6 +116,7 @@ class DeeFuzzer(Thread):
 
         # Set the deefuzzer logger
         self._info('Starting DeeFuzzer')
+        self._info('Using Python version %s' % platform.python_version())
         self._info('Using libshout version %s' % shout.version())
         self._info('Number of stations : ' + str(len(self.station_settings)))
 
@@ -202,7 +206,7 @@ class DeeFuzzer(Thread):
             return
         self._info('Creating station for folder ' + folder)
         d = dict(path=folder, name=name)
-        for i in options.keys():
+        for i in list(options.keys()):
             if 'folder' not in i:
                 s[i] = replace_all(options[i], d)
         if 'media' not in s:
@@ -259,7 +263,7 @@ class DeeFuzzer(Thread):
             return
 
     def run(self):
-        q = Queue.Queue(1)
+        q = queue.Queue(1)
         ns = 0
         p = Producer(q)
         p.start()
@@ -317,12 +321,12 @@ class DeeFuzzer(Thread):
                             if 'short_name' in self.station_settings[i]['infos']:
                                 name = self.station_settings[i]['infos']['short_name']
                                 y = 1
-                                while name in self.station_instances.keys():
+                                while name in list(self.station_instances.keys()):
                                     y += 1
                                     name = self.station_settings[i]['infos']['short_name'] + " " + str(y)
 
                         self.station_settings[i]['station_name'] = name
-                        namehash = hashlib.md5(name).hexdigest()
+                        namehash = hashlib.md5(str(name).encode('utf-8')).hexdigest()
                         self.station_settings[i]['station_statusfile'] = os.sep.join([self.log_dir, namehash])
 
                     new_station = Station(self.station_settings[i], q, self.log_queue, self.m3u)

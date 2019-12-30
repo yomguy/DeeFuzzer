@@ -37,8 +37,8 @@
 # Author: Guillaume Pellerin <yomguy@parisson.com>
 
 from threading import Thread
-import Queue
-import urllib
+import queue
+import urllib.request, urllib.parse, urllib.error
 
 
 class Relay(Thread):
@@ -47,7 +47,7 @@ class Relay(Thread):
         Thread.__init__(self)
         self.sub_buffer_size = sub_buffer_size
         self.queue_size = queue_size
-        self.queue = Queue.Queue(self.queue_size)
+        self.queue = queue.Queue(self.queue_size)
         self.stream = None
 
     def set_url(self, url):
@@ -55,7 +55,7 @@ class Relay(Thread):
 
     def open(self):
         try:
-            self.stream = urllib.urlopen(self.url)
+            self.stream = urllib.request.urlopen(self.url)
             self.isopen = True
         except:
             self.isopen = False
