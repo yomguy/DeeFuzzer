@@ -1,13 +1,18 @@
 language: python
-python:
-  - "3.6"
+
+matrix:
+  include:
+    - python: 3.7
+      os: linux
+      compiler: gcc
+
 virtualenv:
   system_site_packages: true
 
 # command to prepare the system to install prerequisites or dependencies
 before_install:
  - sudo apt-get install -qq python-setuptools
- - sudo apt-get install -qq python-pip python-dev libshout3-dev python-liblo python-mutagen python-pycurl liblo-dev libshout3-dev librtmp-dev python-yaml libcurl4-openssl-dev python-mutagen
+ - sudo apt-get install -qq python-pip python-dev libshout3-dev python-liblo python-mutagen python-pycurl liblo-dev libshout3-dev librtmp-dev python-yaml libcurl4-openssl-dev python-mutagen libmariadbclient-dev
 
 # command to run tests
 script:
