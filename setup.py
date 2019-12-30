@@ -6,7 +6,8 @@
 from setuptools import setup, find_packages
 
 CLASSIFIERS = [
-    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.7',
     'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     'Topic :: Multimedia :: Sound/Audio',
     'Topic :: Multimedia :: Sound/Audio :: Players',
