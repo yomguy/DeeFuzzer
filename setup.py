@@ -31,6 +31,7 @@ setup(
         'pycurl',
         'pyyaml',
         'mysqlclient',
+        'xmltodict',
     ],
     platforms=['OS Independent'],
     license='GPL v3',

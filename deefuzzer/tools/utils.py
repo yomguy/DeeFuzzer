@@ -16,6 +16,7 @@ import string
 import mimetypes
 from itertools import chain
 from deefuzzer.tools import *
+import xmltodict
 
 mimetypes.add_type('application/x-yaml', '.yaml')
 
@@ -90,7 +91,7 @@ def get_conf_dict(file):
         confile = open(file, 'r')
         data = confile.read()
         confile.close()
-        return xmltodict(data, 'utf-8')
+        return xmltodict.parse(data)
 
     elif 'yaml' in mime_type or 'yml' in mime_type:
         import yaml
