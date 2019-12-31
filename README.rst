@@ -98,7 +98,7 @@ an install inside Gygwin should work well.
 
 To install it, say on Debian, do::
 
-    sudo apt-get install python-pip python-dev python-liblo \
+    sudo apt-get install python3-pip python3-dev cython3 python-liblo \
                          python-mutagen python-pycurl python-yaml \
                          libshout3-dev librtmp-dev liblo-dev \
                          libcurl4-openssl-dev libmariadbclient-dev
