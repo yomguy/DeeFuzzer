@@ -5,36 +5,21 @@
 
 # <yomguy@parisson.com>
 
-# This software is a computer program whose purpose is to stream audio
-# and video data through icecast2 servers.
+# This file is part of deefuzzer
 
-# This software is governed by the CeCILL license under French law and
-# abiding by the rules of distribution of free software. You can use,
-# modify and/ or redistribute the software under the terms of the CeCILL
-# license as circulated by CEA, CNRS and INRIA at the following URL
-# "http://www.cecill.info".
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 
-# As a counterpart to the access to the source code and  rights to copy,
-# modify and redistribute granted by the license, users are provided only
-# with a limited warranty and the software's author, the holder of the
-# economic rights, and the successive licensors have only limited
-# liability.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 
-# In this respect, the user's attention is drawn to the risks associated
-# with loading, using,  modifying and/or developing or reproducing the
-# software by the user in light of its specific status of free software,
-# that may mean that it is complicated to manipulate, and that also
-# therefore means that it is reserved for developers and  experienced
-# professionals having in-depth computer knowledge. Users are therefore
-# encouraged to load and test the software's suitability as regards their
-# requirements in conditions enabling the security of their systems and/or
-# data to be ensured and, more generally, to use and operate it in the
-# same conditions as regards security.
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-# The fact that you are presently reading this means that you have had
-# knowledge of the CeCILL license and that you accept its terms.
-
-# Author: Guillaume Pellerin <yomguy@parisson.com>
 
 import os
 import sys
@@ -43,18 +28,18 @@ import datetime
 import string
 import random
 import shout
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import mimetypes
 import json
 import hashlib
 import MySQLdb as mdb
 
 from threading import Thread
-from player import *
-from recorder import *
-from relay import *
-from streamer import *
-from tools import *
+from .player import *
+from .recorder import *
+from .relay import *
+from .streamer import *
+from .tools import *
 
 
 class Station(Thread):
@@ -456,7 +441,7 @@ class Station(Thread):
                     for row in rows:
                         file_list.append(row[0])
 
-                except mdb.Error, e:
+                except mdb.Error as e:
                     self._err('Could not get playlist from MySQLdb, Error %d: %s' % (e.args[0], e.args[1]))
 
                 finally:
@@ -501,7 +486,7 @@ class Station(Thread):
         return file_list
 
     def get_array_hash(self, s):
-        return hashlib.md5(str(s)).hexdigest()
+        return hashlib.md5(str(s).encode('utf-8')).hexdigest()
 
     def get_jingles(self):
         file_list = []
@@ -614,7 +599,7 @@ class Station(Thread):
                     file_meta = Ogg(media)
                 elif file_ext.lower() == 'webm' or mimetypes.guess_type(media)[0] == 'video/webm':
                     file_meta = WebM(media)
-            except Exception, e:
+            except Exception as e:
                 self._err('Could not get specific media type class for %s' % (media))
                 self._err('Error: %s' % (str(e)))
                 pass
@@ -648,7 +633,7 @@ class Station(Thread):
             media_description = '<table>'
             media_description_item = '<tr><td>%s:   </td><td><b>%s</b></td></tr>'
 
-            for key in media.metadata.keys():
+            for key in list(media.metadata.keys()):
                 if media.metadata[key] != '':
                     if key == 'filepath' and not self.feeds_showfilepath:
                         continue
@@ -749,7 +734,8 @@ class Station(Thread):
             song = mediaobj.get_song(True)
         except:
             pass
-
+        
+        # print(title, artist, song)
         return title, artist, song
 
     def get_currentsongmeta(self):
@@ -832,7 +818,7 @@ class Station(Thread):
 
         while not self.server_ping:
             try:
-                server = urllib.urlopen(self.server_url)
+                server = urllib.request.urlopen(self.server_url)
                 self.server_ping = True
                 self._info('Channel available.')
             except:
@@ -856,7 +842,7 @@ class Station(Thread):
                 self.set_read_mode()
 
             return True
-        except Exception, e:
+        except Exception as e:
             self._err('icecastloop_nextmedia: Error: ' + str(e))
         return False
 
@@ -879,9 +865,9 @@ class Station(Thread):
         try:
             self.update_twitter_current()
             if self.song:
-                self.channel.set_metadata({'song': self.song, 'charset': 'utf-8'})
+                self.channel.set_metadata({'song': str(self.song), 'charset': 'utf-8'})
             return True
-        except Exception, e:
+        except Exception as e:
             self._err('icecastloop_metadata: Error: ' + str(e))
         return False
 

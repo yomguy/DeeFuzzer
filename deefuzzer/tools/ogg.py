@@ -40,7 +40,7 @@ import os
 import string
 import datetime
 from mutagen.oggvorbis import OggVorbis
-from utils import *
+from .utils import *
 
 
 class Ogg(MediaBase):
@@ -102,7 +102,7 @@ class Ogg(MediaBase):
 
     def write_tags(self):
         # self.ogg.add_tags()
-        for tag in self.metadata.keys():
+        for tag in list(self.metadata.keys()):
             self.sourceobj[tag] = str(self.metadata[tag])
         self.sourceobj.save()
 
@@ -122,7 +122,7 @@ class Ogg(MediaBase):
         else:
             args.append('-Q -b ' + self.bitrate_default)
 
-        for tag in self.metadata.keys():
+        for tag in list(self.metadata.keys()):
             value = clean_word(self.metadata[tag])
             args.append('-c %s="%s"' % (tag, value))
             if tag in self.tagdata:

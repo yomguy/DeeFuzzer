@@ -16,6 +16,7 @@ import string
 import mimetypes
 from itertools import chain
 from deefuzzer.tools import *
+import xmltodict
 
 mimetypes.add_type('application/x-yaml', '.yaml')
 
@@ -71,12 +72,12 @@ def replace_all(option, repl):
         return r
     elif isinstance(option, dict):
         r = {}
-        for key in option.keys():
+        for key in list(option.keys()):
             r[key] = replace_all(option[key], repl)
         return r
     elif isinstance(option, str):
         r = option
-        for key in repl.keys():
+        for key in list(repl.keys()):
             r = r.replace('[' + key + ']', repl[key])
         return r
     return option
@@ -90,20 +91,12 @@ def get_conf_dict(file):
         confile = open(file, 'r')
         data = confile.read()
         confile.close()
-        return xmltodict(data, 'utf-8')
+        return xmltodict.parse(data)
 
     elif 'yaml' in mime_type or 'yml' in mime_type:
         import yaml
-
-        def custom_str_constructor(loader, node):
-            return loader.construct_scalar(node).encode('utf-8')
-
-        yaml.add_constructor(u'tag:yaml.org,2002:str', custom_str_constructor)
         confile = open(file, 'r')
-        data = confile.read()
-        confile.close()
-        for c in yaml.load_all(data):
-            conf = c
+        conf = yaml.safe_load(confile)
         return conf
 
     elif 'json' in mime_type:
