@@ -70,7 +70,7 @@ class DeeFuzzer(Thread):
         self.conf_file = conf_file
         self.conf = get_conf_dict(self.conf_file)
         
-        print(self.conf)
+        # print(self.conf)
         
         if 'deefuzzer' not in self.conf :
             raise('This is not a standard deefuzzer config file')

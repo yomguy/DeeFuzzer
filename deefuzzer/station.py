@@ -750,7 +750,7 @@ class Station(Thread):
         except:
             pass
         
-        print(title, artist, song)
+        # print(title, artist, song)
         return title, artist, song
 
     def get_currentsongmeta(self):
