@@ -80,7 +80,7 @@ class MediaBase(object):
     def read_file_metadata(self):
         """Reads the metadata for the media, filtered by the tagdata dictionary for this media type"""
         self.metadata = {}
-        for key in self.tagdata.keys():
+        for key in list(self.tagdata.keys()):
             self.metadata[key] = ''
             try:
                 self.metadata[key] = self.sourceobj[key][0]
@@ -107,7 +107,7 @@ class MediaBase(object):
             r = "";
         if clean:
             r = r.replace('_',' ').strip()
-        return r.encode('utf-8')
+        return r
 
     def get_title(self):
         """Returns the cleaned title for this media"""

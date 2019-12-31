@@ -42,7 +42,7 @@ import datetime
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3, MPEGInfo
 from mutagen import id3
-from utils import *
+from .utils import *
 
 EasyID3.valid_keys["comment"] = "COMM::'XXX'"
 EasyID3.valid_keys["copyright"] = "TCOP::'XXX'"
@@ -95,7 +95,7 @@ class Mp3(MediaBase):
             respect of mutagen classes and methods"""
 
         self.sourceobj.add_tags()
-        self.sourceobj.tags['TIT2'] = id3.TIT2(encoding=2, text=u'text')
+        self.sourceobj.tags['TIT2'] = id3.TIT2(encoding=2, text='text')
         self.sourceobj.save()
 
         '''

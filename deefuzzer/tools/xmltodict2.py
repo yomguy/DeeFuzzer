@@ -173,7 +173,7 @@ def xmltodict(xml, attsToSkip=None, addCodeFile=False):
         # argument was a file
         try:
             ret = parser.ParseFromFile(xml)
-        except expat.ExpatError, e:
+        except expat.ExpatError as e:
             errmsg = _("The XML in '%s' is not well-formed and cannot be parsed: %s") % (xml, e)
     else:
         # argument must have been raw xml:
@@ -186,7 +186,7 @@ def xmltodict(xml, attsToSkip=None, addCodeFile=False):
             except expat.ExpatError:
                 errmsg = _("An invalid XML string was encountered")
     if errmsg:
-        raise dabo.dException.XmlException, errmsg
+        raise dabo.dException.XmlException(errmsg)
     if addCodeFile and isPath:
         # Get the associated code file, if any
         codePth = "%s-code.py" % os.path.splitext(xml)[0]
@@ -194,8 +194,8 @@ def xmltodict(xml, attsToSkip=None, addCodeFile=False):
             try:
                 codeDict = desUtil.parseCodeFile(open(codePth).read())
                 desUtil.addCodeToClassDict(ret, codeDict)
-            except StandardError, e:
-                print "Failed to parse code file:", e
+            except Exception as e:
+                print("Failed to parse code file:", e)
     return ret
 
 
@@ -203,10 +203,10 @@ def escQuote(val, noEscape=False, noQuote=False):
     """Add surrounding quotes to the string, and escape
     any illegal XML characters.
     """
-    if not isinstance(val, basestring):
+    if not isinstance(val, str):
         val = str(val)
-    if not isinstance(val, unicode):
-        val = unicode(val, default_encoding)
+    if not isinstance(val, str):
+        val = str(val, default_encoding)
     if noQuote:
         qt = ''
     else:
@@ -246,7 +246,7 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
     ret = ""
 
     if "attributes" in dct:
-        for key, val in dct["attributes"].items():
+        for key, val in list(dct["attributes"].items()):
             # Some keys are already handled.
             noEscape = key in ("sizerInfo",)
             val = escQuote(val, noEscape)
@@ -262,10 +262,10 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
             ret += "%s" % dct["cdata"].replace("<", "&lt;")
 
         if "code" in dct:
-            if len(dct["code"].keys()):
+            if len(list(dct["code"].keys())):
                 ret += "%s%s<code>%s" % (eol, "\t" * (level + 1), eol)
                 methodTab = "\t" * (level + 2)
-                for mthd, cd in dct["code"].items():
+                for mthd, cd in list(dct["code"].items()):
                     # Convert \n's in the code to eol:
                     cd = eol.join(cd.splitlines())
 
@@ -281,12 +281,12 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
                 ret += "%s</code>%s" % ("\t" * (level + 1), eol)
 
         if "properties" in dct:
-            if len(dct["properties"].keys()):
+            if len(list(dct["properties"].keys())):
                 ret += "%s%s<properties>%s" % (eol, "\t" * (level + 1), eol)
                 currTab = "\t" * (level + 2)
-                for prop, val in dct["properties"].items():
+                for prop, val in list(dct["properties"].items()):
                     ret += "%s<%s>%s" % (currTab, prop, eol)
-                    for propItm, itmVal in val.items():
+                    for propItm, itmVal in list(val.items()):
                         itmTab = "\t" * (level + 3)
                         ret += "%s<%s>%s</%s>%s" % (itmTab, propItm, itmVal, propItm, eol)
                     ret += "%s</%s>%s" % (currTab, prop, eol)

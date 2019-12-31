@@ -6,8 +6,8 @@
 from setuptools import setup, find_packages
 
 CLASSIFIERS = [
-    'Programming Language :: Python :: 2',
-    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.7',
     'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     'Topic :: Multimedia :: Sound/Audio',
     'Topic :: Multimedia :: Sound/Audio :: Players',
@@ -21,16 +21,18 @@ setup(
     long_description=open('README.rst').read(),
     author="Guillaume Pellerin",
     author_email="yomguy@parisson.com",
-    version='0.7.4',
+    version='0.8.0',
     install_requires=[
         'setuptools',
+        'wheel',
         'python-shout==0.2.6',
-        'python-twitter',
-        'mutagen',
-        'pyliblo',
-        'pycurl',
-        'pyyaml',
-        'mysqlclient',
+        'python-twitter==3.5',
+        'mutagen==1.43.0',
+        'pyliblo==0.10.0',
+        'pycurl==7.43.0.2',
+        'pyyaml==3.13',
+        'mysqlclient==1.4.6',
+        'xmltodict==0.12.0',
     ],
     platforms=['OS Independent'],
     license='GPL v3',
@@ -39,5 +41,5 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    python_requires='<=2.7.16',
+    python_requires='>=3',
 )
