@@ -43,6 +43,20 @@ Because our aim is to get DeeFuzzer as light as possible it is NOT capable of re
 News
 ====
 
+0.8.0
+
+ * Compatible with Python 3 (only)
+ * Update dependencies
+ * Update headers against GPL v3 licence
+
+0.7.4
+
+ * Change libmysqlclient-dev for bmariadbclient-dev
+
+0.7.3
+
+ * Add absolute feed_dir for feeds
+
 0.7.2
 
  * Add MySQL module and connection routine to get the playlist from a database (thanks to doomy23)
@@ -98,7 +112,7 @@ an install inside Gygwin should work well.
 
 To install it, say on Debian, do::
 
-    sudo apt-get install python3-pip python3-dev cython3 python-liblo \
+    sudo apt-get install python-pip python-dev python-liblo \
                          python-mutagen python-pycurl python-yaml \
                          libshout3-dev librtmp-dev liblo-dev \
                          libcurl4-openssl-dev libmariadbclient-dev
