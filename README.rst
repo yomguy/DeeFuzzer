@@ -51,7 +51,7 @@ News
 
 0.7.4
 
- * Change libmysqlclient-dev for bmariadbclient-dev
+ * Change libmysqlclient-dev for libmariadbclient-dev
 
 0.7.3
 
