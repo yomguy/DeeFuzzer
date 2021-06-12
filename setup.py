@@ -30,7 +30,7 @@ setup(
         'mutagen==1.43.0',
         'pyliblo==0.10.0',
         'pycurl==7.43.0.2',
-        'pyyaml==5.2',
+        'pyyaml==5.4',
         'mysqlclient==1.4.6',
         'xmltodict==0.12.0',
     ],
