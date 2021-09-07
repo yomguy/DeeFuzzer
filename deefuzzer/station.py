@@ -82,6 +82,7 @@ class Station(Thread):
     mdb_table = ''
     mdb_field = ''
     feeds_dir = ''
+    is_alive = False
 
     def __init__(self, station, q, logqueue, m3u):
         Thread.__init__(self)
@@ -734,7 +735,7 @@ class Station(Thread):
             song = mediaobj.get_song(True)
         except:
             pass
-        
+
         # print(title, artist, song)
         return title, artist, song
 
@@ -906,6 +907,7 @@ class Station(Thread):
                             # break
 
                         if self.next_media or not self.run_mode:
+                            self.is_alive = False
                             break
 
                         if self.record_mode:
@@ -919,11 +921,13 @@ class Station(Thread):
                             # Send the chunk to the stream
                             self.channel.send(self.chunk)
                             self.channel.sync()
+                            self.is_alive = True
                         except:
                             self._err('could not send the buffer')
                             self.channel_close()
                             if not self.channel_open():
                                 self._err('could not restart the channel')
+                                self.is_alive = False
                                 if self.record_mode:
                                     self.recorder.close()
                                 return
@@ -932,11 +936,13 @@ class Station(Thread):
                                 self._info('channel restarted')
                                 self.channel.send(self.chunk)
                                 self.channel.sync()
+                                self.is_alive = True
                             except:
                                 self._err('could not send data after restarting the channel')
                                 self.channel_close()
                                 if self.record_mode:
                                     self.recorder.close()
+                                self.is_alive = False
                                 return
 
                                 # send chunk loop end
