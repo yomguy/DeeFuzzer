@@ -271,7 +271,7 @@ class DeeFuzzer(Thread):
                     try:
                         if 'station_instance' in self.station_settings[i]:
                             # Check for station running here
-                            if self.station_settings[i]['station_instance'].isAlive():
+                            if self.station_settings[i]['station_instance'].is_alive:
                                 # Station exists and is alive.  Don't recreate.
                                 self.station_settings[i]['retries'] = 0
                                 continue

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .xmltodict import *
+from .xmltodict3 import *
 from .PyRSS2Gen import *
 from .mediabase import *
 from .mp3 import *

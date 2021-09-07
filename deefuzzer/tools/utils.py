@@ -15,8 +15,9 @@ import re
 import string
 import mimetypes
 from itertools import chain
+from xml.etree import cElementTree as ElementTree
 from deefuzzer.tools import *
-import xmltodict
+
 
 mimetypes.add_type('application/x-yaml', '.yaml')
 
@@ -88,10 +89,10 @@ def get_conf_dict(file):
 
     # Do the type check first, so we don't load huge files that won't be used
     if 'xml' in mime_type:
-        confile = open(file, 'r')
-        data = confile.read()
-        confile.close()
-        return xmltodict.parse(data)
+        tree = ElementTree.parse(file)
+        root = tree.getroot()
+        xmldict = etree_to_dict(root)
+        return xmldict
 
     elif 'yaml' in mime_type or 'yml' in mime_type:
         import yaml
