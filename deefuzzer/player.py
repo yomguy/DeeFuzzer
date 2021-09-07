@@ -54,7 +54,7 @@ class Player:
 
     def file_read_fast(self):
         """Read media and stream data through a generator."""
-        m = open(self.media, 'r')
+        m = open(self.media, 'rb')
         while True:
             __main_chunk = m.read(self.sub_buffer_size)
             if not __main_chunk:
