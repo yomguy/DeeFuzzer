@@ -110,7 +110,10 @@
                     "password": "password",
                     "database": "database_name",
                     "table": "playlist_table",
-                    "field": "absolute_path"
+                    "field": "absolute_path",
+                    "request_table": "request_table",
+                    "request_field": "absolute_path",
+                    "request_played": "played_bool_field"
                 }
             }
         }

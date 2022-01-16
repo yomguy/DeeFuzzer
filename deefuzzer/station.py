@@ -81,6 +81,9 @@ class Station(Thread):
     mdb_database = ''
     mdb_table = ''
     mdb_field = ''
+    mdb_request_table = ''
+    mdb_request_field ''
+    mdb_request_played = ''
     feeds_dir = ''
     is_alive = False
 
@@ -137,6 +140,12 @@ class Station(Thread):
                 self.mdb_table = self.station['media']['mysql']['table']
             if 'field' in self.station['media']['mysql']:
                 self.mdb_field = self.station['media']['mysql']['field']
+            if 'request_table' in self.station['media']['mysql']:
+                self.mdb_request_table = self.station['media']['mysql']['request_table']
+            if 'request_field' in self.station['media']['mysql']:
+                self.mdb_request_field = self.station['media']['mysql']['request_field']
+            if 'request_played' in self.station['media']['mysql']:
+                self.mdb_request_played = self.station['media']['mysql']['request_played']
 
         self.media_format = self.station['media']['format']
         self.shuffle_mode = int(self.station['media']['shuffle'])
@@ -486,6 +495,33 @@ class Station(Thread):
 
         return file_list
 
+    def get_request(self):
+        requested_media = None
+        if 'mysql' in self.station['media'] and self.mdb_request_table:
+            try:
+                con = mdb.connect(host = self.mdb_host,
+                                  user = self.mdb_user,
+                                  passwd = self.mdb_password,
+                                  db = self.mdb_database,
+                                  port = self.mdb_port,
+                                  use_unicode = True)
+                cur = con.cursor()
+                cur.execute("SELECT %s FROM %s WHERE %s = '0'" % (self.mdb_request_field, self.mdb_request_table, self.mdb_request_played))
+                rows = cur.fetchall()
+                for row in rows:
+                    requested_media = row[0]
+                    cur.execute("UPDATE %s SET %s = '1' WHERE %s = '%s'" % (self.mdb_request_table, self.mdb_request_played, self.mdb_request_field, requested_media.replace("'", "\\'")))
+                    break
+
+            except mdb.Error as e:
+                self._err('Could not get playlist from MySQLdb, Error %d: %s' % (e.args[0], e.args[1]))
+
+            finally:
+                if con:
+                    con.close()
+
+        return requested_media
+
     def get_array_hash(self, s):
         return hashlib.md5(str(s).encode('utf-8')).hexdigest()
 
@@ -518,6 +554,9 @@ class Station(Thread):
         if self.lp:
             playlist = self.playlist
             new_playlist = self.get_playlist()
+            requested_media = self.get_request()
+            if requested_media:
+                self._info('Requested media: ' + requested_media)
             lp_new = len(new_playlist)
 
             if not self.counter:
@@ -567,6 +606,9 @@ class Station(Thread):
             if self.jingles_mode and not (self.counter % self.jingles_frequency) and self.jingles_length:
                 media = self.jingles_list[self.jingle_id]
                 self.jingle_id = (self.jingle_id + 1) % self.jingles_length
+            elif requested_media:
+                media = requested_media
+                self.id = (self.playlist.index(requested_media) + 1) % self.lp
             else:
                 media = self.playlist[self.id]
                 self.id = (self.id + 1) % self.lp
