@@ -554,9 +554,6 @@ class Station(Thread):
         if self.lp:
             playlist = self.playlist
             new_playlist = self.get_playlist()
-            requested_media = self.get_request()
-            if requested_media:
-                self._info('Requested media: ' + requested_media)
             lp_new = len(new_playlist)
 
             if not self.counter:
@@ -603,15 +600,19 @@ class Station(Thread):
 
                 self._info('Generating new playlist (' + str(self.lp) + ' tracks)')
 
+
             if self.jingles_mode and not (self.counter % self.jingles_frequency) and self.jingles_length:
                 media = self.jingles_list[self.jingle_id]
                 self.jingle_id = (self.jingle_id + 1) % self.jingles_length
-            elif requested_media:
-                media = requested_media
-                self.id = (self.playlist.index(requested_media) + 1) % self.lp
             else:
-                media = self.playlist[self.id]
-                self.id = (self.id + 1) % self.lp
+                requested_media = self.get_request()
+                if requested_media:
+                    self._info('Requested media: ' + requested_media)
+                    media = requested_media
+                    self.id = (self.playlist.index(requested_media) + 1) % self.lp
+                else:
+                    media = self.playlist[self.id]
+                    self.id = (self.id + 1) % self.lp
 
             self.q.get(1)
             try:
