@@ -82,7 +82,7 @@ class Station(Thread):
     mdb_table = ''
     mdb_field = ''
     mdb_request_table = ''
-    mdb_request_field ''
+    mdb_request_field = ''
     mdb_request_played = ''
     feeds_dir = ''
     is_alive = False
