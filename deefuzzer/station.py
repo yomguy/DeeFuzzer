@@ -514,7 +514,7 @@ class Station(Thread):
                     break
 
             except mdb.Error as e:
-                self._err('Could not get playlist from MySQLdb, Error %d: %s' % (e.args[0], e.args[1]))
+                self._err('Could not get requests from MySQLdb, Error %d: %s' % (e.args[0], e.args[1]))
 
             finally:
                 if con:
