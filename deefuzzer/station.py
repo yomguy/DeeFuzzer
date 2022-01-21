@@ -510,7 +510,6 @@ class Station(Thread):
                 rows = cur.fetchall()
                 for row in rows:
                     requested_media = row[0]
-                    cur.execute("UPDATE %s SET %s = '1' WHERE %s = '%s'" % (self.mdb_request_table, self.mdb_request_played, self.mdb_request_field, requested_media.replace("'", "\\'")))
                     break
 
             except mdb.Error as e:
@@ -521,6 +520,24 @@ class Station(Thread):
                     con.close()
 
         return requested_media
+
+    def set_request_played(self, path):
+        if path and 'mysql' in self.station['media'] and self.mdb_request_table:
+            try:
+                con = mdb.connect(host = self.mdb_host,
+                                  user = self.mdb_user,
+                                  passwd = self.mdb_password,
+                                  db = self.mdb_database,
+                                  port = self.mdb_port,
+                                  use_unicode = True)
+                cur = con.cursor()
+                cur.execute("UPDATE %s SET %s = '1' WHERE %s = '%s'" % (self.mdb_request_table, self.mdb_request_played, self.mdb_request_field, path.replace("'", "\\'")))
+            except mdb.Error as e:
+                self._err('Could not update request from MySQLdb, Error %d: %s' % (e.args[0], e.args[1]))
+
+            finally:
+                if con:
+                    con.close()
 
     def get_array_hash(self, s):
         return hashlib.md5(str(s).encode('utf-8')).hexdigest()
@@ -610,6 +627,7 @@ class Station(Thread):
                     self._info('Requested media: ' + requested_media)
                     media = requested_media
                     self.id = (self.playlist.index(requested_media) + 1) % self.lp
+                    self.set_request_played(requested_media)
                 else:
                     media = self.playlist[self.id]
                     self.id = (self.id + 1) % self.lp
