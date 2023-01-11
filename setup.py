@@ -21,7 +21,7 @@ setup(
     long_description=open('README.rst').read(),
     author="Guillaume Pellerin",
     author_email="yomguy@parisson.com",
-    version='0.8.1',
+    version='0.8.2',
     install_requires=[
         'setuptools',
         'wheel',
