@@ -112,22 +112,18 @@ an install inside Gygwin should work well.
 
 To install it, say on Debian, do::
 
-    sudo apt-get install python-pip python-dev python-liblo \
-                         python-mutagen python-pycurl python-yaml \
-                         libshout3-dev librtmp-dev liblo-dev \
-                         libcurl4-openssl-dev libmariadbclient-dev
-
-Now update distribute and setuptools::
-
-    sudo pip install -U distribute setuptools
+    sudo apt-get install python3-pip python3-dev cython3 python3-liblo \
+                     python3-mutagen python3-pycurl python3-yaml \
+                     libshout3-dev librtmp-dev liblo-dev \
+                     libcurl4-openssl-dev libmariadb-dev-compat
 
 Then::
 
-    sudo pip install deefuzzer
+    sudo pip3 install deefuzzer
 
-To upgrade::
+Or to upgrade::
 
-    sudo pip install -U deefuzzer
+    sudo pip3 install -U deefuzzer
 
 If you have some version problems with the installation, please also try in a virtualenv.
 
