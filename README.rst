@@ -7,8 +7,8 @@
   :alt: Version
 
 DeeFuzzer is a light and instant application for streaming audio and video over internet.
-It is dedicated to communities who wants to easily create web radios, web TVs,
-live multimedia relays or personal home radios, with metadata management and cool features.
+It is dedicated to communities who need to easily create web radios, web TVs,
+live multimedia relays or personal home radios, with metadata management and other cool features.
 
 
 Features
