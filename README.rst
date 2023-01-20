@@ -1,18 +1,10 @@
 .. image:: https://github.com/yomguy/DeeFuzzer/raw/master/doc/img/logo_deefuzzer.png
 
-|version| |downloads| |travis_master|
-
-.. |travis_master| image:: https://secure.travis-ci.org/yomguy/DeeFuzzer.png?branch=master
-    :target: https://travis-ci.org/yomguy/DeeFuzzer/
+|version|
 
 .. |version| image:: https://img.shields.io/pypi/v/DeeFuzzer.svg
   :target: https://pypi.python.org/pypi/DeeFuzzer/
   :alt: Version
-
-.. |downloads| image:: https://img.shields.io/pypi/dm/DeeFuzzer.svg
-    :target: https://pypi.python.org/pypi/DeeFuzzer/
-    :alt: Downloads
-
 
 DeeFuzzer is a light and instant application for streaming audio and video over internet.
 It is dedicated to communities who wants to easily create web radios, web TVs,
@@ -200,9 +192,3 @@ from scratch in python.
 Some parts of this work are also taken from another Parisson's project: Telemeta
 (see http://telemeta.org).
 
-
-Contact / Infos
-===============
-
-Twitter: @yomguy @parisson_studio
-Expertise, Business, Sponsoring: http://parisson.com
