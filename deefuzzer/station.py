@@ -60,6 +60,7 @@ class Station(Thread):
     jingles_mode = 0
     relay_mode = 0
     record_mode = 0
+    record_dir_mode = 0o775
     run_mode = 1
     appendtype = 0
     feeds_json = 0
@@ -394,7 +395,7 @@ class Station(Thread):
         value = value[0]
         if value:
             if not os.path.exists(self.record_dir):
-                os.makedirs(self.record_dir)
+                os.makedirs(self.record_dir, mode=self.record_dir_mode)
             self.rec_file = self.short_name.replace('/', '_') + '-'
             self.rec_file += datetime.datetime.now().strftime("%x-%X").replace('/', '_')
             self.rec_file += '.' + self.channel.format
