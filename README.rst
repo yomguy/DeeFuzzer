@@ -106,7 +106,7 @@ To install it, say on Debian, do::
 
     sudo apt-get install python3-pip python3-dev cython3 python3-liblo \
                      python3-mutagen python3-pycurl python3-yaml \
-                     libshout3-dev librtmp-dev liblo-dev \
+                     python3-mysqldb libshout3-dev librtmp-dev liblo-dev \
                      libcurl4-openssl-dev libmariadb-dev-compat
 
 Then::
