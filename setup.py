@@ -25,10 +25,10 @@ setup(
     install_requires=[
         'setuptools',
         'wheel',
-        'python-shout==0.2.8',
+        'python-shout==0.2.7',
         'python-twitter==3.5',
         'mutagen==1.45.1',
-        'pyliblo3==0.12.0',
+        'pyliblo3==0.11.3',
         'pycurl==7.44.1',
         'pyyaml==6.0.1',
         'mysqlclient==2.0.3',
