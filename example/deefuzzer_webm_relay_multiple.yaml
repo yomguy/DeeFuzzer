@@ -110,3 +110,53 @@ deefuzzer:
     mode: 0
     secret: "your access token secret key"
     tags: "parisson deefuzzer"
+  -
+   control:
+    mode: 0
+    port: 16003
+   infos:
+    name: "monitor_3"
+    short_name: "monitor_3"
+    description: "bla bla"
+    genre: "testing"
+    url: "http://parisson.com"
+   jingles:
+    dir: "/path/to/jingles"
+    mode: 0
+    shuffle: 1
+   media:
+    bitrate: 96
+    source: "/home/guyom/Vidéos/test/webm"
+    format: webm
+    ogg_quality: 4
+    samplerate: 48000
+    shuffle: 0
+    voices: 2
+   record:
+    dir: "/tmp/deefuzzer/3"
+    mode: 1
+   relay:
+    author: Unknown
+    mode: 1
+    url: "http://localhost:17041/monitor.webm"
+   feeds:
+    mode: 0
+    rss: 1
+    json: 0
+    playlist: 1
+    dir: "/path/to/rss/"
+    enclosure: 1
+    media_url: "http://localhost/media/"
+   server:
+    host: "127.0.0.1"
+    mountpoint: monitor_3
+    port: 8000
+    public: 0
+    sourcepassword: hackme
+    type: icecast
+    appendtype: 1
+   twitter:
+    key: "your access token key"
+    mode: 0
+    secret: "your access token secret key"
+    tags: "parisson deefuzzer"
