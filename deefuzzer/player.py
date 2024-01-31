@@ -47,7 +47,6 @@ class Player:
         self.relay.set_url(self.url)
         self.relay.open()
         self.relay.start()
-        self.queue = self.relay.queue
 
     def stop_relay(self):
         self.relay.close()
@@ -86,11 +85,11 @@ class Player:
     def relay_read(self):
         """Read a distant media through its URL"""
         while True:
-            self.sub_chunk = self.queue.get(self.sub_buffer_size)
+            self.sub_chunk = self.relay.queue.get(self.sub_buffer_size)
             if not self.sub_chunk:
                 break
             yield self.sub_chunk
-            self.queue.task_done()
+            self.relay.queue.task_done()
         self.sub_chunk = 0
 
 

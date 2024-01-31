@@ -34,7 +34,7 @@ class Recorder:
 
     def open(self, filename):
         self.filename = filename
-        self.media = open(self.path + os.sep + self.filename, 'w')
+        self.media = open(self.path + os.sep + self.filename, 'wb')
 
     def write(self, chunk):
         try:

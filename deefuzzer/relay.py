@@ -54,7 +54,7 @@ class Relay(Thread):
             if self.isopen:
                 self.chunk = self.stream.read(self.sub_buffer_size)
                 self.queue.put_nowait(self.chunk)
-#                print self.queue.qsize()
+                # print(self.queue.qsize())
             else:
                 if self.stream:
                     self.stream.close()
