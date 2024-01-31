@@ -1,0 +1,78 @@
+<deefuzzer>
+    <log>/tmp/station.log</log>
+    <m3u>/tmp/station.m3u</m3u>
+    <stationdefaults>
+        <control>
+            <mode>0</mode>
+            <port>16001</port>
+        </control>
+        <jingles>
+            <dir>/path/to/jingles</dir>
+            <mode>0</mode>
+            <shuffle>1</shuffle>
+        </jingles>
+    </stationdefaults>
+    <station>
+        <control>
+            <mode>0</mode>
+            <port>16001</port>
+        </control>
+        <infos>
+            <description>My personal best funky playlist ever !</description>
+            <genre>Various Funk Groove</genre>
+            <name>My best funky station</name>
+            <short_name>My_station</short_name>
+            <url>http://parisson.com</url>
+        </infos>
+        <jingles>
+            <dir>/path/to/jingles</dir>
+            <mode>0</mode>
+            <shuffle>1</shuffle>
+        </jingles>
+        <media>
+            <bitrate>96</bitrate>
+            <source>/home/guyom/Musique/MP3/NovaTunes</source>
+            <format>mp3</format>
+            <ogg_quality>4</ogg_quality>
+            <samplerate>48000</samplerate>
+            <shuffle>0</shuffle>
+            <voices>2</voices>
+        </media>
+        <record>
+            <dir>/path/to/archives</dir>
+            <mode>0</mode>
+        </record>
+        <relay>
+            <author>Unknown</author>
+            <mode>0</mode>
+            <url>http://127.0.0.1:8000/telecaster_live.mp3</url>
+        </relay>
+        <feeds>
+            <mode>1</mode>
+            <rss>1</rss>
+            <json>1</json>
+            <playlist>1</playlist>
+            <dir>/tmp/feeds</dir>
+            <enclosure>1</enclosure>
+            <media_url>http://localhost/media/</media_url>
+        </feeds>
+        <server>
+            <host>stream7.parisson.com</host>
+            <mountpoint>monitor</mountpoint>
+            <port>8000</port>
+            <public>0</public>
+            <sourcepassword>source2parisson</sourcepassword>
+            <type>icecast</type>
+            <appendtype>1</appendtype>
+        </server>
+        <twitter>
+            <key>your access token key</key>
+            <mode>0</mode>
+            <secret>your access token secret key</secret>
+            <tags>parisson deefuzzer</tags>
+        </twitter>
+    </station>
+
+</deefuzzer>
+
+

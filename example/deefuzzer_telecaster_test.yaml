@@ -1,0 +1,31 @@
+deefuzzer:
+  log: /tmp/telecaster_webm_monitor.log
+  m3u: /tmp/telecaster_webm_monitor.m3u
+  station:
+    control: {mode: 1, port: 16002}
+    infos: {description: TeleCaster WebM monitor stream, genre: Vocal, name: monitor_0.webm, short_name: monitor_0.webm,
+      url: 'https://www.parisson.com'}
+    jingles: {dir: /path/to/jingles, mode: '0', shuffle: '0'}
+    media: {bitrate: '512', dir: /usr/local/share/telecaster/media/webm, format: webm, ogg_quality: '4',
+      samplerate: '48000', shuffle: '0', voices: '1'}
+    record: {dir: /tmp/webm/0, mode: 1}
+    relay: {author: TeleCaster, mode: '1', url: 'http://127.0.0.1:17000/telecaster_live_0.webm'}
+    rss: {dir: /var/www/rss, enclosure: '0', media_url: 'http://localhost/rss/'}
+    server: {host: 127.0.0.1, port: '8000', public: '0', sourcepassword: source2parisson,
+      type: icecast, mountpoint: monitor_0.webm}
+    twitter: {key: 76728330-OjKgbHtn4II86Ad7pNUGEzfNAkGTW5Wvw38qUmLE, mode: '0', secret: 4egZs1dSM37XVY8zXa016Yueku2fleXF2bx8k25V4,
+      tags: bla bla}
+  station:
+    control: {mode: 1, port: 16012}
+    infos: {description: TeleCaster WebM monitor stream, genre: Vocal, name: monitor_2.webm, short_name: monitor_2.webm,
+      url: 'https://www.parisson.com'}
+    jingles: {dir: /path/to/jingles, mode: '0', shuffle: '0'}
+    media: {bitrate: '512', dir: /usr/local/share/telecaster/media/webm, format: webm, ogg_quality: '4',
+      samplerate: '48000', shuffle: '0', voices: '1'}
+    record: {dir: /tmp/webm/2, mode: 1}
+    relay: {author: TeleCaster, mode: '1', url: 'http://127.0.0.1:17000/telecaster_live_2.webm'}
+    rss: {dir: /var/www/rss, enclosure: '0', media_url: 'http://localhost/rss/'}
+    server: {host: 127.0.0.1, port: '8000', public: '0', sourcepassword: source2parisson,
+      type: icecast, mountpoint: monitor_2.webm}
+    twitter: {key: 76728330-OjKgbHtn4II86Ad7pNUGEzfNAkGTW5Wvw38qUmLE, mode: '0', secret: 4egZs1dSM37XVY8zXa016Yueku2fleXF2bx8k25V4,
+      tags: bla bla}

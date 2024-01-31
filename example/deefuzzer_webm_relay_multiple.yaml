@@ -1,0 +1,112 @@
+deefuzzer: 
+ log: "/tmp/station.log"
+ m3u: "/tmp/station.m3u"
+ stationdefaults: 
+  control: 
+   mode: 0
+   port: 16001
+  jingles: 
+   dir: "/path/to/jingles"
+   mode: 0
+   shuffle: 1
+ station: 
+  - 
+   control: 
+    mode: 0
+    port: 16001
+   infos: 
+    name: "monitor_1"
+    short_name: "monitor_1"
+    description: "bla bla"
+    genre: "testing"
+    url: "http://parisson.com"
+   jingles: 
+    dir: "/path/to/jingles"
+    mode: 0
+    shuffle: 1
+   media: 
+    bitrate: 96
+    source: "/home/guyom/Vidéos/test/webm"
+    format: webm
+    ogg_quality: 4
+    samplerate: 48000
+    shuffle: 0
+    voices: 2
+   record: 
+    dir: "/tmp/deefuzzer/1"
+    mode: 1
+   relay: 
+    author: Unknown
+    mode: 1
+    url: "http://localhost:17032/monitor.webm"
+   feeds: 
+    mode: 0
+    rss: 1
+    json: 0
+    playlist: 1
+    dir: "/path/to/rss/"
+    enclosure: 1
+    media_url: "http://localhost/media/"
+   server: 
+    host: "127.0.0.1"
+    mountpoint: monitor_1
+    port: 8000
+    public: 0
+    sourcepassword: hackme
+    type: icecast
+    appendtype: 1
+   twitter: 
+    key: "your access token key"
+    mode: 0
+    secret: "your access token secret key"
+    tags: "parisson deefuzzer"
+  - 
+   control: 
+    mode: 0
+    port: 16002
+   infos: 
+    name: "monitor_2"
+    short_name: "monitor_2"
+    description: "bla bla"
+    genre: "testing"
+    url: "http://parisson.com"
+   jingles:
+    dir: "/path/to/jingles"
+    mode: 0
+    shuffle: 1
+   media:
+    bitrate: 96
+    source: "/home/guyom/Vidéos/test/webm"
+    format: webm
+    ogg_quality: 4
+    samplerate: 48000
+    shuffle: 0
+    voices: 2
+   record:
+    dir: "/tmp/deefuzzer/2"
+    mode: 1
+   relay:
+    author: Unknown
+    mode: 1
+    url: "http://localhost:17033/monitor.webm"
+   feeds:
+    mode: 0
+    rss: 1
+    json: 0
+    playlist: 1
+    dir: "/path/to/rss/"
+    enclosure: 1
+    media_url: "http://localhost/media/"
+   server:
+    host: "127.0.0.1"
+    mountpoint: monitor_2
+    port: 8000
+    public: 0
+    sourcepassword: hackme
+    type: icecast
+    appendtype: 1
+   twitter: 
+    key: "your access token key"
+    mode: 0
+    secret: "your access token secret key"
+    tags: "parisson deefuzzer"
