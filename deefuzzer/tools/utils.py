@@ -102,7 +102,6 @@ def get_conf_dict(file):
 
     elif 'json' in mime_type:
         import json
-
         confile = open(file, 'r')
         data = confile.read()
         confile.close()
@@ -113,20 +112,21 @@ def get_conf_dict(file):
 
 def write_conf(conf_dict, path):
     filename, ext = os.path.splitext(path)
+    f = open(path, 'w')
 
     if 'xml' in ext:
         xml_data = dicttoxml(conf_dict)
-        f = open(path, 'w')
-        f = confile.write(xml_data)
-        f.close()
+        f.write(xml_data)
 
     elif 'yaml' in ext or 'yml' in ext:
         import yaml
-        yaml.dump(conf_dict, path)
+        yaml.dump(conf_dict, f)
 
     elif 'json' in ext:
         import json
-        json.dump(conf_dict, path)
+        json.dump(conf_dict, f)
+
+    f.close()
 
 
 def folder_contains_music(folder):
