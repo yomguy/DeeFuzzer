@@ -1,7 +1,7 @@
 {
     "deefuzzer": {
-        "log": "~/tmp/station.log",
-        "m3u": "~/tmp/station.m3u",
+        "log": "/tmp/station.log",
+        "m3u": "/tmp/station.m3u",
         "stationdefaults": {
             "control": {
                 "mode": 0,

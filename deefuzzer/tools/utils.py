@@ -111,6 +111,24 @@ def get_conf_dict(file):
     return False
 
 
+def write_conf(conf_dict, path):
+    filename, ext = os.path.splitext(path)
+
+    if 'xml' in ext:
+        xml_data = dicttoxml(conf_dict)
+        f = open(path, 'w')
+        f = confile.write(xml_data)
+        f.close()
+
+    elif 'yaml' in ext or 'yml' in ext:
+        import yaml
+        yaml.dump(conf_dict, path)
+
+    elif 'json' in ext:
+        import json
+        json.dump(conf_dict, path)
+
+
 def folder_contains_music(folder):
     files = os.listdir(folder)
     for file in files:
