@@ -84,25 +84,25 @@ def replace_all(option, repl):
     return option
 
 
-def get_conf_dict(file):
+def get_conf_dict(path):
     filename, ext = os.path.splitext(path)
 
     # Do the type check first, so we don't load huge files that won't be used
     if 'xml' in ext:
-        confile = open(file, 'r')
+        confile = open(path, 'r')
         data = confile.read()
         confile.close()
         return xmltodict(data, 'utf-8')
 
     elif 'yaml' in ext or 'yml' in ext:
         import yaml
-        confile = open(file, 'r')
+        confile = open(path, 'r')
         conf = yaml.safe_load(confile)
         return conf
 
     elif 'json' in ext:
         import json
-        confile = open(file, 'r')
+        confile = open(path, 'r')
         data = confile.read()
         confile.close()
         return json.loads(data)
