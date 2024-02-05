@@ -85,22 +85,22 @@ def replace_all(option, repl):
 
 
 def get_conf_dict(file):
-    mime_type = mimetypes.guess_type(file)[0]
+    filename, ext = os.path.splitext(path)
 
     # Do the type check first, so we don't load huge files that won't be used
-    if 'xml' in mime_type:
-        tree = ElementTree.parse(file)
-        root = tree.getroot()
-        xmldict = etree_to_dict(root)
-        return xmldict
+    if 'xml' in ext:
+        confile = open(file, 'r')
+        data = confile.read()
+        confile.close()
+        return xmltodict(data, 'utf-8')
 
-    elif 'yaml' in mime_type or 'yml' in mime_type:
+    elif 'yaml' in ext or 'yml' in ext:
         import yaml
         confile = open(file, 'r')
         conf = yaml.safe_load(confile)
         return conf
 
-    elif 'json' in mime_type:
+    elif 'json' in ext:
         import json
         confile = open(file, 'r')
         data = confile.read()
