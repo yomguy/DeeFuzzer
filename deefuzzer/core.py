@@ -30,10 +30,14 @@ import mimetypes
 import hashlib
 import platform
 from threading import Thread
-from deefuzzer.station import *
-from deefuzzer.tools import *
+
+from .station import *
+from .tools import *
+
+from .__init__ import __version__
 
 mimetypes.add_type('application/x-yaml', '.yaml')
+mimetypes.add_type('application/x-yaml', '.yml')
 
 
 class DeeFuzzer(Thread):
@@ -54,7 +58,6 @@ class DeeFuzzer(Thread):
         Thread.__init__(self)
         self.conf_file = conf_file
         self.conf = get_conf_dict(self.conf_file)
-        
         # print(self.conf)
         
         if 'deefuzzer' not in self.conf :
@@ -100,7 +103,7 @@ class DeeFuzzer(Thread):
                 setattr(self, key, self.conf['deefuzzer'][key])
 
         # Set the deefuzzer logger
-        self._info('Starting DeeFuzzer')
+        self._info('Starting DeeFuzzer version %s' % __version__)
         self._info('Using Python version %s' % platform.python_version())
         self._info('Using libshout version %s' % shout.version())
         self._info('Number of stations : ' + str(len(self.station_settings)))
