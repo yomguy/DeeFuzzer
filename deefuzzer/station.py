@@ -33,8 +33,8 @@ import mimetypes
 import json
 import hashlib
 import MySQLdb as mdb
-
 from threading import Thread
+
 from .player import *
 from .recorder import *
 from .relay import *
@@ -397,7 +397,7 @@ class Station(Thread):
             if not os.path.exists(self.record_dir):
                 os.makedirs(self.record_dir, mode=self.record_dir_mode)
             self.rec_file = self.short_name.replace('/', '_') + '-'
-            self.rec_file += datetime.datetime.now().strftime("%x-%X").replace('/', '_')
+            self.rec_file += datetime.datetime.now().strftime("%x-%X-%f").replace('/', '_')
             self.rec_file += '.' + self.channel.format
             self.recorder = Recorder(self.record_dir)
             self.recorder.open(self.rec_file)
