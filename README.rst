@@ -35,9 +35,21 @@ Because our aim is to get DeeFuzzer as light as possible it is NOT capable of re
 News
 ====
 
+0.9.0
+
+ * Python 3.11 compatibility
+ * Add microseconds to rec filename
+ * Add write_conf method to export config
+ * Add version to logging
+
+0.8.3
+
+ * Bufix against libshout 2.4.6
+ * Add more examples
+
 0.8.0
 
- * Compatible with Python 3 (only)
+ * Compatible with Python 3.7 (only)
  * Update dependencies
  * Update headers against GPL v3 licence
 
