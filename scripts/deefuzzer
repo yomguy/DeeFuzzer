@@ -11,7 +11,7 @@ def main():
     parser.add_argument('config_file', type=str, help='config file (YAML, XML or JSON)')
     args = parser.parse_args()
 
-    d = deefuzzer.core.DeeFuzzer(**args)
+    d = deefuzzer.core.DeeFuzzer(args)
     d.start()
 
 if __name__ == '__main__':
