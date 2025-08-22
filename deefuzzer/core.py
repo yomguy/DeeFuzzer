@@ -34,7 +34,7 @@ from threading import Thread
 from .station import *
 from .tools import *
 
-from .__init__ import __version__
+from .version import __version__
 
 mimetypes.add_type('application/x-yaml', '.yaml')
 mimetypes.add_type('application/x-yaml', '.yml')
@@ -54,10 +54,10 @@ class DeeFuzzer(Thread):
     ignore_errors = False
     max_retry = 0
 
-    def __init__(self, conf_file):
+    def __init__(self, args):
         Thread.__init__(self)
-        self.conf_file = conf_file
-        self.conf = get_conf_dict(self.conf_file)
+        self.config_file = args.config_file
+        self.conf = get_conf_dict(self.config_file)
         # print(self.conf)
         
         if 'deefuzzer' not in self.conf :
