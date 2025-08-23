@@ -6,7 +6,7 @@ import sys
 
 # send all messages to port 1234 on the local machine
 try:
-    target = liblo.Address(1234)
+    target = liblo.Address(16001)
 except liblo.AddressError as err:
     sys.exit(err)
 
