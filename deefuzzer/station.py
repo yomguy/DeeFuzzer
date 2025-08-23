@@ -632,6 +632,7 @@ class Station(Thread):
                 else:
                     media = self.playlist[self.id]
                     self.id = (self.id + 1) % self.lp
+                    self._info('Playing media: ' + media)
 
             self.q.get(1)
             try:
@@ -982,6 +983,8 @@ class Station(Thread):
                         try:
                             # Send the chunk to the stream
                             self.channel.send(self.chunk)
+                            if not self.relay_mode:
+                                self.channel.sync()
                             self.is_alive = True
                         except:
                             self._err('could not send the buffer')
@@ -996,6 +999,8 @@ class Station(Thread):
                                 self.channel.set_metadata({'song': self.song, 'charset': 'utf8', })
                                 self._info('channel restarted')
                                 self.channel.send(self.chunk)
+                                if not self.relay_mode:
+                                    self.channel.sync()
                                 self.is_alive = True
                             except:
                                 self._err('could not send data after restarting the channel')
