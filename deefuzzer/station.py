@@ -87,6 +87,7 @@ class Station(Thread):
     mdb_request_played = ''
     feeds_dir = ''
     is_alive = False
+    write_tags = 0
 
     def __init__(self, station, q, logqueue, m3u):
         Thread.__init__(self)
@@ -415,7 +416,7 @@ class Station(Thread):
                     media = Mp3(self.record_dir + os.sep + self.rec_file)
                 if self.channel.format == 'ogg':
                     media = Ogg(self.record_dir + os.sep + self.rec_file)
-                if media:
+                if media and self.write_tags:
                     media.metadata = {'artist': self.artist.encode('utf-8'),
                                       'title': self.title.encode('utf-8'),
                                       'album': self.short_name.encode('utf-8'),
