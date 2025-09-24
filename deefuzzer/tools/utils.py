@@ -25,10 +25,10 @@ mimetypes.add_type('application/x-yaml', '.yaml')
 def clean_word(word):
     """ Return the word without excessive blank spaces, underscores and
     characters causing problem to exporters"""
-    word = re.sub("^[^\w]+", "", word)  # trim the beginning
-    word = re.sub("[^\w]+$", "", word)  # trim the end
-    word = re.sub("_+", "_", word)  # squeeze continuous _ to one _
-    word = re.sub("^[^\w]+", "", word)  # trim the beginning _
+    word = re.sub(r"^[^\w]+", "", word)  # trim the beginning
+    word = re.sub(r"[^\w]+$", "", word)  # trim the end
+    word = re.sub(r"_+", "_", word)  # squeeze continuous _ to one _
+    word = re.sub(r"^[^\w]+", "", word)  # trim the beginning _
     # word = string.replace(word,' ','_')
     # word = string.capitalize(word)
     dict = '&[];"*:,'
