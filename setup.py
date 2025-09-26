@@ -21,7 +21,11 @@ setup(
     long_description=open('README.rst').read(),
     author="Guillaume Pellerin",
     author_email="yomguy@parisson.com",
+<<<<<<< HEAD
     version='0.9.2',
+=======
+    version='0.8.3',
+>>>>>>> d538af1 (bump to 0.8.3)
     install_requires=[
         'setuptools',
         'wheel',
