@@ -25,7 +25,7 @@ setup(
     install_requires=[
         'setuptools',
         'wheel',
-        'python-shout==0.2.8',
+        'python-shout==0.2.7',
         'python-twitter==3.5',
         'mutagen==1.45.1',
         'pyliblo3==0.16.4',
