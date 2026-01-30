@@ -995,7 +995,7 @@ class Station(Thread):
                                 self.is_alive = False
                                 if self.record_mode:
                                     self.recorder.close()
-                                return
+                                continue
                             try:
                                 self.channel.set_metadata({'song': self.song, 'charset': 'utf8', })
                                 self._info('channel restarted')
@@ -1009,7 +1009,7 @@ class Station(Thread):
                                 if self.record_mode:
                                     self.recorder.close()
                                 self.is_alive = False
-                                return
+                                continue
 
                                 # send chunk loop end
                 # while run_mode loop end
