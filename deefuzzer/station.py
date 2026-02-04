@@ -939,10 +939,11 @@ class Station(Thread):
     def run(self):
         self.ping_server()
 
+        if self.relay_mode:
+            self.set_relay_mode()
+
         if self.type == 'stream-m':
-            if self.relay_mode:
-                self.set_relay_mode()
-            else:
+            if not self.relay_mode:
                 self.media = self.get_next_media()
                 self.set_webm_read_mode()
             if not self.channel_open():
@@ -982,34 +983,31 @@ class Station(Thread):
                                 self._err('could not write the buffer to the file')
 
                         try:
-                            # Send the chunk to the stream
-                            self.channel.send(self.chunk)
+                            if not self.channel.send(self.chunk):
+                                self._err('could not send the buffer')
+                            else:
+                                print("sent")
+
                             if not self.relay_mode:
                                 self.channel.sync()
                             self.is_alive = True
+
                         except:
-                            self._err('could not send the buffer')
                             self.channel_close()
-                            if not self.channel_open():
-                                self._err('could not restart the channel')
+                            while self.channel.get_connected() != -7:
+                                print("err")
+                                self.channel_open()
+
                                 self.is_alive = False
-                                if self.record_mode:
-                                    self.recorder.close()
-                                continue
-                            try:
-                                self.channel.set_metadata({'song': self.song, 'charset': 'utf8', })
-                                self._info('channel restarted')
-                                self.channel.send(self.chunk)
-                                if not self.relay_mode:
-                                    self.channel.sync()
-                                self.is_alive = True
-                            except:
-                                self._err('could not send data after restarting the channel')
-                                self.channel_close()
-                                if self.record_mode:
-                                    self.recorder.close()
-                                self.is_alive = False
-                                continue
+                                self._err('restarting the channel')
+                                time.sleep(1)
+
+                            continue
+
+
+                            # if self.record_mode:
+                            #     self.recorder.close()
+
 
                                 # send chunk loop end
                 # while run_mode loop end
