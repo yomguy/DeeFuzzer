@@ -27,7 +27,7 @@ from threading import Thread
 class OSCController(Thread):
     def __init__(self, port):
         Thread.__init__(self)
-        import liblo
+        import pyliblo3 as liblo
 
         self.port = port
         try:
