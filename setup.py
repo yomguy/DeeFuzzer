@@ -14,11 +14,15 @@ CLASSIFIERS = [
     'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
 ]
 
+with open("README.rst", "r") as fh:
+    long_description = fh.read()
+
 setup(
     name="DeeFuzzer",
     url="http://github.com/yomguy/DeeFuzzer",
     description="open, light and instant media streaming tool",
-    long_description=open('README.rst').read(),
+    long_description=long_description,
+    long_description_content_type="text/x-rst",
     author="Guillaume Pellerin",
     author_email="yomguy@parisson.com",
     version='0.9.2',
